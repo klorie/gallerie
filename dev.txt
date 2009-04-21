@@ -1,0 +1,13 @@
+http://www.no-margin-for-errors.com/projects/prettyPhoto-jquery-lightbox-clone
+
+TODO/Ideas:
+- remove 00ALBUM.JPG from image list
+- use 00ALBUM.JPG caption for folder title
+- add upper folder in side menu
+- replace filename in title by EXIF DateTime information
+- add a line after caption w/ EXIF data:
+	- Focal (Lens)
+	- Aperture
+	- Speed
+	- ISO
+- add a bottom block with version info
