@@ -119,7 +119,9 @@ if ($subfoldercount > 0)
 // Show list of pictures
 echo "<ul class=\"gallery clearfix\">\n";
 foreach($dirlist as $file) {
-  if ($file[type] !="dir") {
+  // Don't show album thumbnails
+  if (strpos($file['fullname'], "00ALBUM") !== false) continue;
+  if ($file[type] != "dir") {
     echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['title'])."\"><img src=\"./thumbnails/".$file['fullname']."\" alt=\"".htmlentities($file['name'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
   }
 }
@@ -140,8 +142,11 @@ if ($path != "") {
 ?>
 
 <div class="clearfix"></div> 
-<br clear="all" /> 
 </div>
+<ul class="submenu">
+<li>Gallerie v0.1 - H. Raffard &amp; C. Laury - 2009</li>
+</ul>
+<br clear="all" /> 
 </div>
 </div>
 </body> 

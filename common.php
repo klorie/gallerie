@@ -29,6 +29,7 @@ function getFileList($dir, $recurse=false, $depth=false)
       # skip hidden files
       if($entry[0] == ".") continue;
       if(is_dir("./gallery/$dir/$entry")) {
+	# Folder
 	if ($dir != "") {
           $retval[] = array(
             "dir"      => "$dir",
@@ -56,6 +57,7 @@ function getFileList($dir, $recurse=false, $depth=false)
           }
         }
       } elseif(is_readable("./gallery/$dir/$entry")) {
+	# File
 	$info = pathinfo("./gallery/$dir/$entry");
 	if (strtolower($info['extension']) != 'jpg') { continue ; }
         $size = getimagesize("./gallery/$dir/$entry", $imginfo);
