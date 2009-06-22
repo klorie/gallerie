@@ -122,7 +122,7 @@ foreach($dirlist as $file) {
   // Don't show album thumbnails
   if (strpos($file['fullname'], "00ALBUM") !== false) continue;
   if ($file[type] != "dir") {
-    echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['title'])."\"><img src=\"./thumbnails/".$file['fullname']."\" alt=\"".htmlentities($file['name'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
+    echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['name'])."\"><img src=\"./thumbnails/".$file['fullname']."\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
   }
 }
 echo "</ul>\n";

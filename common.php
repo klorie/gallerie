@@ -128,7 +128,7 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
       $tmp_img = imagecreatetruecolor($new_width, $new_height);
 
       // copy and resize old image into new image 
-      imagecopyresized($tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+      imagecopyresampled($tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 
       // save thumbnail into a file
       imagejpeg($tmp_img, "$pathToThumbs/$fname");
@@ -136,6 +136,39 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
   }
   // close the directory
   closedir($dir);
+}
+
+function cleanThumbs( $pathToImages, $pathToThumbs )
+{
+  echo "Cleaning $pathToThumbs\n";
+
+  // open the directory
+  $dir = opendir($pathToThumbs);
+
+  // loop through it
+  while (false !== ($fname = readdir($dir))) {
+    if (is_dir("$pathToThumbs/$fname") && $fname != '.' && $fname != '..') {
+      cleanThumbs("$pathToImages/$fname", "$pathToThumbs/$fname");
+    } elseif (is_file("$pathToThumbs/$fname")) {
+      // Check if file exist
+      if (file_exists("$pathToImages/$fname")) { 
+        continue; 
+      } else {
+        // Image not found, removing thumbnail
+        echo "$pathToImages/$fname not found, removing thumbnail\n";
+        unlink("$pathToThumbs/$fname");
+      }
+    }
+  }
+  closedir($dir);
+  // Remove folder if empty
+  $fcount = count(scandir($pathToThumbs));
+  if ($fcount == 2) {
+    echo "$pathToThumbs empty, removing\n";
+    rmdir($pathToThumbs);
+  } else {
+    echo "$pathToThumbs contains $fcount elements\n";
+  }
 }
 
 ?>
