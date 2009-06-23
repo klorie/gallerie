@@ -1,3 +1,20 @@
+<?php
+// Start PHP code
+require "common.php";
+
+$path = $_GET["path"];
+$path = safeDirectory($path);
+$dirlist = getFileList($path);
+
+$cache = "./cache/$path/index.html";
+
+if (file_exists($cache) && 
+    filemtime($cache) > filemtime("./gallery/$path/.") &&
+    filemtime($cache) > filemtime("./thumbnails/$path/.")) {
+  readfile($cache);
+} else {
+  ob_start();
+?>
 <html>
 <head> 
   <title>Photos de Catherine & Cyril</title> 
@@ -27,14 +44,6 @@
     });
   </script>		
 <?php
-
-// Start PHP code
-require "common.php";
-
-$path = $_GET["path"];
-$path = safeDirectory($path);
-$dirlist = getFileList($path);
-
 // Create thumbnail in current directory
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
 createThumbs( "./gallery/$path", "./thumbnails/$path", 150 ) ;
@@ -144,10 +153,21 @@ if ($path != "") {
 <div class="clearfix"></div> 
 </div>
 <ul class="submenu">
-<li>Gallerie v0.1 - H. Raffard &amp; C. Laury - 2009</li>
+<li>Gallerie v0.2 - H. Raffard &amp; C. Laury - 2009</li>
 </ul>
 <br clear="all" /> 
 </div>
 </div>
 </body> 
 </html>
+<?php
+  $page = ob_get_contents();
+  ob_end_clean();
+
+  if (!(file_exists("./cache/$path") && is_dir("./cache/$path")))
+    mkdir("./cache/$path");
+
+  file_put_contents($cache, $page);
+  echo $page;
+}
+?>
