@@ -18,6 +18,10 @@ function safeDirectory($path) {
         return $result;
 }
 
+function cmpFileList($a, $b) {
+  return ($a["fullname"] < $b["fullname"]) ? -1 : 1;
+}
+
 function getFileList($dir, $recurse=false, $depth=false)
 {
     # array to hold return value
@@ -90,7 +94,7 @@ function getFileList($dir, $recurse=false, $depth=false)
     }
     $d->close();
 
-    sort($retval);
+    uasort($retval, 'cmpFileList');
 
     return $retval;
 }

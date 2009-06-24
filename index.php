@@ -62,7 +62,7 @@ echo "<ul class=\"menu\">\n";
 // Build menu with all sub-directories
 foreach($dirlist as $file) {
   if ($file[type] == "dir")
-    echo "<li><a href=".$_SERVER["PHP_SELF"]."?path=".$file['fullname']." >".$file['title']."</a></li>\n";
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".$file['title']."</a></li>\n";
 }
 echo "</ul>\n";
 echo "</div>\n";
@@ -73,7 +73,7 @@ echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n";
 $topdirlist = getFileList("");
 foreach($topdirlist as $file) {
   if ($file[type] == "dir")
-    echo "<li><a href=".$_SERVER["PHP_SELF"]."?path=".$file['fullname']." >".$file['title']."</a>
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".$file['title']."</a>
 </li>\n";
 }
 if ($path != "") {
@@ -102,23 +102,40 @@ echo "<ul class=\"galleryfolder clearfix\">\n";
 foreach($dirlist as $file) {
   if ($file[type]=="dir") {
     $subfoldercount++;
-    echo "<li><a href=".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])." title=\"".$file['name']."\" >";
-    $subdirlist = getFileList($file['fullname'], true, 1);
-    $found_thumb = 0;
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\"";
+    $subdirlist    = getFileList($file['fullname'], true, 1);
+    $found_thumb   = 0;
+    $foldercaption = "";
     foreach($subdirlist as $file_thumb) {
       // Could count the number of thumbnail or image in directory
       if ($file_thumb[type] != "dir") { 
-        if (file_exists("./thumbnails/".$file_thumb['fullname'])) { 
+        $thumbfilename = "./thumbnails/".$file_thumb['fullname'];
+        if (file_exists($thumbfilename)) { 
           $found_thumb = 1;
-          echo "<img src=\"./thumbnails/".$file_thumb['fullname']."\" />";
+          if (!strstr($file_thumb['name'], "00ALBUM") === false) {
+            $exif = exif_read_data("./gallery/".$file_thumb['fullname']);
+            if (!$exif === false) {
+              $foldercaption = $exif["COMPUTED"]["UserComment"];
+            }
+          }
+          if ($foldercaption != "") {
+            echo " title=\"".$foldercaption."\" >";
+          } else {
+            echo " title=\"".$file['name']."\" >";
+          }
+          echo "<img src=\"".$thumbfilename."\" />";
           break; 
         }
       }
     }
     if ($found_thumb == 0) {
-      echo "<img src=\"./images/nothumb.jpg\" />";
+      echo " title=\"".$file['name']."\" ><img src=\"./images/nothumb.jpg\" />";
     }
-    echo "<br />".htmlentities($file['name'])."</a></li>\n";
+    if ($foldercaption == "") {
+      echo "<br />".htmlentities($file['name'])."</a></li>\n";
+    } else {
+      echo "<br />".htmlentities($foldercaption)."</a></li>\n";
+    } 
   } 
 }
 echo "</ul>\n";
@@ -145,7 +162,7 @@ if ($path != "") {
         } else {
                 $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
         }
-        echo "<br /><br /><a href=".$back_link.">Niveau sup&eacute;rieur</a>";
+        echo "<br /><br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
 }
 
 ?>
