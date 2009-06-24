@@ -4,11 +4,12 @@ require "common.php";
 
 $path = $_GET["path"];
 $path = safeDirectory($path);
-$dirlist = getFileList($path);
 
 $cache = "./cache/$path/index.html";
 
 if (file_exists($cache) && 
+    filemtime($cache) > filemtime("./index.php") &&
+    filemtime($cache) > filemtime("./common.php") && 
     filemtime($cache) > filemtime("./gallery/$path/.") &&
     filemtime($cache) > filemtime("./thumbnails/$path/.")) {
   readfile($cache);
@@ -44,6 +45,9 @@ if (file_exists($cache) &&
     });
   </script>		
 <?php
+
+$dirlist = getFileList($path);
+
 // Create thumbnail in current directory
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
 createThumbs( "./gallery/$path", "./thumbnails/$path", 150 ) ;
@@ -102,40 +106,24 @@ echo "<ul class=\"galleryfolder clearfix\">\n";
 foreach($dirlist as $file) {
   if ($file[type]=="dir") {
     $subfoldercount++;
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\"";
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".$file['title']."\" >";
     $subdirlist    = getFileList($file['fullname'], true, 1);
     $found_thumb   = 0;
-    $foldercaption = "";
     foreach($subdirlist as $file_thumb) {
       // Could count the number of thumbnail or image in directory
       if ($file_thumb[type] != "dir") { 
         $thumbfilename = "./thumbnails/".$file_thumb['fullname'];
         if (file_exists($thumbfilename)) { 
           $found_thumb = 1;
-          if (!strstr($file_thumb['name'], "00ALBUM") === false) {
-            $exif = exif_read_data("./gallery/".$file_thumb['fullname']);
-            if (!$exif === false) {
-              $foldercaption = $exif["COMPUTED"]["UserComment"];
-            }
-          }
-          if ($foldercaption != "") {
-            echo " title=\"".$foldercaption."\" >";
-          } else {
-            echo " title=\"".$file['name']."\" >";
-          }
           echo "<img src=\"".$thumbfilename."\" />";
           break; 
         }
       }
     }
     if ($found_thumb == 0) {
-      echo " title=\"".$file['name']."\" ><img src=\"./images/nothumb.jpg\" />";
+      echo "<img src=\"./images/nothumb.jpg\" />";
     }
-    if ($foldercaption == "") {
-      echo "<br />".htmlentities($file['name'])."</a></li>\n";
-    } else {
-      echo "<br />".htmlentities($foldercaption)."</a></li>\n";
-    } 
+    echo "<br />".htmlentities($file['title'])."</a></li>\n";
   } 
 }
 echo "</ul>\n";
@@ -170,7 +158,7 @@ if ($path != "") {
 <div class="clearfix"></div> 
 </div>
 <ul class="submenu">
-<li>Gallerie v0.2 - H. Raffard &amp; C. Laury - 2009</li>
+<li>Gallerie v0.3 - H. Raffard &amp; C. Laury - 2009</li>
 </ul>
 <br clear="all" /> 
 </div>

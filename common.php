@@ -34,25 +34,49 @@ function getFileList($dir, $recurse=false, $depth=false)
       if($entry[0] == ".") continue;
       if(is_dir("./gallery/$dir/$entry")) {
 	# Folder
+        # Get caption from 00ALBUM if any
+        if (file_exists("./gallery/$dir/$entry/00ALBUM.jpg")) {
+          $caption_file = "./gallery/$dir/$entry/00ALBUM.jpg";
+        } elseif (file_exists("./gallery/$dir/$entry/00ALBUM.JPG")) {
+          $caption_file = "./gallery/$dir/$entry/00ALBUM.JPG";
+        } else {
+          $caption_file = "";
+        }
+        if ($caption_file != "") {
+          $exif = exif_read_data($caption_file);
+          if ($exif != false) {
+            $dir_caption = $exif["COMPUTED"]["UserComment"];
+            if ($dir_caption == "") {
+              $dir_caption = $entry;
+            }
+          } else {
+            $dir_caption = $entry;
+          }
+        } else {
+          $dir_caption = $entry;
+        }
+
 	if ($dir != "") {
           $retval[] = array(
             "dir"      => "$dir",
             "fullname" => "$dir/$entry",
             "name"     => "$entry",
             "type"     => "dir",
-            "title"    => "$entry",
+            "title"    => "$dir_caption",
             "size"     => 0,
             "lastmod"  => filemtime("./gallery/$dir/$entry")
-          ); } else {
+          ); 
+        } else {
           $retval[] = array(
             "dir"      => "",
             "fullname" => "$entry",
             "name"     => "$entry",
             "type"     => "dir",
-            "title"    => "$entry",
+            "title"    => "$dir_caption",
             "size"     => 0,
             "lastmod"  => filemtime("./gallery/$entry")
-          ); }
+          ); 
+        }
         if($recurse && is_readable("./gallery/$dir/$entry")) {
           if($depth === false) {
             $retval = array_merge($retval, getFileList("$dir/$entry", true));
@@ -80,7 +104,8 @@ function getFileList($dir, $recurse=false, $depth=false)
             "type"     => mime_content_type("./gallery/$dir/$entry"),
             "size"     => filesize("./gallery/$dir/$entry"),
             "lastmod"  => filemtime("./gallery/$dir/$entry")
-          ); } else {
+          ); 
+        } else {
           $retval[] = array(
             "dir"      => "",
             "fullname" => "$entry",
@@ -89,7 +114,8 @@ function getFileList($dir, $recurse=false, $depth=false)
             "type"     => mime_content_type("./gallery/$entry"),
             "size"     => filesize("./gallery/$entry"),
             "lastmod"  => filemtime("./gallery/$entry")
-          ); }
+          ); 
+        }
       }
     }
     $d->close();
