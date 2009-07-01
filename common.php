@@ -137,8 +137,13 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
     // continue only if this is a JPEG image
     if (strtolower($info['extension']) == 'jpg') 
     {
-      // Check if thumbnail already exist
-      if (file_exists("$pathToThumbs/$fname")) { continue; }
+      // Check if thumbnail already exist and is newer than image
+      if (file_exists("$pathToThumbs/$fname")) { 
+        if (filemtime("$pathToThumbs/$fname") > 
+            filemtime("$pathToImages/$fname")) { 
+          continue; 
+        }
+      }
 
       // load image and get image size
       $img    = imagecreatefromjpeg("$pathToImages/$fname");

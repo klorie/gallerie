@@ -48,12 +48,23 @@ if (file_exists($cache) &&
 
 $dirlist = getFileList($path);
 
+// Count images & folders in current directory
+$imagecount = 0;
+$subfoldercount = 0;
+foreach($dirlist as $file) {
+  if ($file[type] != "dir") {
+    $imagecount++;
+  } else {
+    $subfoldercount++;
+  }
+}
+
 // Create thumbnail in current directory
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
-createThumbs( "./gallery/$path", "./thumbnails/$path", 150 ) ;
+exec("/usr/bin/php ./createthumbs.php \"./gallery/$path\" \"./thumbnails/$path\" > /dev/null 2>&1 &");
 
 // Issue Cooliris header
-if ($path != "") {
+if ($imagecount > 1) {
   echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"]."/photos.rss.php?path=".$path."\" type=\"application/rss+xml\" title=\"\" id=\"gallery\" />\n";
 }
 echo "</head>\n";
@@ -76,11 +87,11 @@ echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n";
 // Build menu with only top-level directories
 $topdirlist = getFileList("");
 foreach($topdirlist as $file) {
-  if ($file[type] == "dir")
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".$file['title']."</a>
-</li>\n";
+  if ($file[type] == "dir") {
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".$file['title']."</a></li>\n";
+  }
 }
-if ($path != "") {
+if ($imagecount > 1) {
   echo "<li>&nbsp;</li>\n";
   echo "<li><a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"]."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a></li>\n";
 }
@@ -101,45 +112,52 @@ if ($path != "") {
 echo "</h3>\n";
 
 // Show list of subfolders
-$subfoldercount = 0;
-echo "<ul class=\"galleryfolder clearfix\">\n";
-foreach($dirlist as $file) {
-  if ($file[type]=="dir") {
-    $subfoldercount++;
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".$file['title']."\" >";
-    $subdirlist    = getFileList($file['fullname'], true, 1);
-    $found_thumb   = 0;
-    foreach($subdirlist as $file_thumb) {
-      // Could count the number of thumbnail or image in directory
-      if ($file_thumb[type] != "dir") { 
-        $thumbfilename = "./thumbnails/".$file_thumb['fullname'];
-        if (file_exists($thumbfilename)) { 
-          $found_thumb = 1;
-          echo "<img src=\"".$thumbfilename."\" />";
-          break; 
+if ($subfoldercount > 0) {
+  echo "<ul class=\"galleryfolder clearfix\">\n";
+  foreach($dirlist as $file) {
+    if ($file[type]=="dir") {
+      echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".$file['title']."\" >";
+      $subdirlist    = getFileList($file['fullname'], true, 1);
+      $found_thumb   = 0;
+      foreach($subdirlist as $file_thumb) {
+        // Could count the number of thumbnail or image in directory
+        if ($file_thumb[type] != "dir") { 
+          $thumbfilename = "./thumbnails/".$file_thumb['fullname'];
+          if (file_exists($thumbfilename)) { 
+            $found_thumb = 1;
+            echo "<img src=\"".$thumbfilename."\" />";
+            break; 
+          }
         }
       }
-    }
-    if ($found_thumb == 0) {
-      echo "<img src=\"./images/nothumb.jpg\" />";
-    }
-    echo "<br />".htmlentities($file['title'])."</a></li>\n";
-  } 
-}
-echo "</ul>\n";
-if ($subfoldercount > 0)
-  echo "<h3></h3>\n";
-
-// Show list of pictures
-echo "<ul class=\"gallery clearfix\">\n";
-foreach($dirlist as $file) {
-  // Don't show album thumbnails
-  if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-  if ($file[type] != "dir") {
-    echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['name'])."\"><img src=\"./thumbnails/".$file['fullname']."\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
+      if ($found_thumb == 0) {
+        echo "<img src=\"./images/nothumb.jpg\" />";
+      }
+      echo "<br />".htmlentities($file['title'])."</a></li>\n";
+    } 
+  }
+  echo "</ul>\n";
+  if ($imagecount > 1) {
+    echo "<h3></h3>\n";
   }
 }
-echo "</ul>\n";
+
+// Show list of pictures
+if ($imagecount > 1) {
+  echo "<ul class=\"gallery clearfix\">\n";
+  foreach($dirlist as $file) {
+    // Don't show album thumbnails
+    if (strpos($file['fullname'], "00ALBUM") !== false) continue;
+    if ($file[type] != "dir") {
+      if (file_exists("./thumbnails/".$file['fullname'])) {
+        echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['name'])."\"><img src=\"./thumbnails/".$file['fullname']."\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
+      } else {
+        echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['name'])."\"><img src=\"./images/nothumb.jpg\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
+      }
+    }
+  }
+  echo "</ul>\n";
+}
 
 if ($path != "") {
        $pathArr = explode("/", $path, -1);
@@ -150,7 +168,7 @@ if ($path != "") {
         } else {
                 $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
         }
-        echo "<br /><br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
+        echo "<br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
 }
 
 ?>
@@ -158,7 +176,7 @@ if ($path != "") {
 <div class="clearfix"></div> 
 </div>
 <ul class="submenu">
-<li>Gallerie v0.3 - H. Raffard &amp; C. Laury - 2009</li>
+<li>Gallerie v1.1 - H. Raffard &amp; C. Laury - 2009</li>
 </ul>
 <br clear="all" /> 
 </div>
