@@ -8,7 +8,7 @@ body {
 	padding: 0 0 0 10px;
 	font: 62.5%/1.2 Verdana, Arial, Sans-Serif;
 	letter-spacing: 0.02em;
-	background: #728187 url(../images/bodyBackground.jpg) fixed top left repeat-x;
+	background: #728187 url(../images/backgrounds/bodyBackground.jpg) fixed top left repeat-x;
 	color: #687275;
 	text-align: left;
 }
