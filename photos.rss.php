@@ -2,6 +2,35 @@
 
 require "common.php";
 
+function &xml_encode(&$xml) {
+	$xml = str_replace(array('ü', 'Ü', 'ö',
+				'Ö', 'ä', 'Ä',
+				'ß'
+				),
+			array('&#252;', '&#220;', '&#246;',
+				'&#214;', '&#228;', '&#196;',
+				'&#223;'
+			     ),
+			$xml
+			);
+
+	$xml = preg_replace(array("/\&([a-z\d\#]+)\;/i",
+				"/\&/",
+				"/\#\|\|([a-z\d\#]+)\|\|\#/i",
+
+				"/([^a-zA-Z\d\s\<\>\&\;\.\:\=\"\-\/\%\?\!\'\(\)\[\]\{\}\$\#\+\,\@_])/e"
+				),
+			array("#||\\1||#",
+				"&amp;",
+				"&\\1;",
+				"'&#'.ord('\\1').';'"
+			     ),
+			$xml
+			);
+
+	return $xml;
+} 
+
 $path = $_GET["path"];
 $path = safeDirectory($path);
 $dirlist = getFileList($path);
@@ -19,8 +48,8 @@ echo "<channel>\n";
 foreach($dirlist as $file) {
   if ($file[type] != "dir") {
     echo "<item>\n";
-    echo "  <title>".$file['name']."</title>\n";
-    echo "  <media:description>".utf8_encode($file['title'])."</media:description>\n";
+    echo "  <title>".utf8_encode(xml_encode($file['title']))."</title>\n";
+    echo "  <media:description>".utf8_encode(xml_encode($file['name']))."</media:description>\n";
     echo "  <link>http://".$_SERVER["SERVER_NAME"]."/gallery/".$file['fullname']."</link>\n";
     echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"]."/thumbnails/".$file['fullname']."\"/>\n";
     echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"]."/gallery/".$file['fullname']."\" type=\"image/jpeg\" />\n";
