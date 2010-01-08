@@ -73,9 +73,9 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
           ); }
         if($recurse && is_readable("$basedir/$dir/$entry")) {
           if($depth === false) {
-            $retval = array_merge($retval, getFileList("$dir/$entry", true, false, $basedir));
+            $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, false, $basedir));
           } elseif($depth > 0) {
-            $retval = array_merge($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir));
+            $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir));
           }
         }
       } elseif(is_readable("$basedir/$dir/$entry")) {
