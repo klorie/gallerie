@@ -45,6 +45,7 @@ echo "<channel>\n";
 
 // Issue items
 foreach($dirlist[file] as $file) {
+    if (strpos($file['fullname'], "00ALBUM") !== false) continue;
     $info = pathinfo("./gallery/".$file['fullname']);
     $ext = strtolower($info['extension']);
     $fname_noext = $info['filename'];
