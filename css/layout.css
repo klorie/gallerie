@@ -213,7 +213,7 @@ ul.galleryfolder li {
 }
 
 ul.galleryfolder li a {
-	background: #000000;
+	background: #E7EFF0;
         padding: 2px;
         /* display: block; */
 	/* #position: absolute; */
@@ -247,7 +247,7 @@ ul.gallery li {
 }
 		
 ul.gallery li a {
-	background: #000000;
+	background: #E7EFF0;
 	padding: 2px;
         /* display: block; */
         /* #position: absolute; */
