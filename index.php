@@ -83,6 +83,17 @@ if (count($dirlist[dir]) > 0) {
   }
   echo "</ul>\n";
 }
+if ($path != "") {
+  echo "<h3>Albums Voisins</h3>\n";
+  $neighborlist = getFileList(dirname($path));
+  if (count($neighborlist[dir]) > 0) {
+    echo "<ul class=\"menu\">\n";
+    foreach($neighborlist[dir] as $file) {
+      if (strpos($file['fullname'], $path) !== false) continue;
+      echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a></li>\n";
+    }
+  }
+}
 echo "</div>\n";
 echo "<div id=\"content-container\">\n"; 
 echo "<ul class=\"submenu\">\n"; 
@@ -90,7 +101,7 @@ echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n";
 // Build menu with only top-level directories
 $topdirlist = getFileList("");
 foreach($topdirlist[dir] as $file) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".$file['title']."</a> </li>\n";
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a> </li>\n";
 }
 echo "</ul>\n"; 
 echo "<div id=\"content\">\n"; 
