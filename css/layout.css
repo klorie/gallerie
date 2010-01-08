@@ -236,13 +236,13 @@ ul.gallery {
 	
 ul.gallery li {
         /* display: block; */
-        display: table;
+        display: table; 
         overflow: hidden;
         /* #position: relative; */
 	float: left;
 	margin: 0 5px 5px 0;
-	height: 160px;
-	width: 160px;
+	height: 165px;
+	width: 165px;
 	text-align: center;
 }
 		
