@@ -18,27 +18,23 @@ function safeDirectory($path) {
         return $result;
 }
 
-function cmpFileList($a, $b) {
-  return ($a["fullname"] < $b["fullname"]) ? -1 : 1;
-}
-
-function getFileList($dir, $recurse=false, $depth=false)
+function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
 {
     # array to hold return value
-    $retval = array();
+    $retval = array( "dir" => array(), "file" => array());
 
     # open pointer to directory and read list of files
-    $d = @dir("./gallery/".$dir) or die("getFileList: Failed opening directory ./gallery/$dir for reading");
+    $d = @dir($basedir."/".$dir) or die("getFileList: Failed opening directory $basedir/$dir for reading");
     while(false !== ($entry = $d->read())) {
       # skip hidden files
       if($entry[0] == ".") continue;
-      if(is_dir("./gallery/$dir/$entry")) {
+      if(is_dir("$basedir/$dir/$entry")) {
 	# Folder
         # Get caption from 00ALBUM if any
-        if (file_exists("./gallery/$dir/$entry/00ALBUM.jpg")) {
-          $caption_file = "./gallery/$dir/$entry/00ALBUM.jpg";
-        } elseif (file_exists("./gallery/$dir/$entry/00ALBUM.JPG")) {
-          $caption_file = "./gallery/$dir/$entry/00ALBUM.JPG";
+        if (file_exists("$basedir/$dir/$entry/00ALBUM.jpg")) {
+          $caption_file = "$basedir/$dir/$entry/00ALBUM.jpg";
+        } elseif (file_exists("$basedir/$dir/$entry/00ALBUM.JPG")) {
+          $caption_file = "$basedir/$dir/$entry/00ALBUM.JPG";
         } else {
           $caption_file = "";
         }
@@ -57,38 +53,37 @@ function getFileList($dir, $recurse=false, $depth=false)
         }
 
 	if ($dir != "") {
-          $retval[] = array(
+          $retval[dir][] = array(
             "dir"      => "$dir",
             "fullname" => "$dir/$entry",
             "name"     => "$entry",
             "type"     => "dir",
             "title"    => "$dir_caption",
             "size"     => 0,
-            "lastmod"  => filemtime("./gallery/$dir/$entry")
-          ); 
-        } else {
-          $retval[] = array(
+            "lastmod"  => filemtime("$basedir/$dir/$entry")
+          ); } else {
+          $retval[dir][] = array(
             "dir"      => "",
             "fullname" => "$entry",
             "name"     => "$entry",
             "type"     => "dir",
             "title"    => "$dir_caption",
             "size"     => 0,
-            "lastmod"  => filemtime("./gallery/$entry")
-          ); 
-        }
-        if($recurse && is_readable("./gallery/$dir/$entry")) {
+            "lastmod"  => filemtime("$basedir/$entry")
+          ); }
+        if($recurse && is_readable("$basedir/$dir/$entry")) {
           if($depth === false) {
-            $retval = array_merge($retval, getFileList("$dir/$entry", true));
+            $retval = array_merge($retval, getFileList("$dir/$entry", true, false, $basedir));
           } elseif($depth > 0) {
-            $retval = array_merge($retval, getFileList("$dir/$entry", true, $depth - 1));
+            $retval = array_merge($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir));
           }
         }
-      } elseif(is_readable("./gallery/$dir/$entry")) {
+      } elseif(is_readable("$basedir/$dir/$entry")) {
 	# File
-	$info = pathinfo("./gallery/$dir/$entry");
-	if (strtolower($info['extension']) != 'jpg') { continue ; }
-        $size = getimagesize("./gallery/$dir/$entry", $imginfo);
+	$info = pathinfo("$basedir/$dir/$entry");
+	$ext = strtolower($info['extension']);
+	if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' ) { continue ;}
+        $size = getimagesize("$basedir/$dir/$entry", $imginfo);
         $caption = "$entry";
 	if (isset($imginfo["APP13"])) {
           $iptc = iptcparse($imginfo["APP13"]);
@@ -96,32 +91,30 @@ function getFileList($dir, $recurse=false, $depth=false)
             $caption = $iptc["2#120"][0];
         }
         if ($dir != "") {
-          $retval[] = array(
+          $retval[file][] = array(
             "dir"      => "$dir",
             "fullname" => "$dir/$entry",
             "name"     => "$entry",
             "title"    => "$caption",
-            "type"     => mime_content_type("./gallery/$dir/$entry"),
-            "size"     => filesize("./gallery/$dir/$entry"),
-            "lastmod"  => filemtime("./gallery/$dir/$entry")
-          ); 
-        } else {
-          $retval[] = array(
+            "type"     => mime_content_type("$basedir/$dir/$entry"),
+            "size"     => filesize("$basedir/$dir/$entry"),
+            "lastmod"  => filemtime("$basedir/$dir/$entry")
+          ); } else {
+          $retval[file][] = array(
             "dir"      => "",
             "fullname" => "$entry",
             "name"     => "$entry",
             "title"    => "$caption",
-            "type"     => mime_content_type("./gallery/$entry"),
-            "size"     => filesize("./gallery/$entry"),
-            "lastmod"  => filemtime("./gallery/$entry")
-          ); 
-        }
+            "type"     => mime_content_type("$basedir/$entry"),
+            "size"     => filesize("$basedir/$entry"),
+            "lastmod"  => filemtime("$basedir/$entry")
+          ); }
       }
     }
     $d->close();
-
-    uasort($retval, 'cmpFileList');
-
+    sort($retval[dir]);
+    sort($retval[file]);
+    //echo count($retval[dir],0);
     return $retval;
 }
 
@@ -134,8 +127,10 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
   while (false !== ($fname = readdir($dir))) {
     // parse path for the extension
     $info = pathinfo("$pathToImages/$fname");
-    // continue only if this is a JPEG image
-    if (strtolower($info['extension']) == 'jpg') 
+    $ext = strtolower($info['extension']);
+    $fname_noext = $info['filename'];
+
+    if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp') 
     {
       // Check if thumbnail already exist and is newer than image
       if (file_exists("$pathToThumbs/$fname")) { 
@@ -146,7 +141,20 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
       }
 
       // load image and get image size
-      $img    = imagecreatefromjpeg("$pathToImages/$fname");
+      switch ($ext) {
+        case jpg:
+           $img    = imagecreatefromjpeg("$pathToImages/$fname");
+	   break;
+        case gif:
+	   $img    = imagecreatefromgif("$pathToImages/$fname");
+           break;
+        case png:
+	   $img    = imagecreatefrompng("$pathToImages/$fname");
+           break;
+        case bmp:
+	   $img    = imagecreatefrombmp("$pathToImages/$fname");
+	   break; 
+      }
       $width  = imagesx($img);
       $height = imagesy($img);
 
@@ -172,10 +180,70 @@ function createThumbs( $pathToImages, $pathToThumbs, $thumbSize )
   // close the directory
   closedir($dir);
 }
+function createThumbsImagick( $pathToImages, $pathToThumbs, $thumbSize )
+{
+  // open the directory
+  $dir = opendir($pathToImages);
+ 
+  // loop through it, looking for any/all JPG files:
+  while (false !== ($fname = readdir($dir))) {
+    // parse path for the extension
+    $info = pathinfo("$pathToImages/$fname");
+    $ext = strtolower($info['extension']);
+    $fname_noext = $info['filename'];
+
+    if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
+      {
+      // Check if thumbnail already exist (whatever extension)
+      if (count(glob("$pathToThumbs/$fname_noext*")) != 0) { continue; }
+
+      //Reset time limit to avoid timeout
+      set_time_limit(30);
+
+      // load image and get image size
+      $img    = new Imagick();
+      $img->ReadImage("$pathToImages/$fname");
+      $width  = $img->GetImageWidth();
+      $height = $img->GetImageHeight();
+
+      // calculate thumbnail size
+      if ($width >= $height) {
+        $new_width  = $thumbSize-12;
+        $new_height = floor($height * (($thumbSize-12) / $width));
+      } else {
+        $new_height = $thumbSize-12;
+        $new_width  = floor($width  * (($thumbSize-12) / $height));
+      }
+      
+      $img->thumbnailImage( $new_width, $new_height );
+      $img->setImageFormat("png"); 
+      $img->roundCorners( 5, 5 );
+      
+      $shadow = $img->clone();
+      $shadow->setImageBackgroundColor( new ImagickPixel( 'black' ) );
+      $shadow->shadowImage( 80, 3, 5, 5 );
+ 
+      $shadow->compositeImage( $img, Imagick::COMPOSITE_OVER, 0, 0 );
+      $shadow->setImageFileName("$pathToThumbs/$fname_noext".".png");
+      $shadow->setImageDepth(8);
+      $shadow->setImageInterlaceScheme(Imagick::INTERLACE_PNG);
+      $shadow->setImageCompressionQuality(95); 
+ 
+      // save thumbnail into a file
+      $shadow->WriteImage();  
+      $img->clear();
+      $img->destroy();
+      $shadow->clear();
+      $shadow->destroy();
+    }
+  }
+  // close the directory
+  closedir($dir);
+}
 
 function cleanThumbs( $pathToImages, $pathToThumbs )
 {
-  echo "Cleaning $pathToThumbs\n";
+  echo "Cleaning $pathToThumbs<\br>\n";
 
   // open the directory
   $dir = opendir($pathToThumbs);
@@ -186,11 +254,15 @@ function cleanThumbs( $pathToImages, $pathToThumbs )
       cleanThumbs("$pathToImages/$fname", "$pathToThumbs/$fname");
     } elseif (is_file("$pathToThumbs/$fname")) {
       // Check if file exist
-      if (file_exists("$pathToImages/$fname")) { 
+      $info = pathinfo("$pathToThumbs/$fname");
+      $fname_noext = $info['filename'];
+      
+      if (count(glob("$pathToImages/$fname_noext*")) != 0)
+      { 
         continue; 
       } else {
         // Image not found, removing thumbnail
-        echo "$pathToImages/$fname not found, removing thumbnail\n";
+        echo "$pathToImages/$fname_noext not found, removing thumbnail\n";
         unlink("$pathToThumbs/$fname");
       }
     }
@@ -206,4 +278,61 @@ function cleanThumbs( $pathToImages, $pathToThumbs )
   }
 }
 
+function GetThumbsForDir( $dir, $mode )
+{
+    $found_thumb = 0;
+    if(is_dir("./thumbnails/$dir")) { 
+       $subdirlist = getFileList($dir, true, 10, "./thumbnails");
+       foreach($subdirlist[file] as $file_thumb) {
+	 if ( preg_match("/ALBUM00/i", $file_thumb[name]) && $mode == "ALBUM00") {
+           $found_thumb = 1;
+           $tmp_fthumb = "./thumbnails/".$file_thumb[fullname];
+	   break;
+	 }
+         if ($mode != "ALBUM00") {
+           $found_thumb = 1;
+	   $tmp_fthumb = "./thumbnails/".$file_thumb[fullname];
+           break;
+         }
+       }
+       if ($mode == "RANDOM" && $found_thumb == 1) {
+         $rand_keys = rand(0,count($subdirlist[file])-1);
+         $tmp_fthumb = "./thumbnails/".$subdirlist[file][$rand_keys]['fullname'];
+       }
+    } 
+    if ($found_thumb == 0) {
+      $tmp_fthumb = "./images/nothumb.png"; 
+    }
+
+   return $tmp_fthumb;
+}
+function deleteDir($dir) 
+{ 
+   if (substr($dir, strlen($dir)-1, 1) != '/') 
+       $dir .= '/'; 
+   if ($handle = opendir($dir)) 
+   { 
+       while ($obj = readdir($handle)) 
+       { 
+           if ($obj != '.' && $obj != '..') 
+           { 
+               if (is_dir($dir.$obj)) 
+               { 
+                   if (!deleteDir($dir.$obj)) 
+                       return false; 
+               } 
+               elseif (is_file($dir.$obj)) 
+               { 
+                   if (!unlink($dir.$obj)) 
+                       return false; 
+               } 
+           } 
+       } 
+       closedir($handle); 
+       if (!@rmdir($dir)) 
+           return false; 
+       return true; 
+   } 
+   return false; 
+} 
 ?>
