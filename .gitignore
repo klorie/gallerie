@@ -1,0 +1,4 @@
+# Ignore Generated folders
+cache/
+gallery/
+thumbnails/
