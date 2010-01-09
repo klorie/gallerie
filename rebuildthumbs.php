@@ -7,9 +7,11 @@ require "config.php";
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
 
-// Clean all unneeded thumbnails
-deleteDir( "./thumbnails" ) ;
-mkdir("./thumbnails");
+if ($argv[1] == "--clean") {
+  // Clean all unneeded thumbnails
+  deleteDir( "./thumbnails" ) ;
+  mkdir("./thumbnails");
+}
 
 $dirlist = getFileList("", true, 10);
 echo "Found ".count($dirlist[dir])." to process\n";
@@ -29,6 +31,6 @@ foreach($dirlist[dir] as $file) {
 }
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-printf('Processing done in %.3f seconds.\n', $totaltime);
+echo "Processing done in $totaltime seconds\n";
 
 ?>
