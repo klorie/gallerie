@@ -85,7 +85,11 @@ if (count($dirlist[dir]) > 0) {
 }
 if ($path != "") {
   echo "<h3>Albums Voisins</h3>\n";
-  $neighborlist = getFileList(dirname($path));
+  if (dirname($path) === ".") 
+    $neighborpath = "";
+  else
+    $neighborpath = dirname($path);
+  $neighborlist = getFileList($neighborpath);
   if (count($neighborlist[dir]) > 0) {
     echo "<ul class=\"menu\">\n";
     foreach($neighborlist[dir] as $file) {
