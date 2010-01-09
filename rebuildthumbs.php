@@ -29,6 +29,10 @@ foreach($dirlist[dir] as $file) {
    }
    echo " [ Done ]\n";
 }
+# Remove cached pages
+deleteDir("./cache/");
+mkdir("./cache");
+
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
 echo "Processing done in $totaltime seconds\n";
