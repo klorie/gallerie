@@ -9,6 +9,7 @@ $starttime = $starttime[1] + $starttime[0];
 
 if ($argv[1] == "--clean") {
   // Clean all unneeded thumbnails
+  echo "Removing all thumbnails\n";
   deleteDir( "./thumbnails" ) ;
   mkdir("./thumbnails");
 }
@@ -20,11 +21,11 @@ foreach($dirlist[dir] as $file) {
    $path = $file['fullname'];
    echo "Processing $path ...";
    if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path", 0777, true); }
-   if ($thumb_create == "imagick") {
-     createThumbsImagick( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
-     $thumb_file_ext = "png";
+   if ($thumb_create == "jpg") {
+     createThumbsJPG( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
+     $thumb_file_ext = "jpg";
    } else {
-     createThumbs( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
+     createThumbsPNG( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
      $thumb_file_ext = "jpg";
    }
    echo " [ Done ]\n";

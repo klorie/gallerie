@@ -58,10 +58,10 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
 // Create thumbnail in current directory
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
 exec("/usr/bin/php ./createthumbs.php \"./gallery/$path\" \"./thumbnails/$path\" > /dev/null 2>&1 &");
-if ($thumb_create == "imagick")
-  $thumb_file_ext = "png";
-else 
+if ($thumb_create == "jpg")
   $thumb_file_ext = "jpg";
+else 
+  $thumb_file_ext = "png";
 
 // Issue Cooliris header
 if (count($dirlist[file]) != 0) {  
@@ -117,8 +117,16 @@ if ($path != "") {
   echo "<a href=\"".$_SERVER["PHP_SELF"]."\">Accueil</a>";
   $pathArr = explode("/", $path);
   for ($i = 0; $i < count($pathArr); $i++) {
-    $dirLink = getPathLink(join("/", array_slice($pathArr, 0, $i + 1)));
-    echo "/<a href=\"$dirLink\">".htmlentities($pathArr[$i])."</a>";
+    // Get directory title
+    $dirPath  = implode("/", array_slice($pathArr, 0, $i+1));
+    $dirList  = getFileList(dirname($dirPath));
+    $dirTitle = "";
+    foreach($dirList[dir] as $file) {
+      if (strpos($file['name'], $pathArr[$i]) !== false)
+        $dirTitle = $file['title'];
+    }
+    $dirLink = getPathLink($dirPath);
+    echo "/<a href=\"$dirLink\">".htmlentities($dirTitle)."</a>";
   }
 }
 if (count($dirlist[file]) != 0) {
@@ -177,7 +185,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.2 - H. Raffard &amp; C. Laury - 2010</li>
+<li>Gallerie v1.3 - H. Raffard &amp; C. Laury - 2010</li>
 </ul>
 <br clear="all" /> 
 </div>
