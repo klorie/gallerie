@@ -1,4 +1,40 @@
 <?php
+function exif_get_float($value)
+{
+  $pos = strpos($value, '/');
+  if ($pos === false) return (float) $value;
+  $a = (float) substr($value, 0, $pos);
+  $b = (float) substr($value, $pos+1);
+  return ($b == 0) ? ($a) : ($a / $b);
+}
+
+function exif_get_shutter(&$exif) 
+{
+  if (!isset($exif['ShutterSpeedValue'])) return false;
+  $apex    = exif_get_float($exif['ShutterSpeedValue']);
+  $shutter = pow(2, -$apex);
+  if ($shutter == 0) return false;
+  if ($shutter >= 1) return round($shutter) . 's';
+  return '1/' . round(1 / $shutter) . 's';
+}
+
+function exif_get_fstop(&$exif) 
+{
+  if (!isset($exif['ApertureValue'])) return false;
+  $apex  = exif_get_float($exif['ApertureValue']);
+  $fstop = pow(2, $apex/2);
+  if ($fstop == 0) return false;
+  return 'f/' . round($fstop,1);
+} 
+
+function exif_get_focal(&$exif)
+{
+  if (!isset($exif['FocalLength'])) return false;
+  $focal  = exif_get_float($exif['FocalLength']);
+  if ($focal == 0) return false;
+  return round($focal,1).'mm';
+}
+
 function getPathLink($directory) {
   return $_SERVER["PHP_SELF"]."?path=".urlEncode($directory);
 }
@@ -82,8 +118,17 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
 	$info = pathinfo("$basedir/$dir/$entry");
 	$ext = strtolower($info['extension']);
 	if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' ) { continue ;}
-        $size = getimagesize("$basedir/$dir/$entry", $imginfo);
+        $subtitle = "";
+        $exif = exif_read_data("$basedir/$dir/$entry");
+        if ($exif != false) {
+          if ($exif['Model']) $subtitle .= $exif['Model']." - ";
+          if ($exif['ISOSpeedRatings']) $subtitle .= $exif['ISOSpeedRatings']."ISO, ";
+          if (exif_get_focal($exif)) $subtitle .= exif_get_focal($exif).", ";
+          if (exif_get_shutter($exif)) $subtitle .= exif_get_shutter($exif).", ";
+          if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif).", ";
+        }
         $caption = "$entry";
+        $size = getimagesize("$basedir/$dir/$entry", $imginfo);
 	if (isset($imginfo["APP13"])) {
           $iptc = iptcparse($imginfo["APP13"]);
           if (is_array($iptc) && ($iptc["2#120"][0] != ""))
@@ -95,6 +140,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "fullname" => "$dir/$entry",
             "name"     => "$entry",
             "title"    => "$caption",
+            "subtitle" => "$subtitle",
             "type"     => mime_content_type("$basedir/$dir/$entry"),
             "size"     => filesize("$basedir/$dir/$entry"),
             "lastmod"  => filemtime("$basedir/$dir/$entry")
@@ -104,6 +150,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "fullname" => "$entry",
             "name"     => "$entry",
             "title"    => "$caption",
+            "subtitle" => "$subtitle",
             "type"     => mime_content_type("$basedir/$entry"),
             "size"     => filesize("$basedir/$entry"),
             "lastmod"  => filemtime("$basedir/$entry")

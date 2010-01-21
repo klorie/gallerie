@@ -156,7 +156,7 @@ if (count($dirlist[file]) > 0) {
     // Don't show album thumbnails
     if (strpos($file['fullname'], "00ALBUM") !== false) continue;
     $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_file_ext;  
-    echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"Telecharger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
+    echo "<li><a href=\"./gallery/".$file['fullname']."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle'])."T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
     echo "<img src=\"./thumbnails/".$file['dir']."/".$tmp_fthumb."\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
   }
   echo "</ul>\n";
@@ -185,7 +185,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.3 - H. Raffard &amp; C. Laury - 2010</li>
+<li>Gallerie v1.4 - H. Raffard &amp; C. Laury - 2010</li>
 </ul>
 <br clear="all" /> 
 </div>
