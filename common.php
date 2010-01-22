@@ -181,7 +181,7 @@ function createThumbsJPG( $pathToImages, $pathToThumbs, $thumbSize )
     if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
       {
       // Check if thumbnail already exist (whatever extension)
-      if (count(glob("$pathToThumbs/$fname_noext*")) != 0) { continue; }
+      if (count(glob("$pathToThumbs/$fname_noext.*")) != 0) { continue; }
 
       //Reset time limit to avoid timeout
       set_time_limit(30);
@@ -247,7 +247,7 @@ function createThumbsPNG( $pathToImages, $pathToThumbs, $thumbSize )
     if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
       {
       // Check if thumbnail already exist (whatever extension)
-      if (count(glob("$pathToThumbs/$fname_noext*")) != 0) { continue; }
+      if (count(glob("$pathToThumbs/$fname_noext.*")) != 0) { continue; }
 
       //Reset time limit to avoid timeout
       set_time_limit(30);
@@ -308,7 +308,7 @@ function cleanThumbs( $pathToImages, $pathToThumbs )
       $info = pathinfo("$pathToThumbs/$fname");
       $fname_noext = $info['filename'];
       
-      if (count(glob("$pathToImages/$fname_noext*")) != 0)
+      if (count(glob("$pathToImages/$fname_noext.*")) != 0)
       { 
         continue; 
       } else {
