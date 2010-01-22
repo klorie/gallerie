@@ -10,9 +10,8 @@ function exif_get_float($value)
 
 function exif_get_shutter(&$exif) 
 {
-  if (!isset($exif['ShutterSpeedValue'])) return false;
-  $apex    = exif_get_float($exif['ShutterSpeedValue']);
-  $shutter = pow(2, -$apex);
+  if (!isset($exif['ExposureTime'])) return false;
+  $shutter = exif_get_float($exif['ExposureTime']);
   if ($shutter == 0) return false;
   if ($shutter >= 1) return round($shutter) . 's';
   return '1/' . round(1 / $shutter) . 's';
@@ -20,9 +19,8 @@ function exif_get_shutter(&$exif)
 
 function exif_get_fstop(&$exif) 
 {
-  if (!isset($exif['ApertureValue'])) return false;
-  $apex  = exif_get_float($exif['ApertureValue']);
-  $fstop = pow(2, $apex/2);
+  if (!isset($exif['FNumber'])) return false;
+  $fstop = exif_get_float($exif['FNumber']);
   if ($fstop == 0) return false;
   return 'f/' . round($fstop,1);
 } 
@@ -125,8 +123,9 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
           if ($exif['ISOSpeedRatings']) $subtitle .= $exif['ISOSpeedRatings']."ISO, ";
           if (exif_get_focal($exif)) $subtitle .= exif_get_focal($exif).", ";
           if (exif_get_shutter($exif)) $subtitle .= exif_get_shutter($exif).", ";
-          if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif).", ";
+          if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif);
         }
+	if ($subtitle !== "") $subtitle .= "<br />";
         $caption = "$entry";
         $size = getimagesize("$basedir/$dir/$entry", $imginfo);
 	if (isset($imginfo["APP13"])) {

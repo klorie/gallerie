@@ -185,7 +185,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.4 - H. Raffard &amp; C. Laury - 2010</li>
+<li>Gallerie v1.41 - H. Raffard &amp; C. Laury - 2010/01/22</li>
 </ul>
 <br clear="all" /> 
 </div>
