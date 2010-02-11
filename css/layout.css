@@ -202,8 +202,6 @@ ul.galleryfolder {
 
 ul.galleryfolder li {
         display: block;
-	/* display: table; */
-	/* #position: relative; */
         float: left;
         margin: 0 5px 5px 0;
         height: 175px;
@@ -221,7 +219,6 @@ ul.galleryfolder li {
         -moz-border-radius: 5px;
         -webkit-border-radius: 5px;
         overflow: hidden;
-
 }
 
 .galleryfolderimg {
@@ -230,7 +227,7 @@ ul.galleryfolder li {
 
 ul.galleryfolder li a {
 	display: table-cell;
-        vertical-align: middle;
+	vertical-align: middle;
 	text-align: center;
 	text-decoration: none;
 	height: 170px;

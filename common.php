@@ -76,13 +76,13 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
           if ($exif != false) {
             $dir_caption = $exif["COMPUTED"]["UserComment"];
             if ($dir_caption == "") {
-              $dir_caption = $entry;
+              $dir_caption = strtr($entry, "_", " ");
             }
           } else {
-            $dir_caption = $entry;
+            $dir_caption = strtr($entry, "_", " ");
           }
         } else {
-          $dir_caption = $entry;
+          $dir_caption = strtr($entry, "_", " ");
         }
 
 	if ($dir != "") {
