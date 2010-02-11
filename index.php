@@ -139,10 +139,10 @@ echo "</h3>\n";
 if (count($dirlist[dir]) > 0) {
   echo "<ul class=\"galleryfolder clearfix\">\n";
   foreach($dirlist[dir] as $file) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
+    echo "<li><div class=\"galleryfolderalign\"><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
     $thumb = GetThumbsForDir($file['fullname'], $dir_thumb_mode);  
-    echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
-    echo "<br />".htmlentities($file['title'])."</a></li>\n";
+    echo "<img src=\"".$thumb."\" class=\"galleryfolderimg\" alt=\"".$file['name']."\"/>";
+    echo "<br />".htmlentities($file['title'])."</a></div></li>\n";
   }
   echo "</ul>\n";
   //Separate Directory list and Pictures
@@ -189,7 +189,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.5 - H. Raffard &amp; C. Laury - 2010/02/10</li>
+<li>Gallerie v1.51 - H. Raffard &amp; C. Laury - 2010/02/11</li>
 </ul>
 <br clear="all" /> 
 </div>
