@@ -122,7 +122,7 @@ if ($path != "") {
     $dirList  = getFileList(dirname($dirPath));
     $dirTitle = "";
     foreach($dirList[dir] as $file) {
-      if (strpos($file['name'], $pathArr[$i]) !== false)
+      if (strcmp($file['name'], $pathArr[$i]) == 0)
         $dirTitle = $file['title'];
     }
     $dirLink = getPathLink($dirPath);
