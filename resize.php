@@ -68,17 +68,34 @@ if(strlen($src) && file_exists($src)) {
     // Get original width and height
     $width  = imagesx($image);
     $height = imagesy($image);
-    
-    // generate new w/h if not provided
-    if( $new_width && !$new_height ) {
-        $new_height = $height * ( $new_width / $width );
-    } elseif($new_height && !$new_width) {
-        $new_width = $width * ( $new_height / $height );
-    } elseif(!$new_width && !$new_height) {
-        $new_width = $width;
-        $new_height = $height;
+    if ($width >= $height) {
+        $orientation = 0;
+        $ratio = $width / $height;
+    } else {
+        $orientation = 1;
+        $ratio = $height / $width;
     }
     
+    // If both dimension are not provided, keep the ratio
+    if ($new_width && !$new_height)
+        if ($orientation == 0) {
+            $new_height = $new_width / $ratio;
+        } else {
+            $new_height = $new_width;
+            $new_width  = $new_height / $ratio;
+        }
+    elseif ($new_height && !$new_width)
+        if ($orientation == 0) {
+            $new_width  = $new_height * $ratio;
+        } else {
+            $new_width  = $new_height;
+            $new_height = $new_width * $ratio;
+        }
+    elseif (!$new_width && !$new_height) {
+        $new_width  = $width;
+        $new_height = $height;
+    }
+            
     // create a new true color image
     $canvas = imagecreatetruecolor( $new_width, $new_height );
 
@@ -161,6 +178,8 @@ function open_image($mime_type, $src) {
  * you can change the number of files to store and to delete per loop in the defines at the top of the code
  */
 function cleanCache() {
+    global $resize_cache_day, $resize_cache_size;
+
     $files = glob("cache/resized/*", GLOB_BRACE);
     
     if (count($files) > 0) {
