@@ -1,7 +1,7 @@
 <?php
 
-require "config.php";
-require "common.php";
+require_once "config.php";
+require_once "common.php";
 
 function &xml_encode(&$xml) {
 	$xml = str_replace(array('ü', 'Ü', 'ö',

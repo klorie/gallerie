@@ -1,7 +1,7 @@
 <?php
 // Start PHP code
-require "common.php";
-require "config.php";
+require_once "common.php";
+require_once "config.php";
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
@@ -17,8 +17,8 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
     filemtime($cache) > filemtime("./index.php") &&
     filemtime($cache) > filemtime("./common.php") && 
     filemtime($cache) > filemtime("./config.php") &&
-    filemtime($cache) > filemtime("./gallery/$path/.") &&
-    filemtime($cache) > filemtime("./thumbnails/$path/.")) {
+    filemtime_r($cache) > filemtime("./gallery/$path/.") &&
+    filemtime_r($cache) > filemtime("./thumbnails/$path/.")) {
   readfile($cache);
 } else {
   ob_start();
@@ -189,7 +189,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.52 - H. Raffard &amp; C. Laury - 2010/02/12</li>
+<li>Gallerie v1.52 - H. Raffard &amp; C. Laury - 2010/03/01</li>
 </ul>
 <br clear="all" /> 
 </div>

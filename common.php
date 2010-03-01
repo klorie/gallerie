@@ -1,4 +1,75 @@
 <?php
+require_once "config.php";
+
+/**
+ * determine the file mime type
+ */
+function mime_type($file) {
+    if (stristr(PHP_OS, 'WIN')) { 
+        $os = 'WIN';
+    } else { 
+        $os = PHP_OS;
+    }
+    $mime_type = '';
+
+    if (function_exists('mime_content_type')) {
+        $mime_type = mime_content_type($file);
+    }
+    
+    // use PECL fileinfo to determine mime type
+    if (!valid_src_mime_type($mime_type)) {
+	    if (function_exists('finfo_open')) {
+		    $finfo = @finfo_open(FILEINFO_MIME);
+		    if ($finfo != '') {
+			    $mime_type = finfo_file($finfo, $file);
+			    finfo_close($finfo);
+		    }
+	    }
+    }
+
+    // try to determine mime type by using unix file command
+    // this should not be executed on windows
+    if (!valid_src_mime_type($mime_type) && $os != "WIN") {
+        if (preg_match("/FREEBSD|LINUX/", $os)) {
+		$mime_type = trim(@shell_exec('file -bi ' . escapeshellarg($file)));
+        }
+    }
+
+    // use file's extension to determine mime type
+    if (!valid_src_mime_type($mime_type)) {
+        // set defaults
+        $mime_type = 'image/png';
+        // file details
+        $fileDetails = pathinfo($file);
+        $ext = strtolower($fileDetails["extension"]);
+        // mime types
+        $types = array(
+             'jpg'  => 'image/jpeg',
+             'jpeg' => 'image/jpeg',
+             'png'  => 'image/png',
+             'gif'  => 'image/gif'
+         );
+        
+        if (strlen($ext) && strlen($types[$ext])) {
+            $mime_type = $types[$ext];
+        }
+    }
+    return $mime_type;
+}
+
+/**
+ * 
+ */
+function valid_src_mime_type($mime_type) {
+
+    if (preg_match("/jpg|jpeg|gif|png/i", $mime_type)) {
+        return true;
+    }
+    
+    return false;
+
+}
+
 function exif_get_float($value)
 {
   $pos = strpos($value, '/');
@@ -53,6 +124,8 @@ function safeDirectory($path) {
 
 function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
 {
+    global $reverse_subalbum_sort;
+
     # array to hold return value
     $retval = array( "dir" => array(), "file" => array());
 
@@ -140,7 +213,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "name"     => "$entry",
             "title"    => "$caption",
             "subtitle" => "$subtitle",
-            "type"     => mime_content_type("$basedir/$dir/$entry"),
+            "type"     => mime_type("$basedir/$dir/$entry"),
             "size"     => filesize("$basedir/$dir/$entry"),
             "lastmod"  => filemtime("$basedir/$dir/$entry")
           ); } else {
@@ -150,14 +223,17 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "name"     => "$entry",
             "title"    => "$caption",
             "subtitle" => "$subtitle",
-            "type"     => mime_content_type("$basedir/$entry"),
+            "type"     => mime_type("$basedir/$entry"),
             "size"     => filesize("$basedir/$entry"),
             "lastmod"  => filemtime("$basedir/$entry")
           ); }
       }
     }
     $d->close();
-    sort($retval[dir]);
+    if (($dir == "") || ($reverse_subalbum_sort == 0))
+      asort($retval[dir]);
+    else
+      arsort($retval[dir]);
     sort($retval[file]);
     //echo count($retval[dir],0);
     return $retval;
@@ -385,4 +461,23 @@ function deleteDir($dir)
    } 
    return false; 
 } 
+
+// Returns the date of the most recently modified file inside the folder
+function filemtime_r($path)
+{
+	if (!file_exists($path))
+		return 0;
+
+	if (is_file($path))
+		return filemtime($path);
+	$ret = 0;
+
+	foreach (glob($path."/*") as $fn)
+	{
+		if (filemtime_r($fn) > $ret)
+			$ret = filemtime_r($fn);   
+	}
+	return $ret;   
+}
+
 ?>
