@@ -30,10 +30,11 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
 <head> 
 <?php echo "<title>".$gal_title."</title>"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-  <script type="text/javascript" src="js/jquery.min.js"></script>		
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
+  <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>		
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
   <script src="http://lite.piclens.com/current/piclens.js" type="text/javascript"></script>
   <!--[if IE 6]>
     <script src="js/DD_belatedPNG_0.0.7a-min.js"></script>
@@ -52,16 +53,13 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
 	counter_separator_label: '/', /* Separator for gallery counter 1 "of" 2 */
 	theme: '<?php echo $gal_theme; ?>' /* light_rounded / dark_rounded / light_square / dark_square */
       });
+    jQuery('.dynamic-thumbnail').loadImages();
     });
   </script>		
+
 <?php
 // Create thumbnail in current directory
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
-exec("/usr/bin/php ./createthumbs.php \"./gallery/$path\" \"./thumbnails/$path\" > /dev/null 2>&1 &");
-if ($thumb_create == "jpg")
-  $thumb_file_ext = "jpg";
-else 
-  $thumb_file_ext = "png";
 
 // Issue Cooliris header
 if (count($dirlist[file]) != 0) {  
@@ -155,13 +153,14 @@ if (count($dirlist[file]) > 0) {
   foreach($dirlist[file] as $file) {
     // Don't show album thumbnails
     if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-    $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_file_ext; 
+    $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_create; 
     if ($resize_preview === 1) 
       echo "<li><a href=\"./resize.php?src=./gallery/".htmlentities($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle'])."T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
     else
       echo "<li><a href=\"./gallery/".htmlentities($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle'])."T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
 
-    echo "<img src=\"./thumbnails/".$file['dir']."/".$tmp_fthumb."\" alt=\"".htmlentities($file['title'])."\" title=\"".htmlentities($file['title'])."\" /></a></li>\n";
+      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".$file['dir']."&file=".$file['name']."\" title=\"".htmlentities($file['title'])."\"></div></a></li>\n";
+//      echo "<div class=\"dynamic-thumbnail\" src=\"./thumbnails/".$file['dir']."/".$tmp_fthumb."\" title=\"".htmlentities($file['title'])."\"></div></a></li>\n";
   }
   echo "</ul>\n";
   echo "<h3></h3>\n";
@@ -189,7 +188,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.52 - H. Raffard &amp; C. Laury - 2010/03/01</li>
+<li>Gallerie v1.6 - H. Raffard &amp; C. Laury - 2010/03/03</li>
 </ul>
 <br clear="all" /> 
 </div>

@@ -10,8 +10,8 @@ $starttime = $starttime[1] + $starttime[0];
 if ($argv[1] == "--clean") {
   // Clean all unneeded thumbnails
   echo "Removing all thumbnails\n";
-  deleteDir( "./thumbnails" ) ;
-  mkdir("./thumbnails");
+  deleteDir( "$thumb_folder" ) ;
+  mkdir("$thumb_folder");
 }
 
 $dirlist = getFileList("", true, 10);
@@ -20,14 +20,8 @@ echo "Found ".count($dirlist[dir])." to process\n";
 foreach($dirlist[dir] as $file) {
    $path = $file['fullname'];
    echo "Processing $path ...";
-   if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path", 0777, true); }
-   if ($thumb_create == "jpg") {
-     createThumbsJPG( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
-     $thumb_file_ext = "jpg";
-   } else {
-     createThumbsPNG( "./gallery/$path", "./thumbnails/$path", $thumb_size ) ;
-     $thumb_file_ext = "jpg";
-   }
+   if (!file_exists("$thumb_folder/$path")) { mkdir("$thumb_folder/$path", 0777, true); }
+	createThumbs("$path") ;
    echo " [ Done ]\n";
 }
 # Remove cached pages

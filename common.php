@@ -239,132 +239,95 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
     return $retval;
 }
 
-function createThumbsJPG( $pathToImages, $pathToThumbs, $thumbSize )
+function createThumbs( $path )
 {
-  require("config.php");
+	global $thumb_folder;
+	global $image_folder;
 
-  // open the directory
-  $dir = opendir($pathToImages);
+	// open the directory
+	$dir = opendir("$image_folder/$path");
 
-  // loop through it, looking for any/all JPG files:
-  while (false !== ($fname = readdir($dir))) {
-    // parse path for the extension
-    $info = pathinfo("$pathToImages/$fname");
-    $ext = strtolower($info['extension']);
-    $fname_noext = $info['filename'];
+	// loop through it, looking for any/all JPG files:
+	while (false !== ($fname = readdir($dir))) {
+		// parse path for the extension
+		$info = pathinfo("$image_folder/$path/$fname");
+		$ext = strtolower($info['extension']);
+		$fname_noext = $info['filename'];
 
-    if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
-      {
-      // Check if thumbnail already exist (whatever extension)
-      if (count(glob("$pathToThumbs/$fname_noext.*")) != 0) { continue; }
-
-      //Reset time limit to avoid timeout
-      set_time_limit(30);
-
-      // load image and get image size
-      $img    = new Imagick();
-      $img->ReadImage("$pathToImages/$fname");
-      $width  = $img->GetImageWidth();
-      $height = $img->GetImageHeight();
-
-      // calculate thumbnail size
-      if ($width >= $height) {
-        $new_width  = $thumbSize-12;
-        $new_height = floor($height * (($thumbSize-12) / $width));
-      } else {
-        $new_height = $thumbSize-12;
-        $new_width  = floor($width  * (($thumbSize-12) / $height));
-      }
-
-      $img->thumbnailImage( $new_width, $new_height );
-      $img->roundCorners( 5, 5 );
-
-      $shadow = $img->clone();
-      $shadow->setImageBackgroundColor(new ImagickPixel('black'));
-      $shadow->shadowImage(80, 3, 5, 5);
-      $shadow->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
-      $bg = $shadow->clone();
-      $fillcolor   = new ImagickPixel($thumb_bgcolor);
-      $bordercolor = new ImagickPixel("#777777");
-      $bg->colorFloodFillImage($fillcolor, 100, $bordercolor, 0, 0);
-      $bg->compositeImage($shadow, Imagick::COMPOSITE_OVER, 0, 0);
-      $bg->setImageFormat("jpeg");
-      $bg->setCompressionQuality(90);
-      $bg->flattenImages();
-      $bg->setImageFileName("$pathToThumbs/$fname_noext".".jpg");
-      $bg->WriteImage();
-      $img->clear();
-      $img->destroy();
-      $shadow->clear();
-      $shadow->destroy();
-      $bg->clear();
-      $bg->destroy();
-    }
-  }
-  // close the directory
-  closedir($dir);
+		if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
+		{
+			// Check if thumbnail already exist (whatever extension)
+			if (count(glob("$thumb_folder/$path/$fname_noext.*")) === 0) 
+				createSingleThumb($path, $fname);
+		}
+	}
+	// close the directory
+	closedir($dir);
 }
 
-function createThumbsPNG( $pathToImages, $pathToThumbs, $thumbSize )
+function createSingleThumb($path, $fname)
 {
-  require("config.php");
+	global $thumb_bgcolor;
+	global $thumb_size;
+	global $thumb_create;
+	global $thumb_folder;
+	global $image_folder;
 
-  // open the directory
-  $dir = opendir($pathToImages);
- 
-  // loop through it, looking for any/all JPG files:
-  while (false !== ($fname = readdir($dir))) {
-    // parse path for the extension
-    $info = pathinfo("$pathToImages/$fname");
-    $ext = strtolower($info['extension']);
-    $fname_noext = $info['filename'];
+	//Reset time limit to avoid timeout
+	set_time_limit(30);
 
-    if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
-      {
-      // Check if thumbnail already exist (whatever extension)
-      if (count(glob("$pathToThumbs/$fname_noext.*")) != 0) { continue; }
+        $info = pathinfo("$image_folder/$path/$fname");
+        $fname_noext = $info['filename'];
 
-      //Reset time limit to avoid timeout
-      set_time_limit(30);
+	// load image and get image size
+	$img    = new Imagick();
+	$img->ReadImage("$image_folder/$path/$fname");
+	$width  = $img->GetImageWidth();
+	$height = $img->GetImageHeight();
 
-      // load image and get image size
-      $img    = new Imagick();
-      $img->ReadImage("$pathToImages/$fname");
-      $width  = $img->GetImageWidth();
-      $height = $img->GetImageHeight();
+	// calculate thumbnail size
+	if ($width >= $height) {
+		$new_width  = $thumb_size - 12;
+		$new_height = floor($height * (($thumb_size-12) / $width));
+	} else {
+		$new_height = $thumb_size - 12;
+		$new_width  = floor($width  * (($thumb_size-12) / $height));
+	}
 
-      // calculate thumbnail size
-      if ($width >= $height) {
-        $new_width  = $thumbSize-12;
-        $new_height = floor($height * (($thumbSize-12) / $width));
-      } else {
-        $new_height = $thumbSize-12;
-        $new_width  = floor($width  * (($thumbSize-12) / $height));
-      }
-      
-      $img->thumbnailImage( $new_width, $new_height );
-      $img->setImageFormat("png"); 
-      $img->roundCorners( 5, 5 );
-      
-      $shadow = $img->clone();
-      $shadow->setImageBackgroundColor(new ImagickPixel('black'));
-      $shadow->shadowImage(80, 3, 5, 5);
-      $shadow->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
-      $shadow->setImageFileName("$pathToThumbs/$fname_noext".".png");
-      $shadow->setImageDepth(8);
-      $shadow->setImageInterlaceScheme(Imagick::INTERLACE_PNG);
-      $shadow->setImageCompressionQuality(95); 
- 
-      // save thumbnail into a file
-      $shadow->WriteImage();  
-      $img->clear();
-      $img->destroy();
-      $shadow->clear();
-      $shadow->destroy();
-    }
-  }
-  // close the directory
-  closedir($dir);
+	$img->thumbnailImage( $new_width, $new_height );
+	$img->roundCorners( 5, 5 );
+
+	$shadow = $img->clone();
+	$shadow->setImageBackgroundColor(new ImagickPixel('black'));
+	$shadow->shadowImage(80, 3, 5, 5);
+	$shadow->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
+        if ($thumb_create == 'png') {
+		$shadow->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_create");
+		$shadow->setImageFormat("png");
+		$shadow->setImageDepth(8);
+		$shadow->setImageInterlaceScheme(Imagick::INTERLACE_PNG);
+		$shadow->setImageCompressionQuality(95); 
+		$shadow->WriteImage();  
+		$shadow->clear();
+		$shadow->destroy();
+	} else {		
+	        $bg = $shadow->clone();
+	        $fillcolor   = new ImagickPixel($thumb_bgcolor);
+	        $bordercolor = new ImagickPixel("#777777");
+	        $bg->colorFloodFillImage($fillcolor, 100, $bordercolor, 0, 0);
+	        $bg->compositeImage($shadow, Imagick::COMPOSITE_OVER, 0, 0);
+	        $bg->setImageFormat("jpeg");
+	        $bg->setCompressionQuality(90);
+	        $bg->flattenImages();
+	        $bg->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_create");
+	        $bg->WriteImage();
+		$bg->clear();
+		$bg->destroy();
+	}
+	$shadow->clear();
+	$shadow->destroy();
+	$img->clear();
+	$img->destroy();
 }
 
 function cleanThumbs( $pathToImages, $pathToThumbs )
@@ -432,6 +395,7 @@ function GetThumbsForDir( $dir, $mode )
 
    return $tmp_fthumb;
 }
+
 function deleteDir($dir) 
 { 
    if (substr($dir, strlen($dir)-1, 1) != '/') 
