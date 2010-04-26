@@ -275,112 +275,33 @@ ul.steps {
 }
 	
 ul.steps li { margin: 0 0 20px 0; padding: 0 0 20px 0; border-bottom: 2px #BFC6C7 solid; }	
-	
-/* ------------------------------------------------------------------------
-	Forms
-------------------------------------------------------------------------- */
 
-form {
-	float: left;
-	width: 275px;
-	margin: 0 25px 0 0;
+.tooltip { 
+    display:none; 
+    background:transparent url(/images/black_arrow.png); 
+    font-size:10px; 
+    height:70px; 
+    width:160px; 
+    padding:25px; 
+    color:#fff;     
 }
 	
-form label { margin: 0 0 5px 0; }
-	
-form legend {
-	font-size: 1.2em;
-	margin: 0 0 5px 0;
-	padding: 0 0 2px 0;
-	border-bottom: 1px #bfc6c7 solid;
-}
-	
-form.inlineRadios { float: left; width: 100%; }
-
-form input.button {
-	width: 90px;
-	border: 1px #bfc6c7 solid;
-	background: #E7EFF0;
-	color: #687275;
-	padding: 2px;
-	margin-top: 10px;
-	text-align: center;
-	float: left;
-	clear: both;
-}
-	
-	form.genericForm { width: 200px; margin: 0; }
-	
-	form.genericForm .error-message { font-size: 0.8em; color: #FE0000; margin: -10px 0 10px 0; }
-	
-	form.genericForm label {
-		font-size: 0.8em;
-		text-transform: uppercase;
-		margin: 0 0 2px 0;
-	}
-	form.genericForm input {
-		font-size: 0.8em;
-		width: 95%;
-		margin: 0 0 10px 0;
-		padding: 2px;
-		border: 1px #bfc6c7 solid;
-	}
-	form.genericForm input.submit { width: auto; margin: 0; }
-			
-	.textarea { width: 350px; }
-
-/* ------------------------------------------------------------------------
-	ADS
-------------------------------------------------------------------------- */
-
-	.adWrapLeft {
-		width: 400px;
-		float: left;
-	}
-
-	.adWrapRight { float: right; }
-
-	.bannerAd { margin: 0 0 10px -5px; }
-	
-	div.ad_block { position: relative; left: -25px; margin: 10px 0 -5px 0; }
-
-
-/* ------------------------------------------------------------------------
-	prettyPopin
-------------------------------------------------------------------------- */
-
-	.prettyPopin .prettyContent .prettyContent-container h3 {
-		font-weight: normal;
-		font-size: 1.1em;
-		margin: -10px 0 10px 0;
-		border-bottom: 1px #bfc6c7 solid;
-	}
-	
-	.prettyPopin ul.paging {
-		list-style: none;
-		margin: 0;
-	}
-	
-	.prettyPopin ul.paging li { display: block; float: left; margin: 0 5px 0 0; }
-		
-	.prettyPopin ul.paging a { text-decoration: none; font-size: 0.8em; }
-
 
 /* ------------------------------------------------------------------------
 	Miscellaneous
 ------------------------------------------------------------------------- */
 
-	.clearfix:after {
-	    content: "."; 
-	    display: block; 
-	    height: 0; 
-	    clear: both; 
-	    visibility: hidden;
-	}
+.clearfix:after {
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden;
+}
 
-	.clearfix {display: inline-block;}
+.clearfix {display: inline-block;}
 
-	/* Hides from IE-mac \*/
-	* html .clearfix {height: 1%;}
-	.clearfix {display: block;}
-	/* End hide from IE-mac */
+/* Hides from IE-mac \*/
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */

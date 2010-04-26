@@ -104,6 +104,26 @@ function exif_get_focal(&$exif)
   return round($focal,1).'mm';
 }
 
+function exif_get_lens(&$exif)
+{
+  if (!isset($exif['UndefinedTag:0x0095'])) return false;
+  $lens = $exif['UndefinedTag:0x0095'];
+  $lens = str_replace("EF", "", $lens);
+  $lens = str_replace(" USM", "", $lens);
+  if (strpos($lens, '28-75mm') !== false)
+    $lens .= ' f/2.8';
+  if ((strpos($lens, '70-200mm f/2.8L') !== false) && (strpos($lens, 'IS') === false))
+    $lens = str_replace('L', 'EX', $lens);
+  return $lens;
+}
+
+function exif_is_zoom(&$exif)
+{
+  // Return true when failed, because we do not print used focal when fixed focal
+  if (!isset($exif['UndefinedTag:0x0095'])) return true;
+  return (strpos($exif['UndefinedTag:0x0095'], '-') !== false);
+}
+
 function getPathLink($directory) {
   return $_SERVER["PHP_SELF"]."?path=".urlEncode($directory);
 }
@@ -190,11 +210,24 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
 	$ext = strtolower($info['extension']);
 	if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' ) { continue ;}
         $subtitle = "";
+        $edate    = "";
+	$esize    = "";
         $exif = exif_read_data("$basedir/$dir/$entry");
         if ($exif != false) {
+          if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
+          if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
+          if (!empty($edate)) {
+            $edate = split(':', str_replace(' ', ':', $edate));
+            $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+            $edate = strftime('%d/%m/%Y %H:%M', strtotime($edate));
+          }
+          if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) $esize = $exif['COMPUTED']['Width']."x".$exif['COMPUTED']['Height'];
           if ($exif['Model']) $subtitle .= $exif['Model']." - ";
           if ($exif['ISOSpeedRatings']) $subtitle .= $exif['ISOSpeedRatings']."ISO, ";
-          if (exif_get_focal($exif)) $subtitle .= exif_get_focal($exif).", ";
+          if (exif_get_lens($exif)) $subtitle .= exif_get_lens($exif);
+          if (exif_get_lens($exif) && exif_is_zoom($exif)) $subtitle .= " @ ";
+          if (exif_get_focal($exif) && exif_is_zoom($exif)) $subtitle .= exif_get_focal($exif);
+          if (exif_get_lens($exif) || exif_get_focal($exif)) $subtitle .= ", ";
           if (exif_get_shutter($exif)) $subtitle .= exif_get_shutter($exif).", ";
           if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif);
         }
@@ -207,6 +240,11 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             $caption = $iptc["2#120"][0];
         }
         if ($dir != "") {
+          if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$dir/$entry"));
+          if (filesize("$basedir/$dir/$entry") >= (1024*1024))
+            $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$dir/$entry") / (1024*1024)));
+          else
+            $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$dir/$entry") / 1024));
           $retval[file][] = array(
             "dir"      => "$dir",
             "fullname" => "$dir/$entry",
@@ -214,9 +252,14 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$dir/$entry"),
-            "size"     => filesize("$basedir/$dir/$entry"),
-            "lastmod"  => filemtime("$basedir/$dir/$entry")
+            "size"     => "$esize",
+            "lastmod"  => "$edate"
           ); } else {
+          if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$entry"));
+          if (filesize("$basedir/$entry") >= (1024*1024))
+            $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$entry") / (1024*1024)));
+          else
+            $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$entry") / 1024));
           $retval[file][] = array(
             "dir"      => "",
             "fullname" => "$entry",
@@ -224,8 +267,8 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$entry"),
-            "size"     => filesize("$basedir/$entry"),
-            "lastmod"  => filemtime("$basedir/$entry")
+            "size"     => "$esize",
+            "lastmod"  => "$edate"
           ); }
       }
     }

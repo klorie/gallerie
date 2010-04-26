@@ -32,7 +32,8 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
-  <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>		
+  <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
+  <script src="js/jquery.tools.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
   <script src="http://lite.piclens.com/current/piclens.js" type="text/javascript"></script>
@@ -44,6 +45,10 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
   <![endif]--> 
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
+      jQuery('.dynamic-thumbnail').loadImages();
+      $.tools.tooltip.conf.relative = true;
+      $.tools.tooltip.conf.cancelDefault = false;
+      $(".dynamic-thumbnail").tooltip();
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast', /* fast/slow/normal */
 	padding: 40, /* padding for each side of the picture */
@@ -53,7 +58,6 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
 	counter_separator_label: '/', /* Separator for gallery counter 1 "of" 2 */
 	theme: '<?php echo $gal_theme; ?>' /* light_rounded / dark_rounded / light_square / dark_square */
       });
-    jQuery('.dynamic-thumbnail').loadImages();
     });
   </script>		
 
@@ -155,12 +159,11 @@ if (count($dirlist[file]) > 0) {
     if (strpos($file['fullname'], "00ALBUM") !== false) continue;
     $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_create; 
     if ($resize_preview === 1) 
-      echo "<li><a href=\"./resize.php?src=./gallery/".htmlentities($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle'])."T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
+      echo "<li><a href=\"./resize.php?src=./gallery/".htmlentities($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
     else
-      echo "<li><a href=\"./gallery/".htmlentities($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle'])."T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
+      echo "<li><a href=\"./gallery/".htmlentities($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
 
-      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".$file['dir']."&file=".$file['name']."\" title=\"".htmlentities($file['title'])."\"></div></a></li>\n";
-//      echo "<div class=\"dynamic-thumbnail\" src=\"./thumbnails/".$file['dir']."/".$tmp_fthumb."\" title=\"".htmlentities($file['title'])."\"></div></a></li>\n";
+      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".$file['dir']."&file=".$file['name']."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod'])."</div></a></li>\n";
   }
   echo "</ul>\n";
   echo "<h3></h3>\n";
@@ -188,7 +191,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.6 - H. Raffard &amp; C. Laury - 2010/03/03</li>
+<li>Gallerie v1.7 - H. Raffard &amp; C. Laury - 2010/04/26</li>
 </ul>
 <br clear="all" /> 
 </div>
