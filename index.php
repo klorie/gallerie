@@ -163,7 +163,10 @@ if (count($dirlist[file]) > 0) {
     else
       echo "<li><a href=\"./gallery/".htmlentities($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
 
-      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".$file['dir']."&file=".$file['name']."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod'])."</div></a></li>\n";
+      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".$file['dir']."&file=".$file['name']."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
+      if ($file['tags'] != '')
+        echo "<br /><i>".htmlentities($file['tags'])."</i>";
+      echo "</div></a></li>\n";
   }
   echo "</ul>\n";
   echo "<h3></h3>\n";
@@ -191,7 +194,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.7 - H. Raffard &amp; C. Laury - 2010/04/26</li>
+<li>Gallerie v1.7.1 - H. Raffard &amp; C. Laury - 2010/04/27</li>
 </ul>
 <br clear="all" /> 
 </div>

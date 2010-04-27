@@ -232,12 +232,15 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
           if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif);
         }
 	if ($subtitle !== "") $subtitle .= "<br />";
-        $caption = "$entry";
+        $caption = $info['filename'];
+        $tags = "";
         $size = getimagesize("$basedir/$dir/$entry", $imginfo);
 	if (isset($imginfo["APP13"])) {
           $iptc = iptcparse($imginfo["APP13"]);
           if (is_array($iptc) && ($iptc["2#120"][0] != ""))
             $caption = $iptc["2#120"][0];
+          if (is_array($iptc) && ($iptc["2#025"][0] != ""))
+            $tags    = $iptc["2#025"][0];
         }
         if ($dir != "") {
           if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$dir/$entry"));
@@ -252,6 +255,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$dir/$entry"),
+            "tags"     => $tags,
             "size"     => "$esize",
             "lastmod"  => "$edate"
           ); } else {
@@ -267,6 +271,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$entry"),
+            "tags"     => $tags,
             "size"     => "$esize",
             "lastmod"  => "$edate"
           ); }

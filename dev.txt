@@ -1,3 +1,9 @@
 http://www.no-margin-for-errors.com/projects/prettyPhoto-jquery-lightbox-clone
+http://flowplayer.org/tools
 
 TODO/Ideas:
+- implement mysql backend
+	- determine when to update db
+- latest modified albums
+- search by tags
+- search by date
