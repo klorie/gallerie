@@ -278,7 +278,7 @@ ul.steps li { margin: 0 0 20px 0; padding: 0 0 20px 0; border-bottom: 2px #BFC6C
 
 .tooltip { 
     display:none; 
-    background:transparent url(/images/black_arrow.png); 
+    background:transparent url(/images/black_arrow.png) no-repeat; 
     font-size:10px; 
     height:70px; 
     width:160px; 

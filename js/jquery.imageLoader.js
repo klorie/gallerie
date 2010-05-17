@@ -21,7 +21,7 @@ jQuery.fn.loadImage = function(pConfig, pCallback) {
 
     var loader = jQuery(this);    
 
-    loader.html('<img src="' + config.LoadingImage + '" width=140 height=140 />');
+    loader.html('<img src="' + config.LoadingImage + '" width="140" height="140" />');
 
     var img_src = loader.attr('src');
     var img_title = loader.attr('title');
@@ -33,7 +33,7 @@ jQuery.fn.loadImage = function(pConfig, pCallback) {
     img.hide();
 
     img.load(function(){
-	if (loader.get(0).hasAttribute('onload')){
+	if (loader.get(0).getAttribute('onload')){
 	    cb_js = loader.get(0).getAttribute('onload')
 	    onload_cb = function() { eval(cb_js); }
 	    loader.removeAttr('onload');
