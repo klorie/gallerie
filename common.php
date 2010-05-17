@@ -108,6 +108,7 @@ function exif_get_lens(&$exif)
 {
   if (!isset($exif['UndefinedTag:0x0095'])) return false;
   $lens = $exif['UndefinedTag:0x0095'];
+  $lens = str_replace("EF-S", "", $lens);
   $lens = str_replace("EF", "", $lens);
   $lens = str_replace(" USM", "", $lens);
   if (strpos($lens, '28-75mm') !== false)
@@ -233,6 +234,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
         }
 	if ($subtitle !== "") $subtitle .= "<br />";
         $caption = $info['filename'];
+        $caption = strtr($entry, "_", " ");
         $tags = "";
         $size = getimagesize("$basedir/$dir/$entry", $imginfo);
 	if (isset($imginfo["APP13"])) {
@@ -240,7 +242,10 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
           if (is_array($iptc) && ($iptc["2#120"][0] != ""))
             $caption = $iptc["2#120"][0];
           if (is_array($iptc) && ($iptc["2#025"][0] != ""))
-            $tags    = $iptc["2#025"][0];
+            for ($t = 0; $t < count($iptc["2#025"]); $t++) {
+              $tags .= $iptc["2#025"][$t];
+              if ($t < (count($iptc["2#025"]) - 1)) $tags .= ", ";
+            }
         }
         if ($dir != "") {
           if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$dir/$entry"));
@@ -255,7 +260,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$dir/$entry"),
-            "tags"     => $tags,
+            "tags"     => "$tags",
             "size"     => "$esize",
             "lastmod"  => "$edate"
           ); } else {
@@ -271,7 +276,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             "title"    => "$caption",
             "subtitle" => "$subtitle",
             "type"     => mime_type("$basedir/$entry"),
-            "tags"     => $tags,
+            "tags"     => "$tags",
             "size"     => "$esize",
             "lastmod"  => "$edate"
           ); }
