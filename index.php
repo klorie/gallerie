@@ -23,10 +23,8 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
 } else {
   ob_start();
 ?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
 <?php echo "<title>".$gal_title."</title>"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
@@ -37,12 +35,6 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
   <script src="http://lite.piclens.com/current/piclens.js" type="text/javascript"></script>
-  <!--[if IE 6]>
-    <script src="js/DD_belatedPNG_0.0.7a-min.js"></script>
-    <script>
-      DD_belatedPNG.fix('.pp_left,.pp_right,a.pp_close,a.pp_arrow_next,a.pp_arrow_previous,.pp_content,.pp_middle'); 
-    </script>
-  <![endif]--> 
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
@@ -50,13 +42,13 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
       $.tools.tooltip.conf.cancelDefault = false;
       $(".dynamic-thumbnail").tooltip();
       $("a[rel^='prettyPhoto']").prettyPhoto({
-        animationSpeed: 'fast', /* fast/slow/normal */
-	padding: 40, /* padding for each side of the picture */
-	opacity: 0.65, /* Value betwee 0 and 1 */
-	showTitle: true, /* true/false */
-	allowresize: true, /* true/false */
-	counter_separator_label: '/', /* Separator for gallery counter 1 "of" 2 */
-	theme: '<?php echo $gal_theme; ?>' /* light_rounded / dark_rounded / light_square / dark_square */
+        animationSpeed: 'fast',
+	padding: 40,
+	opacity: 0.65,
+	showTitle: true,
+	allowresize: true,
+	counter_separator_label: '/',
+	theme: '<?php echo $gal_theme; ?>' 
       });
     });
   </script>		
