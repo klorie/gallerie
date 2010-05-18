@@ -454,7 +454,7 @@ function GetThumbsForDir( $dir, $mode )
 {
     $found_thumb = 0;
     if(is_dir("./thumbnails/$dir")) { 
-       $subdirlist = getFileList($dir, true, 10, "./thumbnails");
+       $subdirlist = getFileList($dir, true, 2, "./thumbnails");
        foreach($subdirlist[file] as $file_thumb) {
 	 if ( preg_match("/ALBUM00/i", $file_thumb[name]) && $mode == "ALBUM00") {
            $found_thumb = 1;
