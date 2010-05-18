@@ -2,18 +2,24 @@
 require_once "config.php";
 require_once "common.php";
 /*
-    Parameters
-    ---------
-    w: width
-    h: height
-    q: quality (default is 75 and max is 100)
-    
-    HTML example: <img src="/resize.php?src=/toto.jpg&w=150&h=0" />
-*/
+   Parameters
+   ---------
+w: width
+h: height
+q: quality (default is 65 and max is 100)
 
-// check to see if GD function exist
-if(!function_exists('imagecreatetruecolor')) {
-    displayError('GD Library Error: imagecreatetruecolor does not exist - please contact your webhost and ask them to install the GD library');
+HTML example: <img src="/resize.php?src=/toto.jpg&w=150&h=0" />
+ */
+
+if ($thumb_create == 'gd') {
+    // check to see if GD function exist
+    if (!function_exists('imagecreatetruecolor')) {
+        displayError('GD Library Error: imagecreatetruecolor does not exist - please contact your webhost and ask them to install the GD library');
+    }
+} else {
+    if (class_exists('Imagick') !== true) {
+        displayError('Imagick class does not exist.');
+    } 
 }
 
 define ('CACHE_CLEAR', 5);        // maximum number of files to delete on each cache clear
@@ -32,12 +38,7 @@ $lastModified = filemtime($src);
 // get properties
 $new_width  = preg_replace("/[^0-9]+/", "", get_request("w",  0));
 $new_height = preg_replace("/[^0-9]+/", "", get_request("h",  0));
-$quality    = preg_replace("/[^0-9]+/", "", get_request("q", 75));
-
-if ($new_width == 0 && $new_height == 0) {
-    $new_width = 100;
-    $new_height = 100;
-}
+$quality    = preg_replace("/[^0-9]+/", "", get_request("q", 65));
 
 // set path to cache directory (default is ./cache)
 // this can be changed to a different location
@@ -67,8 +68,13 @@ if(strlen($src) && file_exists($src)) {
     }
 
     // Get original width and height
-    $width  = imagesx($image);
-    $height = imagesy($image);
+    if ($thumb_create == 'gd') {
+        $width  = imagesx($image);
+        $height = imagesy($image);
+    } else {
+        $width  = $image->getImageWidth();
+        $height = $image->getImageHeight();
+    }
     if ($width >= $height) {
         $orientation = 0;
         $ratio = $width / $height;
@@ -76,7 +82,7 @@ if(strlen($src) && file_exists($src)) {
         $orientation = 1;
         $ratio = $height / $width;
     }
-    
+
     // If both dimension are not provided, keep the ratio
     if ($new_width && !$new_height)
         if ($orientation == 0) {
@@ -96,18 +102,28 @@ if(strlen($src) && file_exists($src)) {
         $new_width  = $width;
         $new_height = $height;
     }
-            
-    // create a new true color image
-    $canvas = imagecreatetruecolor( $new_width, $new_height );
 
-    // copy and resize part of an image with resampling
-    imagecopyresampled( $canvas, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
-    
+    if ($thumb_create == 'gd') { 
+        // create a new true color image
+        $canvas = imagecreatetruecolor( $new_width, $new_height );
+
+        // copy and resize part of an image with resampling
+        imagecopyresampled( $canvas, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+    } else {
+        $canvas = $image->clone();
+        $canvas->thumbnailImage($new_width, $new_height);
+    }
+
     // output image to browser based on mime type
     show_image($mime_type, $canvas, $cache_dir);
-    
+
     // remove image from memory
-    imagedestroy($canvas);
+    if ($thumb_create == 'gd') {
+        imagedestroy($canvas);
+    } else {
+        $canvas->clear();
+        $canvas->destroy();
+    }
 } else {
     if(strlen($src)) {
         displayError("image ".$src." not found");
@@ -122,6 +138,7 @@ if(strlen($src) && file_exists($src)) {
 function show_image($mime_type, $image_resized, $cache_dir) {
 
     global $quality;
+    global $thumb_create;
 
     // check to see if we can write to the cache directory
     $is_writable = 0;
@@ -137,12 +154,25 @@ function show_image($mime_type, $image_resized, $cache_dir) {
         header ('Content-type: ' . $mime_type);
     }
 
-    imagejpeg($image_resized, $cache_file_name, $quality);
+    if ($thumb_create == 'gd') {
+        imagejpeg($image_resized, $cache_file_name, $quality);
+    } else {
+        $image_resized->setImageFormat("jpeg");
+        $image_resized->setImageCompressionQuality($quality);
+        $image_resized->setImageFileName($cache_file_name);
+        $image_resized->WriteImage();
+    }
 
     if ($is_writable) {
         show_cache_file ($cache_dir, $mime_type);
     }
-    imagedestroy ($image_resized);
+
+    if ($thumb_create == 'gd') {
+        imagedestroy ($image_resized);
+    } else {
+        $image_resized->clear();
+        $image_resized->destroy();
+    }
     displayError ("error showing image");
 }
 
@@ -161,15 +191,22 @@ function get_request( $property, $default = 0 ) {
  * 
  */
 function open_image($mime_type, $src) {
+    global $thumb_create;
+
     $mime_type = strtolower($mime_type);
-	
-    if (stristr ($mime_type, 'gif')) {
-        $image = imagecreatefromgif($src);
-    } elseif (stristr($mime_type, 'jpeg')) {
-        @ini_set ('gd.jpeg_ignore_warning', 1);
-        $image = imagecreatefromjpeg($src);
-    } elseif (stristr ($mime_type, 'png')) {
-        $image = imagecreatefrompng($src);
+
+    if ($thumb_create == 'gd') {	
+        if (stristr ($mime_type, 'gif')) {
+            $image = imagecreatefromgif($src);
+        } elseif (stristr($mime_type, 'jpeg')) {
+            @ini_set ('gd.jpeg_ignore_warning', 1);
+            $image = imagecreatefromjpeg($src);
+        } elseif (stristr ($mime_type, 'png')) {
+            $image = imagecreatefrompng($src);
+        }
+    } else {
+        $image = new Imagick();
+        $image->ReadImage($src);
     }
     return $image;
 }
@@ -179,23 +216,24 @@ function open_image($mime_type, $src) {
  * you can change the number of files to store and to delete per loop in the defines at the top of the code
  */
 function cleanCache() {
-    global $resize_cache_day, $resize_cache_size;
+    global $resize_cache_day;
+    global $resize_cache_size;
 
     $files = glob("cache/resized/*", GLOB_BRACE);
-    
+
     if (count($files) > 0) {
         $cache_timeout = time() - (24 * 60 * 60 * $resize_cache_day);
-        
+
         usort($files, 'filemtime_compare');
         $i = 0;
-        
+
         if (count($files) > $resize_cache_size) {
             foreach ($files as $file) {
                 $i++;
                 if (($i >= CACHE_CLEAR) || (@filemtime($file) > $cache_timeout)) return;
-		if (file_exists($file)) {
-			unlink($file);
-		}
+                if (file_exists($file)) {
+                    unlink($file);
+                }
             }
         }
     }
@@ -214,7 +252,6 @@ function filemtime_compare($a, $b) {
  * 
  */
 function check_cache ($cache_dir, $mime_type) {
-
     // make sure cache dir exists
     if (!file_exists($cache_dir)) {
         // give 777 permissions so that developer can overwrite
@@ -224,7 +261,6 @@ function check_cache ($cache_dir, $mime_type) {
     }
 
     show_cache_file ($cache_dir, $mime_type);
-
 }
 
 
@@ -236,27 +272,26 @@ function show_cache_file ($cache_dir, $mime_type) {
     $cache_file = $cache_dir . '/' . get_cache_file();
 
     if (file_exists($cache_file)) {
-        
+
         $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($cache_file));
-        
+
         if(! strstr($gmdate_mod, "GMT")) {
             $gmdate_mod .= " GMT";
         }
-        
+
         if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-        
+
             // check for updates
             $if_modified_since = preg_replace ("/;.*$/", "", $_SERVER["HTTP_IF_MODIFIED_SINCE"]);
-            
+
             if ($if_modified_since == $gmdate_mod) {
                 header("HTTP/1.1 304 Not Modified");
                 die();
             }
-
         }
-        
+
         $fileSize = filesize ($cache_file);
-        
+
         // send headers then display image
         header ('Content-Type: ' . $mime_type);
         header ('Accept-Ranges: bytes');
@@ -264,13 +299,11 @@ function show_cache_file ($cache_dir, $mime_type) {
         header ('Content-Length: ' . $fileSize);
         header ('Cache-Control: max-age=9999, must-revalidate');
         header ('Expires: ' . $gmdate_mod);
-        
-        readfile ($cache_file);
-        
-        die();
 
+        readfile ($cache_file);
+
+        die();
     }
-    
 }
 
 
@@ -281,14 +314,13 @@ function get_cache_file() {
 
     global $lastModified;
     static $cache_file;
-    
+
     if (!$cache_file) {
         $cachename = $_SERVER['QUERY_STRING'].$lastModified;
         $cache_file = md5($cachename) . '.jpg';
     }
-    
-    return $cache_file;
 
+    return $cache_file;
 }
 
 
@@ -302,14 +334,12 @@ function valid_extension ($ext) {
     } else {
         return FALSE;
     }
-    
 }
 
 /**
  * tidy up the image source url
  */
 function cleanSource($src) {
-
     // remove slash from start of string
     if (strpos($src, '/') === 0) {
         $src = substr ($src, -(strlen($src) - 1));
@@ -318,9 +348,8 @@ function cleanSource($src) {
     // don't allow users the ability to use '../' 
     // in order to gain access to files below document root
     $src = preg_replace("/\.\.+\//", "", $src);
-    
-    return $src;
 
+    return $src;
 }
 
 /**
@@ -330,6 +359,6 @@ function displayError($errorString = '') {
 
     header('HTTP/1.1 400 Bad Request');
     die($errorString);
-    
+
 }
 ?>
