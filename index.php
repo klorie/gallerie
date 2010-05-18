@@ -31,7 +31,7 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
-  <script src="js/jquery.tools.min.js" type="text/javascript"></script>
+  <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
   <script src="http://lite.piclens.com/current/piclens.js" type="text/javascript"></script>
@@ -43,12 +43,12 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
       $(".dynamic-thumbnail").tooltip();
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
-	padding: 40,
-	opacity: 0.65,
-	showTitle: true,
-	allowresize: true,
-	counter_separator_label: '/',
-	theme: '<?php echo $gal_theme; ?>' 
+    	padding: 40,
+	    opacity: 0.65,
+	    showTitle: true,
+	    allowresize: true,
+	    counter_separator_label: '/',
+	    theme: '<?php echo $gal_theme; ?>' 
       });
     });
   </script>		
