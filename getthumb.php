@@ -15,11 +15,16 @@ if ((isset($_REQUEST['file'])) and (isset($_REQUEST['dir']))) {
 global $image_folder;
 global $thumb_folder;
 global $thumb_create;
+global $thumb_ext;
 
 $info = pathinfo("$image_folder/$dir/$file");
 $fname_noext = $info['filename'];
+// Fix for php < 5.2
+if ($fname_noext == "" ) {
+    $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
+}
 
-$thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.'.$thumb_create;
+$thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.'.$thumb_ext;
 
 if (!file_exists($thumbnail)) 
 	createSingleThumb($dir, $file);
@@ -40,7 +45,7 @@ if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 $fileSize = filesize ($thumbnail);
 
 // send headers then display image
-header ('Content-Type: image/' . $thumb_create);
+header ('Content-Type: image/' . $thumb_ext);
 header ('Accept-Ranges: bytes');
 header ('Last-Modified: ' . $gmdate_mod);
 header ('Content-Length: ' . $fileSize);

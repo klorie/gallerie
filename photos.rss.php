@@ -49,11 +49,15 @@ foreach($dirlist[file] as $file) {
     $info = pathinfo("./gallery/".$file['fullname']);
     $ext = strtolower($info['extension']);
     $fname_noext = $info['filename'];
+    // Fix for php < 5.2
+    if ($fname_noext == "" ) {
+       $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
+    }
     echo "<item>\n";
     echo "  <title>".utf8_encode(xml_encode($file['name']))."</title>\n";
     echo "  <media:description>".utf8_encode(xml_encode($file['title']))."</media:description>\n";
     echo "  <link>./gallery/".$file['fullname']."</link>\n";
-    echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/thumbnails/".$path."/".$fname_noext.".".$thumb_create."\" />\n";
+    echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/thumbnails/".$path."/".$fname_noext.".".$thumb_ext."\" />\n";
     echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/gallery/".$file['fullname']."\" type=\"image/jpeg\" />\n";
     echo "</item>\n";
 }

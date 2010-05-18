@@ -17,8 +17,8 @@ if ($dir_thumb_mode != "RANDOM" && file_exists($cache) &&
     filemtime($cache) > filemtime("./index.php") &&
     filemtime($cache) > filemtime("./common.php") && 
     filemtime($cache) > filemtime("./config.php") &&
-    filemtime_r($cache) > filemtime("./gallery/$path/.") &&
-    filemtime_r($cache) > filemtime("./thumbnails/$path/.")) {
+    filemtime($cache) > filemtime_r("./gallery/$path/.") &&
+    filemtime($cache) > filemtime_r("./thumbnails/$path/.")) {
   readfile($cache);
 } else {
   ob_start();
@@ -149,7 +149,7 @@ if (count($dirlist[file]) > 0) {
   foreach($dirlist[file] as $file) {
     // Don't show album thumbnails
     if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-    $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_create; 
+    $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_ext; 
     if ($resize_preview === 1) 
       echo "<li><a href=\"./resize.php?src=./gallery/".htmlentities($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".$file['fullname']."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
     else
@@ -186,7 +186,7 @@ printf('Page loaded in %.3f seconds.', $totaltime);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.7.1 - H. Raffard &amp; C. Laury - 2010/04/27</li>
+<li>Gallerie v1.7.3 - H. Raffard &amp; C. Laury - 2010/05/17</li>
 </ul>
 <br clear="all" /> 
 </div>

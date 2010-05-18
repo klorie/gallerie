@@ -306,7 +306,10 @@ function createThumbs( $path )
 		$info = pathinfo("$image_folder/$path/$fname");
 		$ext = strtolower($info['extension']);
 		$fname_noext = $info['filename'];
-
+		// Fix for php < 5.2
+		if ($fname_noext == "" ) {
+	   	   $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
+		}
 		if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
 		{
 			// Check if thumbnail already exist (whatever extension)
@@ -323,6 +326,7 @@ function createSingleThumb($path, $fname)
 	global $thumb_bgcolor;
 	global $thumb_size;
 	global $thumb_create;
+	global $thumb_ext;
 	global $thumb_folder;
 	global $image_folder;
 
@@ -331,12 +335,22 @@ function createSingleThumb($path, $fname)
 
         $info = pathinfo("$image_folder/$path/$fname");
         $fname_noext = $info['filename'];
+	// Fix for php < 5.2
+	if ($fname_noext == "" ) {
+	   $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
+	}
 
-	// load image and get image size
-	$img    = new Imagick();
-	$img->ReadImage("$image_folder/$path/$fname");
-	$width  = $img->GetImageWidth();
-	$height = $img->GetImageHeight();
+	if ($thumb_create == 'gd') {
+	   $img    = imagecreatefromjpeg("$image_folder/$path/$fname");
+	   $width  = imagesx($img);
+	   $height = imagesy($img); 
+	} else {
+	   // load image and get image size
+	   $img    = new Imagick();
+	   $img->ReadImage("$image_folder/$path/$fname");
+	   $width  = $img->GetImageWidth();
+	   $height = $img->GetImageHeight();
+	}
 
 	// calculate thumbnail size
 	if ($width >= $height) {
@@ -347,40 +361,52 @@ function createSingleThumb($path, $fname)
 		$new_width  = floor($width  * (($thumb_size-12) / $height));
 	}
 
-	$img->thumbnailImage( $new_width, $new_height );
-	$img->roundCorners( 5, 5 );
+	if ($thumb_create == 'gd') {
 
-	$shadow = $img->clone();
-	$shadow->setImageBackgroundColor(new ImagickPixel('black'));
-	$shadow->shadowImage(80, 3, 5, 5);
-	$shadow->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
-        if ($thumb_create == 'png') {
-		$shadow->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_create");
-		$shadow->setImageFormat("png");
-		$shadow->setImageDepth(8);
-		$shadow->setImageInterlaceScheme(Imagick::INTERLACE_PNG);
-		$shadow->setImageCompressionQuality(95); 
-		$shadow->WriteImage();  
-		$shadow->clear();
-		$shadow->destroy();
-	} else {		
-	        $bg = $shadow->clone();
-	        $fillcolor   = new ImagickPixel($thumb_bgcolor);
-	        $bordercolor = new ImagickPixel("#777777");
-	        $bg->colorFloodFillImage($fillcolor, 100, $bordercolor, 0, 0);
-	        $bg->compositeImage($shadow, Imagick::COMPOSITE_OVER, 0, 0);
-	        $bg->setImageFormat("jpeg");
-	        $bg->setCompressionQuality(90);
-	        $bg->flattenImages();
-	        $bg->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_create");
-	        $bg->WriteImage();
-		$bg->clear();
-		$bg->destroy();
+	   	$thumbnail = imagecreatetruecolor($new_width, $new_height);
+	   	imagecopyresampled($thumbnail, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+		imagejpeg($thumbnail,"$thumb_folder/$path/$fname_noext.$thumb_ext",90);
+
+    		imagedestroy($img);
+    		imagedestroy($thumbnail);
+
+	} else {
+		$img->thumbnailImage( $new_width, $new_height );
+		$img->roundCorners( 5, 5 );
+
+		$shadow = $img->clone();
+		$shadow->setImageBackgroundColor(new ImagickPixel('black'));
+		$shadow->shadowImage(80, 3, 5, 5);
+		$shadow->compositeImage($img, Imagick::COMPOSITE_OVER, 0, 0);
+	        if ($thumb_ext == 'png') {
+		     $shadow->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_ext");
+		     $shadow->setImageFormat("png");
+		     $shadow->setImageDepth(8);
+		     $shadow->setImageInterlaceScheme(Imagick::INTERLACE_PNG);
+		     $shadow->setImageCompressionQuality(95); 
+		     $shadow->WriteImage();  
+		     $shadow->clear();
+		     $shadow->destroy();
+	        } else {		
+	             $bg = $shadow->clone();
+	             $fillcolor   = new ImagickPixel($thumb_bgcolor);
+	             $bordercolor = new ImagickPixel("#777777");
+	             $bg->colorFloodFillImage($fillcolor, 100, $bordercolor, 0, 0);
+	             $bg->compositeImage($shadow, Imagick::COMPOSITE_OVER, 0, 0);
+	             $bg->setImageFormat("jpeg");
+	             $bg->setCompressionQuality(90);
+	             $bg->flattenImages();
+	             $bg->setImageFileName("$thumb_folder/$path/$fname_noext.$thumb_ext");
+	             $bg->WriteImage();
+		     $bg->clear();
+		     $bg->destroy();
+	        }
+	        $shadow->clear();
+	        $shadow->destroy();
+	        $img->clear();
+	        $img->destroy();
 	}
-	$shadow->clear();
-	$shadow->destroy();
-	$img->clear();
-	$img->destroy();
 }
 
 function cleanThumbs( $pathToImages, $pathToThumbs )
@@ -398,6 +424,10 @@ function cleanThumbs( $pathToImages, $pathToThumbs )
       // Check if file exist
       $info = pathinfo("$pathToThumbs/$fname");
       $fname_noext = $info['filename'];
+      // Fix for php < 5.2
+      if ($fname_noext == "" ) {
+   	   $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
+      }
       
       if (count(glob("$pathToImages/$fname_noext.*")) != 0)
       { 
@@ -497,4 +527,43 @@ function filemtime_r($path)
 	return $ret;   
 }
 
+// Convert from html to rgb
+function html2rgb($color)
+{
+    if ($color[0] == '#')
+        $color = substr($color, 1);
+
+    if (strlen($color) == 6)
+        list($r, $g, $b) = array($color[0].$color[1],
+                                 $color[2].$color[3],
+                                 $color[4].$color[5]);
+    elseif (strlen($color) == 3)
+        list($r, $g, $b) = array($color[0].$color[0], $color[1].$color[1], $color[2].$color[2]);
+    else
+        return false;
+
+    $r = hexdec($r); $g = hexdec($g); $b = hexdec($b);
+
+    return array($r, $g, $b);
+}
+
+// Convert from rgb to html
+function rgb2html($r, $g=-1, $b=-1)
+{
+    if (is_array($r) && sizeof($r) == 3)
+        list($r, $g, $b) = $r;
+
+    $r = intval($r); $g = intval($g);
+    $b = intval($b);
+
+    $r = dechex($r<0?0:($r>255?255:$r));
+    $g = dechex($g<0?0:($g>255?255:$g));
+    $b = dechex($b<0?0:($b>255?255:$b));
+
+    $color = (strlen($r) < 2?'0':'').$r;
+    $color .= (strlen($g) < 2?'0':'').$g;
+    $color .= (strlen($b) < 2?'0':'').$b;
+
+    return '#'.$color;
+}
 ?>
