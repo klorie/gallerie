@@ -212,15 +212,18 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
 	if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' ) { continue ;}
         $subtitle = "";
         $edate    = "";
-	$esize    = "";
-        $exif = exif_read_data("$basedir/$dir/$entry");
+	    $esize    = "";
+        if ($ext == 'jpg')
+            $exif = exif_read_data("$basedir/$dir/$entry");
+        else
+            $exit = false;
         if ($exif != false) {
           if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
           if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
           if (!empty($edate)) {
             $edate = split(':', str_replace(' ', ':', $edate));
             $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
-            $edate = strftime('%d/%m/%Y %H:%M', strtotime($edate));
+            $edate = strftime('%d/%m/%Y %Hh%M', strtotime($edate));
           }
           if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) $esize = $exif['COMPUTED']['Width']."x".$exif['COMPUTED']['Height'];
           if ($exif['Model']) $subtitle .= $exif['Model']." - ";
@@ -510,20 +513,23 @@ function deleteDir($dir)
 } 
 
 // Returns the date of the most recently modified file inside the folder
-function filemtime_r($path)
+function filemtime_r($path, $depth = 2)
 {
 	if (!file_exists($path))
 		return 0;
 
-	if (is_file($path))
+	if ((is_file($path) && ($depth > 0)) || (file_exists($path) && ($depth == 0)))
 		return filemtime($path);
 	$ret = 0;
 
-	foreach (glob($path."/*") as $fn)
-	{
-		if (filemtime_r($fn) > $ret)
-			$ret = filemtime_r($fn);   
-	}
+    if ($depth > 0) {
+    	foreach (glob($path."/*") as $fn)
+    	{
+            $subret = filemtime_r($fn, $depth - 1);
+		    if ($subret > $ret)
+		    	$ret = $subret;   
+	    }
+    }
 	return $ret;   
 }
 

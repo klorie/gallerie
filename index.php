@@ -12,13 +12,17 @@ $path = safeDirectory($path);
 $dirlist = getFileList($path);
 
 $cache = "./cache/$path/index.html";
+if (file_exists($cache) && ($dir_thumb_mode != "RANDOM"))
+    $cache_time = filemtime($cache);
+else
+    $cache_time = false;
 
-if ($dir_thumb_mode != "RANDOM" && file_exists($cache) && 
-    filemtime($cache) > filemtime("./index.php") &&
-    filemtime($cache) > filemtime("./common.php") && 
-    filemtime($cache) > filemtime("./config.php") &&
-    filemtime($cache) > filemtime_r("./gallery/$path/.") &&
-    filemtime($cache) > filemtime_r("./thumbnails/$path/.")) {
+if ($cache_time !== false && 
+    $cache_time > filemtime("./index.php") &&
+    $cache_time > filemtime("./common.php") && 
+    $cache_time > filemtime("./config.php")  &&
+    $cache_time > filemtime_r("./gallery/$path/.") &&
+    $cache_time > filemtime_r("./thumbnails/$path/.")) {
   readfile($cache);
 } else {
   ob_start();
@@ -182,11 +186,12 @@ if ($path != "") {
 <?php
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-printf('Page loaded in %.3f seconds.', $totaltime);
+$today = date('Y/m/d \a\t H:i:s');
+printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.7.3 - H. Raffard &amp; C. Laury - 2010/05/17</li>
+<li>Gallerie v1.7.4 - H. Raffard &amp; C. Laury - 2010/05/19</li>
 </ul>
 <br clear="all" /> 
 </div>
