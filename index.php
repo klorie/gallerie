@@ -45,6 +45,7 @@ if ($cache_time !== false &&
       $.tools.tooltip.conf.relative = true;
       $.tools.tooltip.conf.cancelDefault = false;
       $(".dynamic-thumbnail").tooltip();
+      $("ul.tabs").tabs("ul.gallery", {event:'mouseover'});
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
     	padding: 40,
@@ -135,7 +136,7 @@ echo "</h3>\n";
 
 // Show list of subfolders, output <ul tag only if something inside to be w3c compliant
 if (count($dirlist[dir]) > 0) {
-  echo "<ul class=\"galleryfolder clearfix\">\n";
+  echo "<ul class=\"galleryfolder\">\n";
   foreach($dirlist[dir] as $file) {
     echo "<li><div class=\"galleryfolderalign\"><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
     $thumb = GetThumbsForDir($file['fullname'], $dir_thumb_mode);  
@@ -144,29 +145,47 @@ if (count($dirlist[dir]) > 0) {
   }
   echo "</ul>\n";
   //Separate Directory list and Pictures
+  echo "<div class=\"clearfix\"></div>\n";
   echo "<h3></h3>\n";
 }
 
 // Show list of pictures
 if (count($dirlist[file]) > 0) {
-  echo "<ul class=\"gallery clearfix\">\n";
-  foreach($dirlist[file] as $file) {
-    // Don't show album thumbnails
-    if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-    $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_ext; 
-    if ($resize_preview === 1) 
-      echo "<li><a href=\"./resize.php?src=./gallery/".urlencode($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".urlencode($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
-    else
-      echo "<li><a href=\"./gallery/".urlencode($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".urlencode($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
+    $tabcount = count($dirlist[file]) / $thumbs_per_page;
+    if (count($dirlist[file]) > $thumbs_per_page) {
+        echo "<ul class=\"tabs\">\n";
+        for ($t = 0; $t < $tabcount; $t++) {
+            echo "\t<li><a href=\"#\">$t</a></li>\n";
+        }
+        echo "</ul>\n";
+        echo "<div class=\"clearfix\"></div>\n";
+    }
+    echo "<ul class=\"gallery\">\n";
+    $tabthumb = 0;
+    foreach($dirlist[file] as $file) {
+        // Don't show album thumbnails
+        if (strpos($file['fullname'], "00ALBUM") !== false) continue;
+        $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_ext; 
+        if ($resize_preview === 1) 
+            echo "<li><a href=\"./resize.php?src=./gallery/".urlencode($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".urlencode($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
+        else
+            echo "<li><a href=\"./gallery/".urlencode($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".urlencode($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
 
-      echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
-      if ($file['tags'] != '')
-        echo "<br /><i>".htmlentities($file['tags'])."</i>";
-      echo "</div></a></li>\n";
-  }
-  echo "</ul>\n";
-  echo "<h3></h3>\n";
+        echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
+        if ($file['tags'] != '')
+            echo "<br /><i>".htmlentities($file['tags'])."</i>";
+        echo "</div></a></li>\n";
+        $tabthumb++;
+        if ($tabthumb >= $thumbs_per_page) {
+            $tabthumb = 0;
+            echo "</ul>\n<ul class=\"gallery\">\n";
+        }
+    }
+    echo "</ul>\n";
+    echo "<div class=\"clearfix\"></div>\n";
+    echo "<h3></h3>\n";
 }
+// Show a link to upper folder
 if ($path != "") {
        $pathArr = explode("/", $path, -1);
        $link = implode("/", $pathArr);
@@ -191,7 +210,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.7.4 - H. Raffard &amp; C. Laury - 2010/05/19</li>
+<li>Gallerie v1.7.5 - H. Raffard &amp; C. Laury - 2010/05/20</li>
 </ul>
 <br clear="all" /> 
 </div>
