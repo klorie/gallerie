@@ -181,6 +181,12 @@ if (count($dirlist[file]) > 0) {
             echo "</ul>\n<ul class=\"gallery\">\n";
         }
     }
+    if (($tabthumb < $thumbs_per_page) && ($tabcount > 1)) {
+        while($tabthumb < $thumbs_per_page) {
+            echo "<li></li>\n";
+            $tabthumb++;
+        }
+    }
     echo "</ul>\n";
     echo "<div class=\"clearfix\"></div>\n";
     echo "<h3></h3>\n";
