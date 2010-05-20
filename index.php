@@ -155,7 +155,7 @@ if (count($dirlist[file]) > 0) {
     if (count($dirlist[file]) > $thumbs_per_page) {
         echo "<ul class=\"tabs\">\n";
         for ($t = 0; $t < $tabcount; $t++) {
-            echo "\t<li><a href=\"#\">$t</a></li>\n";
+            echo "\t<li><a href=\"#\">".($t+1)."</a></li>\n";
         }
         echo "</ul>\n";
         echo "<div class=\"clearfix\"></div>\n";
