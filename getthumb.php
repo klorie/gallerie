@@ -45,11 +45,14 @@ if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 $fileSize = filesize ($thumbnail);
 
 // send headers then display image
-header ('Content-Type: image/' . $thumb_ext);
+if ($thumb_ext == 'jpg')
+    header ('Content-Type: image/jpeg');
+else
+    header ('Content-Type: image/png');
 header ('Accept-Ranges: bytes');
 header ('Last-Modified: ' . $gmdate_mod);
 header ('Content-Length: ' . $fileSize);
-header ('Cache-Control: max-age=9999, must-revalidate');
+header ('Cache-Control: max-age=3600, must-revalidate');
 header ('Expires: ' . $gmdate_mod);
 
 readfile ($thumbnail);

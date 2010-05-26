@@ -30,7 +30,7 @@ if ($cache_time !== false &&
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
-<?php echo "<title>".$gal_title."</title>"; ?> 
+<?php echo "<title>".$gal_title."</title>\n"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
@@ -38,7 +38,9 @@ if ($cache_time !== false &&
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
-  <script src="http://lite.piclens.com/current/piclens.js" type="text/javascript"></script>
+<?php if(count($dirlist[file]) > 1)
+    echo "  <script src=\"http://lite.piclens.com/current/piclens_optimized.js\" type=\"text/javascript\"></script>\n";
+?>
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
@@ -63,7 +65,7 @@ if ($cache_time !== false &&
 if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
 
 // Issue Cooliris header
-if (count($dirlist[file]) != 0) {  
+if (count($dirlist[file]) > 1) {  
    echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 }
 echo "</head>\n";
@@ -128,7 +130,7 @@ if ($path != "") {
     echo "/<a href=\"$dirLink\">".htmlentities($dirTitle)."</a>";
   }
 }
-if (count($dirlist[file]) != 0) {
+if (count($dirlist[file]) > 1) {
   echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a> ]\n";
 }
 
@@ -150,7 +152,7 @@ if (count($dirlist[dir]) > 0) {
 }
 
 // Show list of pictures
-if (count($dirlist[file]) > 0) {
+if (count($dirlist[file]) > 1) {
     $tabcount = count($dirlist[file]) / $thumbs_per_page;
     if (count($dirlist[file]) > $thumbs_per_page) {
         echo "<ul class=\"tabs\">\n";
