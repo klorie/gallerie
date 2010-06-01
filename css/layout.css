@@ -198,7 +198,7 @@ ul.gallery li a:hover { background: #EFEFF0; border: 2px #313739 solid; }
 	
 .tooltip { 
     display:none; 
-    background:transparent url(/images/black_arrow.png) no-repeat; 
+    background:transparent url(../images/black_arrow.png) no-repeat; 
     font-size:10px; 
     height:70px; 
     width:160px; 
