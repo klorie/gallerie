@@ -516,10 +516,11 @@ function deleteDir($dir)
 function filemtime_r($path, $depth = 2)
 {
 	if (!file_exists($path))
-		return 0;
+		return time();
 
-	if ((is_file($path) && ($depth > 0)) || (file_exists($path) && ($depth == 0)))
+	if ((is_file($path) && ($depth > 0)) || ($depth == 0))
 		return filemtime($path);
+
 	$ret = 0;
 
     if ($depth > 0) {
