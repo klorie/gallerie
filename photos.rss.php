@@ -42,6 +42,7 @@ header("Content-Type: application/xml");
 echo "<"."?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?".">\n";
 echo "<rss version=\"2.0\" xmlns:media=\"http://search.yahoo.com/mrss\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
 echo "<channel>\n";
+echo "<atom:link href=\"".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]."\" rel=\"self\" type=\"application/rss+xml\" />\n";
 
 // Issue items
 foreach($dirlist[file] as $file) {
@@ -54,8 +55,8 @@ foreach($dirlist[file] as $file) {
        $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
     }
     echo "<item>\n";
-    echo "  <title>".utf8_encode(xml_encode($file['name']))."</title>\n";
-    echo "  <media:description>".utf8_encode(xml_encode($file['title']))."</media:description>\n";
+    echo "  <title>".utf8_encode(xml_encode($file['title']))."</title>\n";
+    echo "  <media:description>".utf8_encode(xml_encode($file['subtitle']))."</media:description>\n";
     echo "  <link>./gallery/".$file['fullname']."</link>\n";
     echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/thumbnails/".$path."/".$fname_noext.".".$thumb_ext."\" />\n";
     echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/gallery/".$file['fullname']."\" type=\"image/jpeg\" />\n";
