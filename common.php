@@ -216,7 +216,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
         if ($ext == 'jpg')
             $exif = exif_read_data("$basedir/$dir/$entry");
         else
-            $exit = false;
+            $exif = false;
         if ($exif != false) {
           if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
           if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
