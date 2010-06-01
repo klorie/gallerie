@@ -26,7 +26,7 @@ if ($fname_noext == "" ) {
 
 $thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.'.$thumb_ext;
 
-if (!file_exists($thumbnail)) 
+if (!file_exists($thumbnail) || (filemtime($thumbnail) < filemtime("$image_folder/$dir/$file"))) 
 	createSingleThumb($dir, $file);
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));
