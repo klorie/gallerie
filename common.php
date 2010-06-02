@@ -299,6 +299,7 @@ function createThumbs( $path )
 {
 	global $thumb_folder;
 	global $image_folder;
+    global $thumb_ext;
 
 	// open the directory
 	$dir = opendir("$image_folder/$path");
@@ -316,7 +317,7 @@ function createThumbs( $path )
 		if ( $ext == 'jpg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp')
 		{
 			// Check if thumbnail already exist (whatever extension)
-			if (count(glob("$thumb_folder/$path/$fname_noext.*")) === 0) 
+			if (count(glob("$thumb_folder/$path/$fname_noext.$thumb_ext")) === 0) 
 				createSingleThumb($path, $fname);
 		}
 	}
