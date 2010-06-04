@@ -449,15 +449,14 @@ function filemtime_r($path, $depth = 2)
     if (!file_exists($path))
         return time();
 
-    if ((is_file($path) && ($depth > 0)) || ($depth == 0))
+    if (is_file($path))   
         return filemtime($path);
 
     $ret = 0;
-
-    if ($depth > 0) {
-        foreach (glob($path."/*") as $fn)
-        {
-            $subret = filemtime_r($fn, $depth - 1);
+    $dir = opendir($path);
+    while($entry = readdir($dir)) {
+        if (($entry != '.') && ($entry != '..')) {
+            $subret = filemtime_r($entry, $depth - 1);
             if ($subret > $ret)
                 $ret = $subret;   
         }
