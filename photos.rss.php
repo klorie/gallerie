@@ -47,7 +47,7 @@ echo "<atom:link href=\"".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]."\" re
 // Issue items
 foreach($dirlist[file] as $file) {
     if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-    $info = pathinfo("./gallery/".$file['fullname']);
+    $info = pathinfo($image_folder."/".$file['fullname']);
     $ext = strtolower($info['extension']);
     $fname_noext = $info['filename'];
     // Fix for php < 5.2
@@ -57,9 +57,11 @@ foreach($dirlist[file] as $file) {
     echo "<item>\n";
     echo "  <title>".utf8_encode(xml_encode($file['title']))."</title>\n";
     echo "  <media:description>".utf8_encode(xml_encode($file['subtitle']))."</media:description>\n";
-    echo "  <link>./gallery/".$file['fullname']."</link>\n";
-    echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/thumbnails/".$path."/".$fname_noext.".".$thumb_ext."\" />\n";
-    echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/gallery/".$file['fullname']."\" type=\"image/jpeg\" />\n";
+    echo "  <link>".$image_folder."/".$file['fullname']."</link>\n";
+    echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$thumb_folder."/".$path."/".$fname_noext.".jpg\" />\n";
+//    echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$image_folder."/".$file['fullname']."\" type=\"".$file['type']."\" />\n";
+    echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$resize_folder."/".$path."/".$fname_noext.".jpg\" type=\"image/jpeg\" />\n";
+
     echo "</item>\n";
 }
 echo "</channel>\n";
