@@ -9,8 +9,8 @@
 
 
 imageLoaderDefaultConfig = {
-    LoadingImage: './images/nothumb.png',
-    FailImage: './images/nothumb.png'
+    LoadingImage: './images/loading.gif',
+    FailImage: './images/nothumb.jpg'
 }
 
 jQuery.fn.loadImage = function(pConfig, pCallback) {
@@ -21,7 +21,7 @@ jQuery.fn.loadImage = function(pConfig, pCallback) {
 
     var loader = jQuery(this);    
 
-    loader.html('<img src="' + config.LoadingImage + '" width="140" height="140" />');
+    loader.html('<img src="' + config.LoadingImage + '" width="32" height="32" />');
 
     var img_src = loader.attr('src');
     var img_title = loader.attr('title');
@@ -30,6 +30,7 @@ jQuery.fn.loadImage = function(pConfig, pCallback) {
 
     img = jQuery(new Image());
     img.css('display', 'inline');
+    img.css('border', '1px solid #FFFFFF');
     img.hide();
 
     img.load(function(){
