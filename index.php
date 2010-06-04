@@ -20,9 +20,9 @@ else
 if ($cache_time !== false && 
     $cache_time > filemtime("./index.php") &&
     $cache_time > filemtime("./common.php") && 
-    $cache_time > filemtime("./config.php")  &&
-    $cache_time > filemtime_r("$image_folder/$path/.") &&
-    $cache_time > filemtime_r("$thumb_folder/$path/.")) {
+    $cache_time > filemtime("./config.php")  && 
+    $cache_time > filemtime_r("$image_folder/$path") &&
+    $cache_time > filemtime_r("$thumb_folder/$path")) {
   readfile($cache);
 } else {
   ob_start();
@@ -228,13 +228,15 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 </body> 
 </html>
 <?php
-  $page = ob_get_contents();
-  ob_end_clean();
+$page = ob_get_contents();
+ob_end_clean();
 
-  if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
-    mkdir("$cache_folder/$path", 0777, true);
-
-  file_put_contents($cache, $page);
-  echo $page;
+if ($dir_thumb_mode != "RANDOM") {
+    // Only write cache when needed
+    if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
+        mkdir("$cache_folder/$path", 0777, true);
+    file_put_contents($cache, $page);
+}
+echo $page;
 }
 ?>

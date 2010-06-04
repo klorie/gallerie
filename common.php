@@ -446,17 +446,22 @@ function deleteDir($dir)
 // Returns the date of the most recently modified file inside the folder
 function filemtime_r($path, $depth = 2)
 {
-    if (!file_exists($path))
-        return time();
+    clearstatcache();
 
-    if (is_file($path))   
+    if (!file_exists($path))
+        return 0;
+
+    if (is_file($path))
         return filemtime($path);
 
     $ret = 0;
-    $dir = opendir($path);
-    while($entry = readdir($dir)) {
-        if (($entry != '.') && ($entry != '..')) {
-            $subret = filemtime_r($entry, $depth - 1);
+    if (is_dir($path) && ($depth > 0)) {
+        $dir = opendir($path);
+        while(($entry = readdir($dir)) !== false) {
+            if (($entry != ".") && ($entry != "..")) 
+                $subret = filemtime_r("$path/$entry", $depth - 1);
+            else
+                $subret = filemtime("$path/$entry");
             if ($subret > $ret)
                 $ret = $subret;   
         }
