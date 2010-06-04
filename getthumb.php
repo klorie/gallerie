@@ -12,10 +12,9 @@ if ((isset($_REQUEST['file'])) and (isset($_REQUEST['dir']))) {
 	die('file and/or dir was not specified');
 }
 
+global $enable_otf_gen;
 global $image_folder;
 global $thumb_folder;
-global $thumb_create;
-global $thumb_ext;
 
 $info = pathinfo("$image_folder/$dir/$file");
 $fname_noext = $info['filename'];
@@ -24,10 +23,16 @@ if ($fname_noext == "" ) {
     $fname_noext = substr($info['basename'], 0, strlen($info['basename'])-4);
 }
 
-$thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.'.$thumb_ext;
+$thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.jpg';
 
-if (!file_exists($thumbnail) || (filemtime($thumbnail) < filemtime("$image_folder/$dir/$file"))) 
-	createSingleThumb($dir, $file);
+if (!file_exists($thumbnail))
+    if ($enable_otf_gen == 1)
+        createThumb($dir, $file);
+    else
+        $thumbnail = './images/nothumb.jpg';
+else if (filemtime($thumbnail) < filemtime("$image_folder/$dir/$file"))
+    if ($enable_otf_gen == 1)
+    	createThumb($dir, $file);
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));
 if(! strstr($gmdate_mod, "GMT")) {
@@ -45,10 +50,7 @@ if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 $fileSize = filesize ($thumbnail);
 
 // send headers then display image
-if ($thumb_ext == 'jpg')
-    header ('Content-Type: image/jpeg');
-else
-    header ('Content-Type: image/png');
+header ('Content-Type: image/jpeg');
 header ('Accept-Ranges: bytes');
 header ('Last-Modified: ' . $gmdate_mod);
 header ('Content-Length: ' . $fileSize);

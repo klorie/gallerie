@@ -11,7 +11,7 @@ $path = $_GET["path"];
 $path = safeDirectory($path);
 $dirlist = getFileList($path);
 
-$cache = "./cache/$path/index.html";
+$cache = "$cache_folder/$path/index.html";
 if (file_exists($cache) && ($dir_thumb_mode != "RANDOM"))
     $cache_time = filemtime($cache);
 else
@@ -21,8 +21,8 @@ if ($cache_time !== false &&
     $cache_time > filemtime("./index.php") &&
     $cache_time > filemtime("./common.php") && 
     $cache_time > filemtime("./config.php")  &&
-    $cache_time > filemtime_r("./gallery/$path/.") &&
-    $cache_time > filemtime_r("./thumbnails/$path/.")) {
+    $cache_time > filemtime_r("$image_folder/$path/.") &&
+    $cache_time > filemtime_r("$thumb_folder/$path/.")) {
   readfile($cache);
 } else {
   ob_start();
@@ -50,7 +50,7 @@ if ($cache_time !== false &&
       $("ul.tabs").tabs("ul.gallery", {event:'mouseover'});
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
-    	padding: 40,
+    	padding: 20,
 	    opacity: 0.65,
 	    showTitle: true,
 	    allowresize: true,
@@ -61,8 +61,11 @@ if ($cache_time !== false &&
   </script>		
 
 <?php
-// Create thumbnail in current directory
-if (!file_exists("./thumbnails/$path")) { mkdir("./thumbnails/$path"); }
+if ($enable_otf_gen == 1) {
+    // Create thumbnail/resize in current directory
+    if (!file_exists("$thumb_folder/$path"))  mkdir("$thumb_folder/$path");
+    if (!file_exists("$resize_folder/$path")) mkdir("$resize_folder/$path");
+}
 
 // Issue Cooliris header
 if (count($dirlist[file]) > 1) {  
@@ -140,10 +143,10 @@ echo "</h3>\n";
 if (count($dirlist[dir]) > 0) {
   echo "<ul class=\"galleryfolder\">\n";
   foreach($dirlist[dir] as $file) {
-    echo "<li><div class=\"galleryfolderalign\"><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
     $thumb = GetThumbsForDir($file['fullname'], $dir_thumb_mode);  
-    echo "<img src=\"".$thumb."\" class=\"galleryfolderimg\" alt=\"".$file['name']."\"/>";
-    echo "<br />".htmlentities($file['title'])."</a></div></li>\n";
+    echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
+    echo "<br />".htmlentities($file['title'])."</a></li>\n";
   }
   echo "</ul>\n";
   //Separate Directory list and Pictures
@@ -167,11 +170,10 @@ if (count($dirlist[file]) > 1) {
     foreach($dirlist[file] as $file) {
         // Don't show album thumbnails
         if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-        $tmp_fthumb = substr($file['name'], 0, strlen($file['name'])-3).$thumb_ext; 
-        if ($resize_preview === 1) 
-            echo "<li><a href=\"./resize.php?src=./gallery/".urlencode($file['fullname'])."&w=".$resize_width."&h=0\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".htmlentities($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
+        if ($enable_otf_gen == 1) 
+            echo "<li><a href=\"./resize.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".htmlentities($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
         else
-            echo "<li><a href=\"./gallery/".urlencode($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=./gallery/".htmlentities($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
+            echo "<li><a href=\"".$resize_folder."/".urlencode($file['fullname'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=".$image_folder."/".htmlentities($file['fullname'])."&gt;".htmlentities($file['name'])."&lt;/a&gt;\">";
 
         echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
         if ($file['tags'] != '')
@@ -218,7 +220,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.7.5 - H. Raffard &amp; C. Laury - 2010/05/20</li>
+<li>Gallerie v1.8.0 - H. Raffard &amp; C. Laury - 2010/06/04</li>
 </ul>
 <br clear="all" /> 
 </div>
@@ -229,8 +231,8 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
   $page = ob_get_contents();
   ob_end_clean();
 
-  if (!(file_exists("./cache/$path") && is_dir("./cache/$path")))
-    mkdir("./cache/$path", 0777, true);
+  if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
+    mkdir("$cache_folder/$path", 0777, true);
 
   file_put_contents($cache, $page);
   echo $page;
