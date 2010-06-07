@@ -9,7 +9,6 @@ $cwd = dirname($_SERVER["PHP_SELF"]);
 
 $path = $_GET["path"];
 $path = safeDirectory($path);
-$dirlist = getFileList($path);
 
 $cache = "$cache_folder/$path/index.html";
 if (file_exists($cache) && ($dir_thumb_mode != "RANDOM"))
@@ -26,6 +25,7 @@ if ($cache_time !== false &&
   readfile($cache);
 } else {
   ob_start();
+  $dirlist = getFileList($path);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -50,7 +50,7 @@ if ($cache_time !== false &&
       $("ul.tabs").tabs("ul.gallery", {event:'mouseover'});
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
-    	padding: 20,
+    	padding: 30,
 	    opacity: 0.65,
 	    showTitle: true,
 	    allowresize: true,
@@ -144,7 +144,7 @@ if (count($dirlist[dir]) > 0) {
   echo "<ul class=\"galleryfolder\">\n";
   foreach($dirlist[dir] as $file) {
     echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
-    $thumb = GetThumbsForDir($file['fullname'], $dir_thumb_mode);  
+    $thumb = GetThumbsForDir($file['fullname']);  
     echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
     echo "<br />".htmlentities($file['title'])."</a></li>\n";
   }
@@ -220,7 +220,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.8.0 - H. Raffard &amp; C. Laury - 2010/06/04</li>
+<li>Gallerie v1.8.1 - H. Raffard &amp; C. Laury - 2010/06/07</li>
 </ul>
 <br clear="all" /> 
 </div>

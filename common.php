@@ -141,10 +141,13 @@ function safeDirectory($path) {
     return $result;
 }
 
-function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
+function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_tag_parsing=false)
 {
+    global $image_folder;
     global $reverse_subalbum_sort;
+    global $dir_thumb_mode;
 
+    if ($basedir == "") $basedir = $image_folder;
     // array to hold return value
     $retval = array( "dir" => array(), "file" => array());
 
@@ -155,53 +158,46 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
         if($entry[0] == ".") continue;
         if(is_dir("$basedir/$dir/$entry")) {
             // Folder
-            // Get caption from 00ALBUM if any
-            if (file_exists("$basedir/$dir/$entry/00ALBUM.jpg")) {
-                $caption_file = "$basedir/$dir/$entry/00ALBUM.jpg";
-            } elseif (file_exists("$basedir/$dir/$entry/00ALBUM.JPG")) {
-                $caption_file = "$basedir/$dir/$entry/00ALBUM.JPG";
-            } else {
-                $caption_file = "";
-            }
-            if ($caption_file != "") {
-                $exif = exif_read_data($caption_file);
-                if ($exif != false) {
-                    $dir_caption = $exif["COMPUTED"]["UserComment"];
-                    if ($dir_caption == "") {
+            if ($disable_tag_parsing == false) {
+                // Get caption from 00ALBUM if any
+                if (file_exists("$basedir/$dir/$entry/00ALBUM.jpg")) {
+                    $caption_file = "$basedir/$dir/$entry/00ALBUM.jpg";
+                } elseif (file_exists("$basedir/$dir/$entry/00ALBUM.JPG")) {
+                    $caption_file = "$basedir/$dir/$entry/00ALBUM.JPG";
+                } else {
+                    $caption_file = "";
+                }
+                if ($caption_file != "") {
+                    $exif = exif_read_data($caption_file);
+                    if ($exif != false) {
+                        $dir_caption = $exif["COMPUTED"]["UserComment"];
+                        if ($dir_caption == "") {
+                            $dir_caption = strtr($entry, "_", " ");
+                        }
+                    } else {
                         $dir_caption = strtr($entry, "_", " ");
                     }
                 } else {
                     $dir_caption = strtr($entry, "_", " ");
                 }
-            } else {
-                $dir_caption = strtr($entry, "_", " ");
             }
 
-            if ($dir != "") {
-                $retval[dir][] = array(
-                        "dir"      => "$dir",
-                        "fullname" => "$dir/$entry",
-                        "name"     => "$entry",
-                        "type"     => "dir",
-                        "title"    => "$dir_caption",
-                        "size"     => 0,
-                        "lastmod"  => filemtime("$basedir/$dir/$entry")
-                        ); 
-            } else {
-                $retval[dir][] = array(
-                        "dir"      => "",
-                        "fullname" => "$entry",
-                        "name"     => "$entry",
-                        "type"     => "dir",
-                        "title"    => "$dir_caption",
-                        "size"     => 0,
-                        "lastmod"  => filemtime("$basedir/$entry")
-                        ); }
+            $fullname = (($dir != "") ? "$dir/$entry" : "$entry");
+            $retval[dir][] = array(
+                    "dir"      => "$dir",
+                    "fullname" => "$fullname",
+                    "name"     => "$entry",
+                    "type"     => "dir",
+                    "title"    => "$dir_caption",
+                    "size"     => 0,
+                    "lastmod"  => filemtime("$basedir/$fullname")
+                    ); 
+            
             if($recurse && is_readable("$basedir/$dir/$entry")) {
                 if($depth === false) {
-                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, false, $basedir));
+                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, false, $basedir, $disable_tag_parsing));
                 } elseif($depth > 0) {
-                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir));
+                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir, $disable_tag_parsing));
                 }
             }
         } elseif(is_readable("$basedir/$dir/$entry")) {
@@ -212,77 +208,68 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
             $subtitle = "";
             $edate    = "";
             $esize    = "";
-            if ($ext == 'jpg')
-                $exif = exif_read_data("$basedir/$dir/$entry");
-            else
-                $exif = false;
-            if ($exif != false) {
-                if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
-                if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
-                if (!empty($edate)) {
-                    $edate = split(':', str_replace(' ', ':', $edate));
-                    $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
-                    $edate = strftime('%d/%m/%Y %Hh%M', strtotime($edate));
-                }
-                if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) $esize = $exif['COMPUTED']['Width']."x".$exif['COMPUTED']['Height'];
-                if ($exif['Model']) $subtitle .= $exif['Model']." - ";
-                if ($exif['ISOSpeedRatings']) $subtitle .= $exif['ISOSpeedRatings']."ISO, ";
-                if (exif_get_lens($exif)) $subtitle .= exif_get_lens($exif);
-                if (exif_get_lens($exif) && exif_is_zoom($exif)) $subtitle .= " @ ";
-                if (exif_get_focal($exif) && exif_is_zoom($exif)) $subtitle .= exif_get_focal($exif);
-                if (exif_get_lens($exif) || exif_get_focal($exif)) $subtitle .= ", ";
-                if (exif_get_shutter($exif)) $subtitle .= exif_get_shutter($exif).", ";
-                if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif);
-            }
-            if ($subtitle !== "") $subtitle .= "<br />";
-            $caption = $info['filename'];
-            $caption = strtr($entry, "_", " ");
-            $tags = "";
-            $size = getimagesize("$basedir/$dir/$entry", $imginfo);
-            if (isset($imginfo["APP13"])) {
-                $iptc = iptcparse($imginfo["APP13"]);
-                if (is_array($iptc) && ($iptc["2#120"][0] != ""))
-                    $caption = $iptc["2#120"][0];
-                if (is_array($iptc) && ($iptc["2#025"][0] != ""))
-                    for ($t = 0; $t < count($iptc["2#025"]); $t++) {
-                        $tags .= $iptc["2#025"][$t];
-                        if ($t < (count($iptc["2#025"]) - 1)) $tags .= ", ";
+            if ($disable_tag_parsing == false) {
+                if ($ext == 'jpg')
+                    $exif = exif_read_data("$basedir/$dir/$entry");
+                else
+                    $exif = false;
+                if ($exif != false) {
+                    if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
+                    if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
+                    if (!empty($edate)) {
+                        $edate = split(':', str_replace(' ', ':', $edate));
+                        $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+                        $edate = strftime('%d/%m/%Y %Hh%M', strtotime($edate));
                     }
-            }
-            if ($dir != "") {
-                if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$dir/$entry"));
-                if (filesize("$basedir/$dir/$entry") >= (1024*1024))
-                    $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$dir/$entry") / (1024*1024)));
-                else
-                    $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$dir/$entry") / 1024));
-                $retval[file][] = array(
-                        "dir"      => "$dir",
-                        "fullname" => "$dir/$entry",
-                        "name"     => "$entry",
-                        "title"    => "$caption",
-                        "subtitle" => "$subtitle",
-                        "type"     => mime_type("$basedir/$dir/$entry"),
-                        "tags"     => "$tags",
-                        "size"     => "$esize",
-                        "lastmod"  => "$edate"
-                        ); 
-            } else {
-                if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$entry"));
-                if (filesize("$basedir/$entry") >= (1024*1024))
-                    $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$entry") / (1024*1024)));
-                else
-                    $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$entry") / 1024));
-                $retval[file][] = array(
-                        "dir"      => "",
-                        "fullname" => "$entry",
-                        "name"     => "$entry",
-                        "title"    => "$caption",
-                        "subtitle" => "$subtitle",
-                        "type"     => mime_type("$basedir/$entry"),
-                        "tags"     => "$tags",
-                        "size"     => "$esize",
-                        "lastmod"  => "$edate"
-                        ); }
+                    if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) $esize = $exif['COMPUTED']['Width']."x".$exif['COMPUTED']['Height'];
+                    if ($exif['Model']) $subtitle .= $exif['Model']." - ";
+                    if ($exif['ISOSpeedRatings']) $subtitle .= $exif['ISOSpeedRatings']."ISO, ";
+                    if (exif_get_lens($exif)) $subtitle .= exif_get_lens($exif);
+                    if (exif_get_lens($exif) && exif_is_zoom($exif)) $subtitle .= " @ ";
+                    if (exif_get_focal($exif) && exif_is_zoom($exif)) $subtitle .= exif_get_focal($exif);
+                    if (exif_get_lens($exif) || exif_get_focal($exif)) $subtitle .= ", ";
+                    if (exif_get_shutter($exif)) $subtitle .= exif_get_shutter($exif).", ";
+                    if (exif_get_fstop($exif)) $subtitle .= exif_get_fstop($exif);
+                }
+                if ($subtitle !== "") $subtitle .= "<br />";
+                $caption = $info['filename'];
+                $caption = strtr($entry, "_", " ");
+                $tags = "";
+                $size = getimagesize("$basedir/$dir/$entry", $imginfo);
+                if (isset($imginfo["APP13"])) {
+                    $iptc = iptcparse($imginfo["APP13"]);
+                    if (is_array($iptc) && ($iptc["2#120"][0] != ""))
+                        $caption = $iptc["2#120"][0];
+                    if (is_array($iptc) && ($iptc["2#025"][0] != ""))
+                        for ($t = 0; $t < count($iptc["2#025"]); $t++) {
+                            $tags .= $iptc["2#025"][$t];
+                            if ($t < (count($iptc["2#025"]) - 1)) $tags .= ", ";
+                        }
+                }
+            } // endif $disable_tag_parsing
+
+            $fullname = (($dir != "") ? "$dir/$entry" : "$entry");
+
+            if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$fullname"));
+            if (filesize("$basedir/$fullname") >= (1024*1024))
+                $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$fullname") / (1024*1024)));
+            else
+                $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$fullname") / 1024));
+
+            $retval[file][] = array(
+                    "dir"      => "$dir",
+                    "fullname" => "$fullname",
+                    "name"     => "$entry",
+                    "title"    => "$caption",
+                    "subtitle" => "$subtitle",
+                    "type"     => mime_type("$basedir/$fullname"),
+                    "tags"     => "$tags",
+                    "size"     => "$esize",
+                    "lastmod"  => "$edate"
+                    ); 
+            // If we found folder thumbnail, do go further
+            if (preg_match("/ALBUM00/i", $fullname) && ($dir_thumb_mode == "ALBUM00"))
+                return $retval;
         }
     }
     $d->close();
@@ -291,7 +278,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="./gallery")
     else
         arsort($retval[dir]);
     sort($retval[file]);
-    //echo count($retval[dir],0);
+
     return $retval;
 }
 
@@ -382,26 +369,27 @@ function createResize($path, $fname)
     $img->destroy();
 }
 
-function GetThumbsForDir($dir, $mode)
+function GetThumbsForDir($dir)
 {
     global $thumb_folder;
+    global $dir_thumb_mode;
 
     $found_thumb = 0;
     if(is_dir("$thumb_folder/$dir")) { 
-        $subdirlist = getFileList($dir, true, 2, $thumb_folder);
+        $subdirlist = getFileList($dir, true, 2, $thumb_folder, true);
         foreach($subdirlist[file] as $file_thumb) {
-            if (preg_match("/ALBUM00/i", $file_thumb['name']) && ($mode == "ALBUM00")) {
+            if (preg_match("/ALBUM00/i", $file_thumb['name']) && ($dir_thumb_mode == "ALBUM00")) {
                 $found_thumb = 1;
                 $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
                 break;
             }
-            if ($mode != "ALBUM00") {
+            if ($dir_thumb_mode != "ALBUM00") {
                 $found_thumb = 1;
                 $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
                 break;
             }
         }
-        if (($mode == "RANDOM") && ($found_thumb == 1)) {
+        if (($dir_thumb_mode == "RANDOM") && ($found_thumb == 1)) {
             $rand_keys  = rand(0,count($subdirlist[file])-1);
             $tmp_fthumb = $thumb_folder."/".$subdirlist[file][$rand_keys]['fullname'];
         }
