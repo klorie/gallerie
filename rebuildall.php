@@ -40,8 +40,6 @@ function cleanDirectory($path, $base_folder)
 {
     global $image_folder;
 
-    echo "Cleaning $base_folder/$path\n";
-
     // open the thumbnail directory
     $dir = opendir("$base_folder/$path");
 
@@ -93,26 +91,31 @@ if ($argv[1] == "--clean" || $clean) {
     deleteDir("$resize_folder");
 }
 
-$dirlist = getFileList("", true, 10);
-echo "Found ".count($dirlist[dir])." to process\n";
+$dirlist = getFileList("", true, 10, $image_folder, true);
+echo "Found ".count($dirlist[dir])." folders to process\n";
 
 foreach($dirlist[dir] as $file) {
     $path = $file['fullname'];
-    echo "Processing $path ...\n";
     if (!file_exists("$thumb_folder/$path")) { 
         mkdir("$thumb_folder/$path", 0777, true);
     }
     if (!file_exists("$resize_folder/$path")) {
         mkdir("$resize_folder/$path", 0777, true); 
     }
+    echo "Processing $path...";
     cleanDirectory($path, $thumb_folder);
     cleanDirectory($path, $resize_folder);
     processDirectory($path);
-    echo "[ Done ]\n";
+    echo " [ Done ]\n";
 }
 
 $mtime = explode(' ', microtime());
 $totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
-echo "Processing done in $totaltime min\n";
+if ($totaltime < 60) {
+    echo "Processing done in $totaltime min\n";
+} else {
+    $totaltime = $totaltime / 60;
+    echo "Processing done in $totaltime hours\n";
+}
 
 ?>
