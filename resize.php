@@ -12,6 +12,7 @@ if ((isset($_REQUEST['file'])) and (isset($_REQUEST['dir']))) {
 	die('file and/or dir was not specified');
 }
 
+global $enable_otf_gen;
 global $image_folder;
 global $resize_folder;
 
@@ -25,9 +26,13 @@ if ($fname_noext == "" ) {
 $resize = $resize_folder.'/'.$dir.'/'.$fname_noext.'.jpg';
 
 if (!file_exists($resize))
-    createResize($dir, $file);
+    if ($enable_otf_gen == 1)
+        createResize($dir, $file);
+    else
+        $resize = './images/nothumb.jpg';
 else if (filemtime($resize) < filemtime("$resize_folder/$dir/$file"))
-	createResize($dir, $file);
+    if ($enable_otf_gen == 1)
+        createResize($dir, $file);
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($resize));
 if(!strstr($gmdate_mod, "GMT")) {
