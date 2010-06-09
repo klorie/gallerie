@@ -4,68 +4,24 @@ require_once "config.php";
 /**
  * determine the file mime type
  */
-function mime_type($file) {
-    if (stristr(PHP_OS, 'WIN')) { 
-        $os = 'WIN';
-    } else { 
-        $os = PHP_OS;
-    }
-    $mime_type = '';
-
-    if (function_exists('mime_content_type')) {
-        $mime_type = mime_content_type($file);
-    }
-    
-    // use PECL fileinfo to determine mime type
-    if (!valid_src_mime_type($mime_type)) {
-	    if (function_exists('finfo_open')) {
-		    $finfo = @finfo_open(FILEINFO_MIME);
-		    if ($finfo != '') {
-			    $mime_type = finfo_file($finfo, $file);
-			    finfo_close($finfo);
-		    }
-	    }
-    }
-
-    // try to determine mime type by using unix file command
-    // this should not be executed on windows
-    if (!valid_src_mime_type($mime_type) && $os != "WIN") {
-        if (preg_match("/FREEBSD|LINUX/", $os)) {
-		$mime_type = trim(@shell_exec('file -bi ' . escapeshellarg($file)));
-        }
-    }
+function mime_type($ext) {
 
     // use file's extension to determine mime type
-    if (!valid_src_mime_type($mime_type)) {
-        // set defaults
-        $mime_type = 'image/png';
-        // file details
-        $fileDetails = pathinfo($file);
-        $ext = strtolower($fileDetails["extension"]);
-        // mime types
-        $types = array(
-             'jpg'  => 'image/jpeg',
-             'jpeg' => 'image/jpeg',
-             'png'  => 'image/png',
-             'gif'  => 'image/gif'
-         );
-        
-        if (strlen($ext) && strlen($types[$ext])) {
-            $mime_type = $types[$ext];
-        }
+    // set defaults
+    $mime_type = 'image/png';
+    // mime types
+    $types = array(
+            'bmp'  => 'image/bmp',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+            'gif'  => 'image/gif'
+            );
+
+    if (strlen($ext) && strlen($types[$ext])) {
+        $mime_type = $types[$ext];
     }
     return $mime_type;
-}
-
-/**
- * 
- */
-function valid_src_mime_type($mime_type) {
-
-    if (preg_match("/jpg|jpeg|gif|png/i", $mime_type)) {
-        return true;
-    }
-    return false;
 }
 
 function exif_get_float($value)
@@ -193,12 +149,8 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
                     "lastmod"  => filemtime("$basedir/$fullname")
                     ); 
             
-            if($recurse && is_readable("$basedir/$dir/$entry")) {
-                if($depth === false) {
-                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, false, $basedir, $disable_tag_parsing));
-                } elseif($depth > 0) {
-                    $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir, $disable_tag_parsing));
-                }
+            if($recurse && is_readable("$basedir/$dir/$entry") && ($depth > 0)) {
+                $retval = array_merge_recursive($retval, getFileList("$dir/$entry", true, $depth - 1, $basedir, $disable_tag_parsing));
             }
         } elseif(is_readable("$basedir/$dir/$entry")) {
             // File
@@ -262,7 +214,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
                     "name"     => "$entry",
                     "title"    => "$caption",
                     "subtitle" => "$subtitle",
-                    "type"     => mime_type("$basedir/$fullname"),
+                    "type"     => mime_type($ext),
                     "tags"     => "$tags",
                     "size"     => "$esize",
                     "lastmod"  => "$edate"
@@ -374,24 +326,33 @@ function GetThumbsForDir($dir)
     global $thumb_folder;
     global $dir_thumb_mode;
 
-    $found_thumb = 0;
+    $found_thumb  = 0;
+    $search_depth = 0;
+    $max_depth    = 4;
+
     if(is_dir("$thumb_folder/$dir")) { 
-        $subdirlist = getFileList($dir, true, 2, $thumb_folder, true);
-        foreach($subdirlist[file] as $file_thumb) {
-            if (preg_match("/ALBUM00/i", $file_thumb['name']) && ($dir_thumb_mode == "ALBUM00")) {
-                $found_thumb = 1;
-                $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
-                break;
+        while($search_depth < $max_depth) {
+            $subdirlist = getFileList($dir, true, $search_depth, $thumb_folder, true);
+            foreach($subdirlist[file] as $file_thumb) {
+                if (preg_match("/ALBUM00/i", $file_thumb['name']) && ($dir_thumb_mode == "ALBUM00")) {
+                    $found_thumb = 1;
+                    $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
+                    break;
+                }
+                if ($dir_thumb_mode != "ALBUM00") {
+                    $found_thumb = 1;
+                    $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
+                    break;
+                }
             }
-            if ($dir_thumb_mode != "ALBUM00") {
-                $found_thumb = 1;
-                $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
-                break;
+            if (($dir_thumb_mode == "RANDOM") && ($found_thumb == 1)) {
+                $rand_keys  = rand(0,count($subdirlist[file])-1);
+                $tmp_fthumb = $thumb_folder."/".$subdirlist[file][$rand_keys]['fullname'];
             }
-        }
-        if (($dir_thumb_mode == "RANDOM") && ($found_thumb == 1)) {
-            $rand_keys  = rand(0,count($subdirlist[file])-1);
-            $tmp_fthumb = $thumb_folder."/".$subdirlist[file][$rand_keys]['fullname'];
+            if ($found_thumb == 1)
+                $search_depth = $max_depth;
+            else
+                $search_depth++;
         }
     } 
     if ($found_thumb == 0) {
