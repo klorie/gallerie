@@ -46,6 +46,7 @@ if ($cache_time !== false &&
       jQuery('.dynamic-thumbnail').loadImages();
       $.tools.tooltip.conf.relative = true;
       $.tools.tooltip.conf.cancelDefault = false;
+      $.tools.tooltip.conf.predelay = 1000;
       $(".dynamic-thumbnail").tooltip();
       $("ul.tabs").tabs("ul.gallery", {event:'mouseover'});
       $("a[rel^='prettyPhoto']").prettyPhoto({
