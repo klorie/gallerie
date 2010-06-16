@@ -36,6 +36,7 @@ if ($cache_time !== false &&
   <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
+  <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
 <?php if(count($dirlist[file]) > 1)
@@ -58,8 +59,16 @@ if ($cache_time !== false &&
 	    counter_separator_label: '/',
 	    theme: '<?php echo $gal_theme; ?>' 
       });
+      $("a[rel^='#video']").overlay({
+         expose: '#111',
+         effect: 'apple',
+         onLoad: function(content) {
+             this.getOverlay.find("a.player").flowplayer(0).load();
+         }
+      });
+      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf");
     });
-  </script>		
+ </script>		
 
 <?php
 if ($enable_otf_gen == 1) {
@@ -168,15 +177,23 @@ if (count($dirlist[file]) > 1) {
     }
     echo "<ul class=\"gallery\">\n";
     $tabthumb = 0;
+    $videoid  = 0;
     foreach($dirlist[file] as $file) {
         // Don't show album thumbnails
         if (strpos($file['fullname'], "00ALBUM") !== false) continue;
-        echo "<li><a href=\"./resize.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=&quot;".$image_folder."/".htmlentities($file['fullname'])."&quot;&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
-
-        echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
-        if ($file['tags'] != '')
-            echo "<br /><i>".htmlentities($file['tags'])."</i>";
-        echo "</div></a></li>\n";
+        if ($file['type'] == 'video/x-flv') {
+            // Video
+            $fname_noext = substr($file['fullname'], 0, strlen($file['fullname']) - 4);
+            echo "<li><a href=\"#\" rel=\"#video".$videoid."\"><img src=\"".$thumb_folder."/".$fname_noext.".jpg\" /></a></li>\n";
+            $videoid++;
+        } else {
+            // Images
+            echo "<li><a href=\"./resize.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=&quot;".$image_folder."/".htmlentities($file['fullname'])."&quot;&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
+            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
+            if ($file['tags'] != '')
+                echo "<br /><i>".htmlentities($file['tags'])."</i>";
+            echo "</div></a></li>\n";
+        }
         $tabthumb++;
         if ($tabthumb >= $thumbs_per_page) {
             $tabthumb = 0;
@@ -190,6 +207,17 @@ if (count($dirlist[file]) > 1) {
         }
     }
     echo "</ul>\n";
+    // Videos overlay
+    $videoid  = 0;
+    foreach($dirlist[file] as $file) {
+        if($file['type'] == 'video/x-flv') {
+            $fname_noext = substr($file['fullname'], 0, strlen($file['fullname']) - 4);
+            echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
+            echo "<a class=\"player\" href=\"".$resize_folder."/".$fname_noext.".flv\"></a>";
+            echo "</div>\n";
+            $videoid++;
+        }
+    }
     echo "<div class=\"clearfix\"></div>\n";
     echo "<h3></h3>\n";
 }
@@ -218,7 +246,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.8.1 - H. Raffard &amp; C. Laury - 2010/06/07</li>
+<li>Gallerie v1.8.2 - H. Raffard &amp; C. Laury - 2010/06/07</li>
 </ul>
 <br clear="all" /> 
 </div>

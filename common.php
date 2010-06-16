@@ -15,7 +15,10 @@ function mime_type($ext) {
             'jpg'  => 'image/jpeg',
             'jpeg' => 'image/jpeg',
             'png'  => 'image/png',
-            'gif'  => 'image/gif'
+            'gif'  => 'image/gif',
+            'avi'  => 'video/x-flv',
+            'mov'  => 'video/x-flv',
+            'flv'  => 'video/x-flv'
             );
 
     if (strlen($ext) && strlen($types[$ext])) {
@@ -156,7 +159,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             // File
             $info = pathinfo("$basedir/$dir/$entry");
             $ext = strtolower($info['extension']);
-            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' ) { continue ;}
+            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov') { continue ;}
             $subtitle = "";
             $edate    = "";
             $esize    = "";

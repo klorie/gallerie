@@ -244,6 +244,35 @@ ul.tabs a.current {
     font-weight:      bold;
 }
 
+/*---------------------------------------------------
+ * Videos
+ * --------------------------------------------------*/
+.videoverlay {
+    /* initially overlay is hidden */
+    display:          none;
+    background-image: url(../images/transparent_overlay.png);
+    color:            #FFFFFF;
+    width:            640px;        
+    padding:          35px;
+    font-size:        11px;
+}
+
+.videoverlay .close {
+    background-image: url(../images/close_overlay.png);
+    position:         absolute;
+    right:            5px; 
+    top:              5px;
+    cursor:           pointer;
+    height:           35px;
+    width:            35px;
+}
+
+a.player {      
+    display:          block;
+    height:           480px;           
+}
+
+
 /* ------------------------------------------------------------------------
 	Miscellaneous
 ------------------------------------------------------------------------- */
