@@ -59,6 +59,8 @@ if ($cache_time !== false &&
 	    counter_separator_label: '/',
 	    theme: '<?php echo $gal_theme; ?>' 
       });
+    });
+    $(function() {
       $("a[rel^='#video']").overlay({
          expose: '#111',
          effect: 'apple',
@@ -165,7 +167,7 @@ if (count($dirlist[dir]) > 0) {
 }
 
 // Show list of pictures
-if (count($dirlist[file]) > 1) {
+if ((count($dirlist[file]) > 1) || (strpos($dirlist[file][0]['fullname'], "00ALBUM") === false))  {
     $tabcount = count($dirlist[file]) / $thumbs_per_page;
     if (count($dirlist[file]) > $thumbs_per_page) {
         echo "<ul class=\"tabs\">\n";
@@ -183,17 +185,18 @@ if (count($dirlist[file]) > 1) {
         if (strpos($file['fullname'], "00ALBUM") !== false) continue;
         if ($file['type'] == 'video/x-flv') {
             // Video
-            $fname_noext = substr($file['fullname'], 0, strlen($file['fullname']) - 4);
-            echo "<li><a href=\"#\" rel=\"#video".$videoid."\"><img src=\"".$thumb_folder."/".$fname_noext.".jpg\" /></a></li>\n";
+            echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
             $videoid++;
         } else {
             // Images
             echo "<li><a href=\"./resize.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=&quot;".$image_folder."/".htmlentities($file['fullname'])."&quot;&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
-            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
-            if ($file['tags'] != '')
-                echo "<br /><i>".htmlentities($file['tags'])."</i>";
-            echo "</div></a></li>\n";
         }
+        echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
+        if ($file['tags'] != '')
+            echo "<br /><i>".htmlentities($file['tags'])."</i>";
+        else if ($file['type'] == 'video/x-flv')
+            echo "<br /><i>".$file['size']."</i>";
+        echo "</div></a></li>\n";
         $tabthumb++;
         if ($tabthumb >= $thumbs_per_page) {
             $tabthumb = 0;
@@ -246,7 +249,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.8.2 - H. Raffard &amp; C. Laury - 2010/06/07</li>
+<li>Gallerie v1.9.0 - H. Raffard &amp; C. Laury - 2010/06/17</li>
 </ul>
 <br clear="all" /> 
 </div>

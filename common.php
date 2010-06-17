@@ -18,6 +18,7 @@ function mime_type($ext) {
             'gif'  => 'image/gif',
             'avi'  => 'video/x-flv',
             'mov'  => 'video/x-flv',
+            'mpg'  => 'video/x-flv',
             'flv'  => 'video/x-flv'
             );
 
@@ -159,7 +160,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             // File
             $info = pathinfo("$basedir/$dir/$entry");
             $ext = strtolower($info['extension']);
-            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov') { continue ;}
+            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') { continue ;}
             $subtitle = "";
             $edate    = "";
             $esize    = "";
@@ -189,24 +190,33 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
                 if ($subtitle !== "") $subtitle .= "<br />";
                 $caption = $info['filename'];
                 $caption = strtr($entry, "_", " ");
-                $tags = "";
-                $size = getimagesize("$basedir/$dir/$entry", $imginfo);
-                if (isset($imginfo["APP13"])) {
-                    $iptc = iptcparse($imginfo["APP13"]);
-                    if (is_array($iptc) && ($iptc["2#120"][0] != ""))
-                        $caption = $iptc["2#120"][0];
-                    if (is_array($iptc) && ($iptc["2#025"][0] != ""))
-                        for ($t = 0; $t < count($iptc["2#025"]); $t++) {
-                            $tags .= $iptc["2#025"][$t];
-                            if ($t < (count($iptc["2#025"]) - 1)) $tags .= ", ";
-                        }
+                $tags    = "";
+                if ($ext != 'mov' && $ext != 'avi' && $ext != 'mpg') {
+                    $size = getimagesize("$basedir/$dir/$entry", $imginfo);
+                    if (isset($imginfo["APP13"])) {
+                        $iptc = iptcparse($imginfo["APP13"]);
+                        if (is_array($iptc) && ($iptc["2#120"][0] != ""))
+                            $caption = $iptc["2#120"][0];
+                        if (is_array($iptc) && ($iptc["2#025"][0] != ""))
+                            for ($t = 0; $t < count($iptc["2#025"]); $t++) {
+                                $tags .= $iptc["2#025"][$t];
+                                if ($t < (count($iptc["2#025"]) - 1)) $tags .= ", ";
+                            }
+                    }
                 }
             } // endif $disable_tag_parsing
 
             $fullname = (($dir != "") ? "$dir/$entry" : "$entry");
 
             if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$fullname"));
-            if (filesize("$basedir/$fullname") >= (1024*1024))
+            if (extension_loaded('ffmpeg') && ($ext == 'avi' || $ext == 'mpg' || $ext == 'mov')) {
+                // Get video length
+                $movie = new ffmpeg_movie("$basedir/$fullname");
+                if ($movie->getDuration() > 60)
+                    $esize = sprintf("~%dmin%ds", $movie->getDuration() / 60, $movie->getDuration() % 60);
+                else
+                    $esize = sprintf("~%ds", $movie->getDuration());
+            } else if (filesize("$basedir/$fullname") >= (1024*1024))
                 $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$fullname") / (1024*1024)));
             else
                 $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$fullname") / 1024));

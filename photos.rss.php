@@ -59,9 +59,10 @@ foreach($dirlist[file] as $file) {
     echo "  <media:description>".utf8_encode(xml_encode($file['subtitle']))."</media:description>\n";
     echo "  <link>".$image_folder."/".$file['fullname']."</link>\n";
     echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$thumb_folder."/".$path."/".$fname_noext.".jpg\" />\n";
-//    echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$image_folder."/".$file['fullname']."\" type=\"".$file['type']."\" />\n";
-    echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$resize_folder."/".$path."/".$fname_noext.".jpg\" type=\"image/jpeg\" />\n";
-
+    if ($ext == 'avi' || $ext == 'mpg' || $ext == 'mov')
+        echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$resize_folder."/".$path."/".$fname_noext.".flv\" type=\"video/x-flv\" />\n";
+    else
+        echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd.$resize_folder."/".$path."/".$fname_noext.".jpg\" type=\"image/jpeg\" />\n";
     echo "</item>\n";
 }
 echo "</channel>\n";

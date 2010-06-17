@@ -31,7 +31,7 @@ function processDirectory( $path )
             if (!file_exists("$resize_folder/$path/$fname_noext".'.jpg'))
                 createResize($path, $fname);
         }
-        if ($ext == 'avi' || $ext == 'mov') {
+        if ($ext == 'avi' || $ext == 'mov' || $ext =='mpg') {
             if (!file_exists("$thumb_folder/$path/$fname_noext".'.jpg') || 
                 (filemtime("$image_folder/$path/$fname") > filemtime("$thumb_folder/$path/$fname_noext".'.jpg')))
                 exec("ffmpegthumbnailer -i $image_folder/$path/$fname -o $thumb_folder/$path/$fname_noext.jpg -t 1 -s $thumb_size -f");

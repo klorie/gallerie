@@ -17,6 +17,7 @@ global $image_folder;
 global $thumb_folder;
 
 $info = pathinfo("$image_folder/$dir/$file");
+$ext  = strtolower($info['extension']);
 $fname_noext = $info['filename'];
 // Fix for php < 5.2
 if ($fname_noext == "" ) {
@@ -26,12 +27,12 @@ if ($fname_noext == "" ) {
 $thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.jpg';
 
 if (!file_exists($thumbnail))
-    if ($enable_otf_gen == 1)
+    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov'))
         createThumb($dir, $file);
     else
         $thumbnail = './images/nothumb.jpg';
 else if (filemtime($thumbnail) < filemtime("$image_folder/$dir/$file"))
-    if ($enable_otf_gen == 1)
+    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov'))
     	createThumb($dir, $file);
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));
