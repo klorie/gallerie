@@ -68,7 +68,7 @@ if ($cache_time !== false &&
              this.getOverlay.find("a.player").flowplayer(0).load();
          }
       });
-      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf");
+      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
     });
  </script>		
 
@@ -194,7 +194,7 @@ if ((count($dirlist[file]) > 1) || (strpos($dirlist[file][0]['fullname'], "00ALB
         echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
         if ($file['tags'] != '')
             echo "<br /><i>".htmlentities($file['tags'])."</i>";
-        else if ($file['type'] == 'video/x-flv')
+        else if (($file['type'] == 'video/x-flv') && ($file['size'] != ''))
             echo "<br /><i>".$file['size']."</i>";
         echo "</div></a></li>\n";
         $tabthumb++;

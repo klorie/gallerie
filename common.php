@@ -209,13 +209,15 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             $fullname = (($dir != "") ? "$dir/$entry" : "$entry");
 
             if (empty($edate)) $edate = strftime('%d/%m/%Y %H:%M', filemtime("$basedir/$fullname"));
-            if (extension_loaded('ffmpeg') && ($ext == 'avi' || $ext == 'mpg' || $ext == 'mov')) {
-                // Get video length
-                $movie = new ffmpeg_movie("$basedir/$fullname");
-                if ($movie->getDuration() > 60)
-                    $esize = sprintf("~%dmin%ds", $movie->getDuration() / 60, $movie->getDuration() % 60);
-                else
-                    $esize = sprintf("~%ds", $movie->getDuration());
+            if ($ext == 'avi' || $ext == 'mpg' || $ext == 'mov') {
+                if (extension_loaded('ffmpeg')) {
+                    // Get video length
+                    $movie = new ffmpeg_movie("$basedir/$fullname");
+                    if ($movie->getDuration() > 60)
+                        $esize = sprintf("~%dmin%ds", $movie->getDuration() / 60, $movie->getDuration() % 60);
+                    else
+                        $esize = sprintf("~%ds", $movie->getDuration());
+                }
             } else if (filesize("$basedir/$fullname") >= (1024*1024))
                 $esize = sprintf("(%.1fM, $esize)",(filesize("$basedir/$fullname") / (1024*1024)));
             else
