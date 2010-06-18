@@ -158,7 +158,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             }
         } elseif(is_readable("$basedir/$dir/$entry")) {
             // File
-            if (preg_match("/00ALBUM/i", $entry) && ($disable_tag_parsing == false)) continue;
+            if (preg_match("/00ALBUM/i", $entry) && ($disable_tag_parsing == false) && ($dir_thumb_mode == "00ALBUM")) continue;
             $info = pathinfo("$basedir/$dir/$entry");
             $ext = strtolower($info['extension']);
             if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') continue;
