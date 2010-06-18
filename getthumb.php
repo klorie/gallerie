@@ -27,12 +27,12 @@ if ($fname_noext == "" ) {
 $thumbnail = $thumb_folder.'/'.$dir.'/'.$fname_noext.'.jpg';
 
 if (!file_exists($thumbnail))
-    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov'))
+    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov') && ($ext != 'mpg'))
         createThumb($dir, $file);
     else
         $thumbnail = './images/nothumb.jpg';
 else if (filemtime($thumbnail) < filemtime("$image_folder/$dir/$file"))
-    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov'))
+    if (($enable_otf_gen == 1) && ($ext != 'avi') && ($ext != 'mov') && ($ext != 'mpg'))
     	createThumb($dir, $file);
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));

@@ -30,7 +30,7 @@ if (!file_exists($resize))
         createResize($dir, $file);
     else
         $resize = './images/nothumb.jpg';
-else if (filemtime($resize) < filemtime("$resize_folder/$dir/$file"))
+else if (filemtime($resize) < filemtime("$image_folder/$dir/$file"))
     if ($enable_otf_gen == 1)
         createResize($dir, $file);
 
