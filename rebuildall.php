@@ -37,7 +37,7 @@ function processDirectory( $path )
                 exec("ffmpegthumbnailer -i \"$image_folder/$path/$fname\" -o \"$thumb_folder/$path/$fname_noext.jpg\" -t 1 -s $thumb_size -f");
             if (!file_exists("$resize_folder/$path/$fname_noext".'.flv') ||
                 (filemtime("$image_folder/$path/$fname") > filemtime("$resize_folder/$path/$fname_noext".'.flv')))
-                exec("mencoder \"$image_folder/$path/$fname\" -o \"$resize_folder/$path/$fname_noext.flv\" -msglevel all:0 -of lavf -oac mp3lame -lameopts abr:br=64:mode=3 -ovc lavc -lavcopts vcodec=flv:vbitrate=1600:mbd=2:mv0:trell:v4mv:cbp:last_pred=4 -ofps 15 -srate 44100");
+                exec("mencoder \"$image_folder/$path/$fname\" -o \"$resize_folder/$path/$fname_noext.flv\" -quiet -of lavf -oac mp3lame -lameopts abr:br=64:mode=3 -ovc lavc -lavcopts vcodec=flv:vbitrate=1600:mbd=2:mv0:trell:v4mv:cbp:last_pred=4 -ofps 15 -srate 44100");
         }
     }
     // close the directory
