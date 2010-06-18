@@ -158,9 +158,10 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             }
         } elseif(is_readable("$basedir/$dir/$entry")) {
             // File
+            if (preg_match("/00ALBUM/i", $entry) && ($disable_tag_parsing == false)) continue;
             $info = pathinfo("$basedir/$dir/$entry");
             $ext = strtolower($info['extension']);
-            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') { continue ;}
+            if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') continue;
             $subtitle = "";
             $edate    = "";
             $esize    = "";
@@ -234,9 +235,6 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
                     "size"     => "$esize",
                     "lastmod"  => "$edate"
                     ); 
-            // If we found folder thumbnail, do go further
-            if (preg_match("/ALBUM00/i", $fullname) && ($dir_thumb_mode == "ALBUM00"))
-                return $retval;
         }
     }
     $d->close();
@@ -348,13 +346,17 @@ function GetThumbsForDir($dir)
     if(is_dir("$thumb_folder/$dir")) { 
         while($search_depth < $max_depth) {
             $subdirlist = getFileList($dir, true, $search_depth, $thumb_folder, true);
-            foreach($subdirlist[file] as $file_thumb) {
-                if (preg_match("/ALBUM00/i", $file_thumb['name']) && ($dir_thumb_mode == "ALBUM00")) {
-                    $found_thumb = 1;
-                    $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
-                    break;
+            if ($dir_thumb_mode == "00ALBUM") {
+                foreach($subdirlist[file] as $file_thumb) {
+                    if (preg_match("/00ALBUM/i", $file_thumb['name'])) {
+                        $found_thumb = 1;
+                        $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
+                        break;
+                    }
                 }
-                if ($dir_thumb_mode != "ALBUM00") {
+            }
+            if (($dir_thumb_mode != "00ALBUM") || ($found_thumb == 0)) {
+                foreach($subdirlist[file] as $file_thumb) {
                     $found_thumb = 1;
                     $tmp_fthumb  = $thumb_folder."/".$file_thumb['fullname'];
                     break;

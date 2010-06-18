@@ -4,32 +4,32 @@ require_once "config.php";
 require_once "common.php";
 
 function &xml_encode(&$xml) {
-	$xml = str_replace(array('ü', 'Ü', 'ö',
-				'Ö', 'ä', 'Ä',
-				'ß'
-				),
-			array('&#252;', '&#220;', '&#246;',
-				'&#214;', '&#228;', '&#196;',
-				'&#223;'
-			     ),
-			$xml
-			);
+    $xml = str_replace(array('ü', 'Ü', 'ö',
+                'Ö', 'ä', 'Ä',
+                'ß'
+                ),
+            array('&#252;', '&#220;', '&#246;',
+                '&#214;', '&#228;', '&#196;',
+                '&#223;'
+                ),
+            $xml
+            );
 
-	$xml = preg_replace(array("/\&([a-z\d\#]+)\;/i",
-				"/\&/",
-				"/\#\|\|([a-z\d\#]+)\|\|\#/i",
+    $xml = preg_replace(array("/\&([a-z\d\#]+)\;/i",
+                "/\&/",
+                "/\#\|\|([a-z\d\#]+)\|\|\#/i",
 
-				"/([^a-zA-Z\d\s\<\>\&\;\.\:\=\"\-\/\%\?\!\'\(\)\[\]\{\}\$\#\+\,\@_])/e"
-				),
-			array("#||\\1||#",
-				"&amp;",
-				"&\\1;",
-				"'&#'.ord('\\1').';'"
-			     ),
-			$xml
-			);
+                "/([^a-zA-Z\d\s\<\>\&\;\.\:\=\"\-\/\%\?\!\'\(\)\[\]\{\}\$\#\+\,\@_])/e"
+                ),
+            array("#||\\1||#",
+                "&amp;",
+                "&\\1;",
+                "'&#'.ord('\\1').';'"
+                ),
+            $xml
+            );
 
-	return $xml;
+    return $xml;
 } 
 
 $path = $_GET["path"];
@@ -46,7 +46,6 @@ echo "<atom:link href=\"".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]."\" re
 
 // Issue items
 foreach($dirlist[file] as $file) {
-    if (strpos($file['fullname'], "00ALBUM") !== false) continue;
     $info = pathinfo($image_folder."/".$file['fullname']);
     $ext = strtolower($info['extension']);
     $fname_noext = $info['filename'];

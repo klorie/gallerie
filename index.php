@@ -153,21 +153,21 @@ echo "</h3>\n";
 
 // Show list of subfolders, output <ul tag only if something inside to be w3c compliant
 if (count($dirlist[dir]) > 0) {
-  echo "<ul class=\"galleryfolder\">\n";
-  foreach($dirlist[dir] as $file) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
-    $thumb = GetThumbsForDir($file['fullname']);  
-    echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
-    echo "<br />".htmlentities($file['title'])."</a></li>\n";
-  }
-  echo "</ul>\n";
-  //Separate Directory list and Pictures
-  echo "<div class=\"clearfix\"></div>\n";
-  echo "<h3></h3>\n";
+    echo "<ul class=\"galleryfolder\">\n";
+    foreach($dirlist[dir] as $file) {
+        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
+        $thumb = GetThumbsForDir($file['fullname']);  
+        echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
+        echo "<br />".htmlentities($file['title'])."</a></li>\n";
+    }
+    echo "</ul>\n";
+    // Separate Directory list and Pictures
+    echo "<div class=\"clearfix\"></div>\n";
+    echo "<h3></h3>\n";
 }
 
 // Show list of pictures
-if ((count($dirlist[file]) > 1) || (strpos($dirlist[file][0]['fullname'], "00ALBUM") === false))  {
+if (count($dirlist[file]) > 0)   {
     $tabcount = count($dirlist[file]) / $thumbs_per_page;
     if (count($dirlist[file]) > $thumbs_per_page) {
         echo "<ul class=\"tabs\">\n";
@@ -181,8 +181,6 @@ if ((count($dirlist[file]) > 1) || (strpos($dirlist[file][0]['fullname'], "00ALB
     $tabthumb = 0;
     $videoid  = 0;
     foreach($dirlist[file] as $file) {
-        // Don't show album thumbnails
-        if (strpos($file['fullname'], "00ALBUM") !== false) continue;
         if ($file['type'] == 'video/x-flv') {
             // Video
             echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
@@ -226,15 +224,15 @@ if ((count($dirlist[file]) > 1) || (strpos($dirlist[file][0]['fullname'], "00ALB
 }
 // Show a link to upper folder
 if ($path != "") {
-       $pathArr = explode("/", $path, -1);
-       $link = implode("/", $pathArr);
-       if ($link == "") {
-                // we're already in $baseDir, so skip the file
-                $back_link = $_SERVER["PHP_SELF"];
-        } else {
-                $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
-        }
-        echo "<br /><br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
+    $pathArr = explode("/", $path, -1);
+    $link = implode("/", $pathArr);
+    if ($link == "") {
+        // we're already in $baseDir, so skip the file
+        $back_link = $_SERVER["PHP_SELF"];
+    } else {
+        $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
+    }
+    echo "<br /><br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
 }
 
 ?>
