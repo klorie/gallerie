@@ -2,5 +2,7 @@
 cache/
 gallery/
 thumbnails/
+# Ignore Generated files
+latest_updates.php
 # Ignore work in progress
 dev/
