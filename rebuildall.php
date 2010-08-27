@@ -81,6 +81,15 @@ function cleanDirectory($path, $base_folder)
     }
 }        
 
+function cmp($a, $b) {
+    global $image_folder;
+    if (filemtime("$image_folder/$a[fullname]") == filemtime("$image_folder/$b[fullname]")) {
+        return 0;
+    }
+    return (filemtime("$image_folder/$a[fullname]") > filemtime("$image_folder/$b[fullname]")) ? -1 : 1;
+}
+
+
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
 
@@ -99,11 +108,68 @@ if ($argv[1] == "--clean" || $clean) {
     deleteDir("$resize_folder");
 }
 
-$dirlist = getFileList("", true, 10, $image_folder, true);
-echo "Found ".count($dirlist[dir])." folders to process\n";
+$dirlist = getFileList("", true, 10, $image_folder, false);
+echo "Found ".count($dirlist[file])." files and ".count($dirlist[dir])." folders to process\n";
+$latest_dir_list = array();
 
-foreach($dirlist[dir] as $file) {
-    $path = $file['fullname'];
+foreach($dirlist[file] as $file) {
+    if (count($latest_dir_list) < $latest_album_count)  {
+        $insert_ok = 1;
+        foreach($latest_dir_list as &$ldir) {
+            if (strcmp($ldir[dir], $file[dir]) == 0) {
+                $insert_ok = 0;
+                break;
+            }
+        }
+        unset($ldir);
+        if ($insert_ok == 1) {
+            $latest_dir_list[] = $file;
+        }
+        uasort($latest_dir_list, 'cmp');
+    } else {
+        $insert_ok = 0;
+        foreach($latest_dir_list as $ldir) {
+            if (filemtime("$image_folder/$ldir[fullname]") < filemtime("$image_folder/$file[fullname]")) {
+                $insert_ok = 1;
+                break;
+            }
+        }
+        if ($insert_ok == 1) {
+            foreach($latest_dir_list as &$ldir) {
+                if (strcmp($ldir[dir], $file[dir]) == 0) {
+                    $insert_ok = 0;
+                    break;
+                }
+            }
+            unset($ldir);
+            if ($insert_ok == 1) {
+                $latest_dir_list[] = $file;
+            }
+            uasort($latest_dir_list, 'cmp');
+            if ($insert_ok == 1)
+                array_pop($latest_dir_list);
+        }
+    }
+}
+$fp = fopen('latest_updates.php', 'w+');
+fwrite($fp, "<?php\n");
+fwrite($fp, "\$latest_updated_album_list = array();\n");
+foreach($latest_dir_list as &$ldir) {
+    foreach($dirlist[dir] as $sdir) {
+         if (strcmp($ldir[dir], $sdir[fullname]) == 0) {
+             $ldir[title] = $sdir[title];
+             break;
+         }
+    }
+    $ldir[dir] = ltrim($ldir[dir], '/');
+    fwrite($fp, "\$latest_updated_album_list[] = array( \"path\" => \"$ldir[dir]\", \"title\" => \"$ldir[title]\" );\n");
+}
+unset($ldir);
+fwrite($fp, "?>\n");
+fclose($fp);
+
+foreach($dirlist[dir] as $dir) {
+    $path = $dir['fullname'];
     if (!file_exists("$thumb_folder/$path")) { 
         mkdir("$thumb_folder/$path", 0777, true);
     }

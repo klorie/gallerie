@@ -49,7 +49,9 @@ if ($cache_time !== false &&
       $.tools.tooltip.conf.cancelDefault = false;
       $.tools.tooltip.conf.predelay = 1000;
       $(".dynamic-thumbnail").tooltip();
-      $("ul.tabs").tabs("ul.gallery", {event:'mouseover'});
+      $("ul.tabs").tabs("ul.gallery", {
+        event: 'mouseover'
+      });
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
     	padding: 30,
@@ -88,10 +90,10 @@ echo "<body>\n";
 
 echo "<div id=\"wrap\">\n";
 echo "<div id=\"sidebar\">\n";
-echo "<h3>Sous-Albums</h3>\n";
 
 //output <ul tag only if something inside to be w3c compliant
 if (count($dirlist[dir]) > 0) {
+  echo "<h3>Sous-Albums</h3>\n";  
   echo "<ul class=\"menu\">\n";
   // Build menu with all sub-directories
   foreach($dirlist[dir] as $file) {
@@ -112,7 +114,17 @@ if ($path != "") {
       if (strpos($file['fullname'], $path) !== false) continue;
       echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a></li>\n";
     }
+    echo "</ul>\n";
   }
+}
+if ($path == "") {
+  include "latest_updates.php";
+  echo "<h3>Nouveaut&eacute;s</h3>\n";
+  echo "<ul class=\"menu\">\n";
+  foreach($latest_updated_album_list as $latest_album) {
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$latest_album[path]."\" >".htmlentities($latest_album[title])."</a></li>\n";
+  }
+  echo "</ul>\n";
 }
 echo "</div>\n";
 echo "<div id=\"content-container\">\n"; 
@@ -247,7 +259,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.9.0 - H. Raffard &amp; C. Laury - 2010/06/17</li>
+<li>Gallerie v1.9.1 - H. Raffard &amp; C. Laury - 2010/08/27</li>
 </ul>
 <br clear="all" /> 
 </div>
