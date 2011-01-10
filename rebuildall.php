@@ -168,6 +168,8 @@ unset($ldir);
 fwrite($fp, "?>\n");
 fclose($fp);
 
+$dirlist = getFileList("", true, 10, $image_folder, true);
+
 foreach($dirlist[dir] as $dir) {
     $path = $dir['fullname'];
     if (!file_exists("$thumb_folder/$path")) { 

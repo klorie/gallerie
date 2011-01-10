@@ -174,7 +174,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
                     if ($exif['DateTimeOriginal']) $edate = $exif['DateTimeOriginal'];
                     if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
                     if (!empty($edate)) {
-                        $edate = split(':', str_replace(' ', ':', $edate));
+                        $edate = explode(':', str_replace(' ', ':', $edate));
                         $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
                         $edate = strftime('%d/%m/%Y %Hh%M', strtotime($edate));
                     }
