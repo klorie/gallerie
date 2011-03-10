@@ -143,7 +143,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             }
 
             $fullname = (($dir != "") ? "$dir/$entry" : "$entry");
-            $retval[dir][] = array(
+            $retval['dir'][] = array(
                     "dir"      => "$dir",
                     "fullname" => "$fullname",
                     "name"     => "$entry",
@@ -224,7 +224,7 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
             else
                 $esize = sprintf("(%dK, $esize)",(filesize("$basedir/$fullname") / 1024));
 
-            $retval[file][] = array(
+            $retval['file'][] = array(
                     "dir"      => "$dir",
                     "fullname" => "$fullname",
                     "name"     => "$entry",
@@ -239,10 +239,10 @@ function getFileList($dir, $recurse=false, $depth=false, $basedir="", $disable_t
     }
     $d->close();
     if (($dir == "") || ($reverse_subalbum_sort == 0))
-        asort($retval[dir]);
+        asort($retval['dir']);
     else
-        arsort($retval[dir]);
-    sort($retval[file]);
+        arsort($retval['dir']);
+    sort($retval['file']);
 
     return $retval;
 }

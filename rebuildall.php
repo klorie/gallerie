@@ -109,14 +109,14 @@ if ($argv[1] == "--clean" || $clean) {
 }
 
 $dirlist = getFileList("", true, 10, $image_folder, false);
-echo "Found ".count($dirlist[file])." files and ".count($dirlist[dir])." folders to process\n";
+echo "Found ".count($dirlist['file'])." files and ".count($dirlist['dir'])." folders to process\n";
 $latest_dir_list = array();
 
-foreach($dirlist[file] as $file) {
+foreach($dirlist['file'] as $file) {
     if (count($latest_dir_list) < $latest_album_count)  {
         $insert_ok = 1;
         foreach($latest_dir_list as &$ldir) {
-            if (strcmp($ldir[dir], $file[dir]) == 0) {
+            if (strcmp($ldir['dir'], $file['dir']) == 0) {
                 $insert_ok = 0;
                 break;
             }
@@ -155,20 +155,20 @@ $fp = fopen('latest_updates.php', 'w+');
 fwrite($fp, "<?php\n");
 fwrite($fp, "\$latest_updated_album_list = array();\n");
 foreach($latest_dir_list as &$ldir) {
-    foreach($dirlist[dir] as $sdir) {
-         if (strcmp($ldir[dir], $sdir[fullname]) == 0) {
+    foreach($dirlist['dir'] as $sdir) {
+         if (strcmp($ldir['dir'], $sdir['fullname']) == 0) {
              $ldir[title] = $sdir[title];
              break;
          }
     }
-    $ldir[dir] = ltrim($ldir[dir], '/');
+    $ldir['dir'] = ltrim($ldir['dir'], '/');
     fwrite($fp, "\$latest_updated_album_list[] = array( \"path\" => \"$ldir[dir]\", \"title\" => \"$ldir[title]\" );\n");
 }
 unset($ldir);
 fwrite($fp, "?>\n");
 fclose($fp);
 
-foreach($dirlist[dir] as $dir) {
+foreach($dirlist['dir'] as $dir) {
     $path = $dir['fullname'];
     if (!file_exists("$thumb_folder/$path")) { 
         mkdir("$thumb_folder/$path", 0777, true);
