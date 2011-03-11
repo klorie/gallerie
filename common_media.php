@@ -52,9 +52,8 @@ function exif_get_lens(&$exif)
 
 function exif_is_zoom(&$exif)
 {
-    // Return true when failed, because we do not print used focal when fixed focal
     if (!isset($exif['UndefinedTag:0x0095']))
-        return 1;
+        return 0;
     else if (strpos($exif['UndefinedTag:0x0095'], '-') !== false) {
         return 1;
     } else {
@@ -119,6 +118,7 @@ class mediaFolder
     function loadFromPath($source_path)
     {
         global $image_folder;
+        global $folder_thumbname;
 
         $this->name      = $source_path;
         if ($source_path != "")
@@ -136,17 +136,17 @@ class mediaFolder
                 $subfolder = new mediaFolder($this);
                 $subfolder->loadFromPath($entry);
                 $this->subfolder[] = $subfolder;
-            } else if ($entry == 'folder.jpg') {
+            } else if ($entry == $folder_thumbname) {
                 // Found folder thumbnail
                 $this->thumbnail = $entry;
-                $exif = exif_read_data($entry);
+                $exif = exif_read_data("$source_fullpath/$entry");
                 if ($exif != false && isset($exif['COMPUTED']['UserComment'])) {
                     $this->title = $exif["COMPUTED"]["UserComment"];
                     if ($this->title == "") {
-                        $this->title = strtr($entry, "_", " ");
+                        $this->title = strtr($source_path, "_", " ");
                     }
                 } else {
-                    $title = strtr($entry, "_", " ");
+                    $this->title = strtr($source_path, "_", " ");
                 }
             } else {
                 $info = pathinfo("$source_fullpath/$entry");
@@ -167,7 +167,7 @@ class mediaFolder
         if ($this->thumbnail == "") {
             $this->title = strtr($source_path, "_", " ");
             if (count($this->element) > 0)
-                $this->thumbnail = $this->element[0]->filename;
+                $this->thumbnail = $this->element[0]->thumbnail;
             else if (count($this->subfolder) > 0)
                 $this->thumbnail = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
         }
@@ -177,6 +177,7 @@ class mediaFolder
 class mediaObject
 {
     public $db_id        = -1;
+    public $folder_id    = -1;
     public $folder       = NULL;
     public $type         = "";
     public $tags         = array();
@@ -185,6 +186,7 @@ class mediaObject
     public $duration     = "";
     public $lastmod      = "";
     public $filename     = "";
+    public $thumbnail    = "";
     public $camera       = "";
     public $focal        = -1;
     public $lens         = "";
@@ -212,10 +214,12 @@ class mediaObject
             $source_fullname = $image_folder.'/'.$this->folder->fullname().'/'.$source_filename;
         else
             $source_fullname = $image_folder.'/'.$source_filename;
-        $this->filename = $source_filename;
-        $this->lastmod  = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullname));
-        $info = pathinfo($source_fullname);
-        $ext  = strtolower($info['extension']);
+        $this->filename  = $source_filename;
+        $this->lastmod   = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullname));
+        $info            = pathinfo($source_fullname);
+        $ext             = strtolower($info['extension']);
+        $fname_noext     = $info['filename'];
+        $this->thumbnail = $fname_noext.'.jpg';
         if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp')
             $this->type = 'picture';
         else if ($ext == 'mov' || $ext == 'mpg' || $ext == 'avi')
