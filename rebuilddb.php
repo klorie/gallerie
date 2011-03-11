@@ -1,6 +1,6 @@
 <?php
 
-require_once "common_db.php";
+require_once "thumbnail.php";
 
 $folder = new mediaFolder(NULL);
 
@@ -24,7 +24,12 @@ print("=========================================\n");
 
 print("ID OF Photos        = ".$media_db->getMediaFolderID('Photos')."\n");
 print("ID OF Activity 2007 = ".$media_db->getMediaFolderID('Activity_2007')."\n");
-
+print("Thumbnail of picture 25 = ".getObjectThumbnailPath(25)."\n");
+print("Thumbnail of folder   7 = ".getFolderThumbnailPath(7)."\n");
+print("Thumbnail of folder   3 = ".getFolderThumbnailPath(3)."\n");
+$media_db->close();
+updateObjectThumbnail(35);
+updateFolderThumbnail(3);
 /*
 $media_db = new mediaDB();
 
