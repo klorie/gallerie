@@ -53,17 +53,23 @@ function exif_get_lens(&$exif)
 function exif_is_zoom(&$exif)
 {
     // Return true when failed, because we do not print used focal when fixed focal
-    if (!isset($exif['UndefinedTag:0x0095'])) return true;
-    return (strpos($exif['UndefinedTag:0x0095'], '-') !== false);
+    if (!isset($exif['UndefinedTag:0x0095']))
+        return 1;
+    else if (strpos($exif['UndefinedTag:0x0095'], '-') !== false) {
+        return 1;
+    } else {
+        return 0;
+    }
+
 }
 
 function exif_get_latitude(&$exif)
 {
-    if (!isset($exif['GPS']['GPSLatitude'])) return false;
-    $lat_degrees = exif_get_float($exif['GPS']['GPSLatitude'][0]);
-    $lat_minutes = exif_get_float($exif['GPS']['GPSLatitude'][1]);
-    $lat_seconds = exif_get_float($exif['GPS']['GPSLatitude'][2]);
-    $lat_hemisph = $exif['GPS']['GPSLatitudeRef'];
+    if (!isset($exif['GPSLatitude'])) return false;
+    $lat_degrees = exif_get_float($exif['GPSLatitude'][0]);
+    $lat_minutes = exif_get_float($exif['GPSLatitude'][1]);
+    $lat_seconds = exif_get_float($exif['GPSLatitude'][2]);
+    $lat_hemisph = $exif['GPSLatitudeRef'];
     $lat_decimal = $lat_degrees + ($lat_minutes / 60) + ($lat_seconds / 3600);
     if ($lat_hemisph == 'S' || $lat_hemisph == 'W') $lat_decimal *= -1;
 
@@ -72,11 +78,11 @@ function exif_get_latitude(&$exif)
 
 function exif_get_longitude(&$exif)
 {
-    if (!isset($exif['GPS']['GPSLongitude'])) return false;
-    $lon_degrees = exif_get_float($exif['GPS']['GPSLongitude'][0]);
-    $lon_minutes = exif_get_float($exif['GPS']['GPSLongitude'][1]);
-    $lon_seconds = exif_get_float($exif['GPS']['GPSLongitude'][2]);
-    $lon_hemisph = $exif['GPS']['GPSLongitudeRef'];
+    if (!isset($exif['GPSLongitude'])) return false;
+    $lon_degrees = exif_get_float($exif['GPSLongitude'][0]);
+    $lon_minutes = exif_get_float($exif['GPSLongitude'][1]);
+    $lon_seconds = exif_get_float($exif['GPSLongitude'][2]);
+    $lon_hemisph = $exif['GPSLongitudeRef'];
     $lon_decimal = $lon_degrees + ($lon_minutes / 60) + ($lon_seconds / 3600);
     if ($lon_hemisph == 'S' || $lon_hemisph == 'W') $lon_decimal *= -1;
 
@@ -104,7 +110,7 @@ class mediaFolder
         $fullname = $this->name;
         $parent   = $this->parent;
         while($parent != NULL) {
-            $fullname = $this->parent->name.'/'.$fullname;
+            $fullname = $parent->name.'/'.$fullname;
             $parent   = $parent->parent;
         }
         return $fullname;
@@ -144,11 +150,18 @@ class mediaFolder
                 }
             } else {
                 $info = pathinfo("$source_fullpath/$entry");
-                $ext  = strtolower($info['extension']);
+                $ext  = "";
+                if (!isset($info['extension']))
+                    continue;
+                else
+                    $ext = strtolower($info['extension']);
                 if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') continue;
                 $element = new mediaObject($this);
                 $element->loadFromFile($entry);
                 $this->element[] = $element;
+                // Update modification time according to most recent element in folder
+                if (strtotime($element->lastmod) < strtotime($this->lastmod))
+                    $this->lastmod = $element->lastmod;
             }
         }
         if ($this->thumbnail == "") {
@@ -156,7 +169,7 @@ class mediaFolder
             if (count($this->element) > 0)
                 $this->thumbnail = $this->element[0]->filename;
             else if (count($this->subfolder) > 0)
-                $this->thumbnail = $this->subfolder[0]->thumbnail;
+                $this->thumbnail = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
         }
     }
 }
@@ -228,16 +241,16 @@ class mediaObject
                 $this->width  = $exif['COMPUTED']['Width'];
                 $this->height = $exif['COMPUTED']['Height'];
             }
-            if (isset($exif['Model'])) $this->camera                = $exif['Model'];
-            if (isset($exif['ISOSpeedRatings'])) $this->iso         = $exif['ISOSpeedRatings'];
-            if (exif_get_lens($exif)) $this->lens                   = exif_get_lens($exif);
-            $this->lens_is_zoom                                     = exif_is_zoom($exif);
-            if (exif_get_focal($exif)) $this->focal                 = exif_get_focal($exif);
-            if (exif_get_shutter($exif)) $this->shutter             = exif_get_shutter($exif);
-            if (exif_get_fstop($exif)) $this->fstop                 = exif_get_fstop($exif);
-            if (exif_get_latitude($exif)) $this->latitude           = exif_get_latitude($exif);
-            if (exif_get_longitude($exif)) $this->longitude         = exif_get_longitude($exif);
-            if (isset($exif['GPS']['GPSAltitude'])) $this->altitude = $exif['GPS']['GPSAltitude'][0];
+            if (isset($exif['Model'])) $this->camera         = $exif['Model'];
+            if (isset($exif['ISOSpeedRatings'])) $this->iso  = $exif['ISOSpeedRatings'];
+            if (exif_get_lens($exif)) $this->lens            = exif_get_lens($exif);
+            $this->lens_is_zoom                              = exif_is_zoom($exif);
+            if (exif_get_focal($exif)) $this->focal          = exif_get_focal($exif);
+            if (exif_get_shutter($exif)) $this->shutter      = exif_get_shutter($exif);
+            if (exif_get_fstop($exif)) $this->fstop          = exif_get_fstop($exif);
+            if (exif_get_latitude($exif)) $this->latitude    = exif_get_latitude($exif);
+            if (exif_get_longitude($exif)) $this->longitude  = exif_get_longitude($exif);
+            if (isset($exif['GPSAltitude'])) $this->altitude = exif_get_float($exif['GPSAltitude']);
         }
         if ($this->originaldate == "") $this->originaldate = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullname));
         $this->title = $info['filename'];
