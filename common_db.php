@@ -6,18 +6,20 @@ class mediaDB extends SQLite3
     function init_database()
     {
         // Method which initialize the database with proper structure
-        if (!$this->exec('CREATE TABLE media_objects (id INTEGER PRIMARY KEY AUTOINCREMENT, folder_id INTEGER, type TEXT, title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, camera TEXT, focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);')) {
+        $query  = "CREATE TABLE media_objects (id INTEGER PRIMARY KEY AUTOINCREMENT, folder_id INTEGER, type TEXT, ";
+        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, thumbnail TEXT, camera TEXT, ";
+        $query .= "focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
+        $query .= "width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);";
+        if (!$this->exec($query))
             throw new Exception($this->lastErrorMsg());
-        }
-        if (!$this->exec('CREATE TABLE media_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, title TEXT, lastmod DATETIME, thumbnail TEXT, foldername TEXT);')) {
+        $query  = "CREATE TABLE media_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, title TEXT, ";
+        $query .= "lastmod DATETIME, thumbnail TEXT, foldername TEXT);";
+        if (!$this->exec($query))
             throw new Exception($this->lastErrorMsg());
-        }
-        if (!$this->exec('CREATE TABLE media_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, media_id INTEGER);')) {
+        if (!$this->exec('CREATE TABLE media_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, media_id INTEGER);')) 
             throw new Exception($this->lastErrorMsg());
-        }
-        if (!$this->exec('CREATE INDEX media_tag_name ON media_tags(name);')) {
+        if (!$this->exec('CREATE INDEX media_tag_name ON media_tags(name);'))
             throw new Exception($this->lastErrorMsg());
-        }
     }
 
     function __construct()
@@ -54,9 +56,9 @@ class mediaDB extends SQLite3
     {
         $store_id = $this->findMediaObjectID($media);
         if ($store_id != -1)
-            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, ';
+            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
         else
-            $query = 'REPLACE INTO media_objects (folder_id, type, title, filesize, lastmod, filename, ';
+            $query = 'REPLACE INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
         $query .= 'focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
         $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
@@ -70,6 +72,7 @@ class mediaDB extends SQLite3
         $query .= $media->filesize        . ', ';
         $query .= "'".$media->lastmod     . "', ";
         $query .= "'".$media->filename    . "', ";
+        $query .= "'".$media->thumbnail   . "', ";
         $query .= $media->focal           . ', ';
         $query .= "'".$media->lens        . "', ";
         $query .= "'".$media->fstop       . "', ";
@@ -110,12 +113,14 @@ class mediaDB extends SQLite3
             throw new Exception($this->lastErrorMsg());
         } else {
             $media->db_id        = $id;
+            $media->folder_id    = $result['folder_id'];
             $media->title        = $result['title'];
             $media->type         = $result['type'];
             $media->camera       = $result['camera'];
             $media->filesize     = $result['filesize'];
             $media->lastmod      = $result['lastmod'];
             $media->filename     = $result['filename'];
+            $media->thumbnail    = $result['thumbnail'];
             $media->focal        = $result['focal'];
             $media->lens         = $result['lens'];
             $media->fstop        = $result['fstop'];
