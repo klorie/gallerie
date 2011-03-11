@@ -9,7 +9,7 @@ class mediaDB extends SQLite3
         if (!$this->exec('CREATE TABLE media_objects (id INTEGER PRIMARY KEY AUTOINCREMENT, folder_id INTEGER, type TEXT, title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, camera TEXT, focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);')) {
             throw new Exception($this->lastErrorMsg());
         }
-        if (!$this->exec('CREATE TABLE media_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, title TEXT, lastmod DATETIME, foldername TEXT);')) {
+        if (!$this->exec('CREATE TABLE media_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, title TEXT, lastmod DATETIME, thumbnail TEXT, foldername TEXT);')) {
             throw new Exception($this->lastErrorMsg());
         }
         if (!$this->exec('CREATE TABLE media_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, media_id INTEGER);')) {
@@ -85,6 +85,7 @@ class mediaDB extends SQLite3
         $query .= $media->latitude        . ', ';
         $query .= $media->altitude        . ');';
         if ($this->exec($query) == FALSE) {
+            print("-E- Failed query: $query\n");
             throw new Exception($this->lastErrorMsg());
         } else {
             $media->db_id = $this->lastInsertRowID();
@@ -161,9 +162,9 @@ class mediaDB extends SQLite3
     {
         $store_id = $this->findMediaFolderID($media);
         if ($store_id != -1)
-            $query = "REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername) VALUES (";
+            $query = "REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername, thumbnail) VALUES (";
         else
-            $query = "REPLACE INTO media_folders (parent_id, title, lastmod, foldername) VALUES (";
+            $query = "REPLACE INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (";
         if ($store_id != -1)
             $query .= $store_id.', ';
         if ($media->parent == NULL)
@@ -172,46 +173,50 @@ class mediaDB extends SQLite3
             $query .= $media->parent->db_id.", ";
         $query .= "'".$media->title."', ";
         $query .= "'".$media->lastmod."', ";
-        $query .= "'".$media->name."');";
+        $query .= "'".$media->name."', ";
+        $query .= "'".$media->thumbnail."');";
         if ($this->exec($query) == FALSE) {
             throw new Exception($this->lastErrorMsg());
         } else {
             $media->db_id = $this->lastInsertRowID();
         }
         if (count($media->subfolder) > 0) {
-            for ($i = 0; $i < count($media->subfolder); $i++)
-                $this->storeMediaFolder($media->subfolder[$i]);
+            foreach($media->subfolder as $subfolder)
+                $this->storeMediaFolder($subfolder);
         }
         if (count($media->element) > 0) {
-            for ($i = 0; $i < count($media->element); $i++)
-                $this->storeMediaObject($media->element[$i]);
+            foreach($media->element as $element)
+                $this->storeMediaObject($element);
         }
     }
 
-    function loadMediaFolder(mediaFolder &$media, $id)
+    function loadMediaFolder(mediaFolder &$media, $id, $depth = 1)
     {
         $result = $this->querySingle("SELECT * FROM media_folders WHERE id=$id;", true);
 
         if ($result === FALSE) {
             throw new Exception($this->lastErrorMsg());
         } else {
-            $media->db_id   = $id;
-            $media->title   = $result['title'];
-            $media->lastmod = $result['lastmod'];
-            $media->name    = $result['foldername'];
+            $media->db_id     = $id;
+            $media->title     = $result['title'];
+            $media->lastmod   = $result['lastmod'];
+            $media->name      = $result['foldername'];
+            $media->thumbnail = $result['thumbnail'];
         }
-        // Fetch subfolders
-        $results = $this->query("SELECT id FROM media_folders WHERE parent_id=$id;");
-        if ($results === FALSE)
-            throw new Exception($this->lastErrorMsg());
-        else
+        // Fetch subfolders if required
+        if ($depth > 0) {
+            $depth--;
+            $results = $this->query("SELECT id FROM media_folders WHERE parent_id=$id;");
+            if ($results === FALSE)
+                throw new Exception($this->lastErrorMsg());
             while($row = $results->fetchArray()) {
                 if ($row['id'] != -1) {
                     $subfolder = new mediaFolder($media);
-                    $this->loadMediaFolder($subfolder, $row['id']);
+                    $this->loadMediaFolder($subfolder, $row['id'], $depth);
                     $media->subfolder[] = $subfolder;
                 }
             }
+        }
         // Fetch elements
         $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id;");
         if ($results === FALSE)
