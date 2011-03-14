@@ -11,13 +11,7 @@ function getObjectThumbnailPath($id)
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     $thumb = $result['thumbnail'];
     $p_id  = $result['folder_id'];
-    while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "")
-            $thumb = $result['foldername'].'/'.$thumb;
-        $p_id  = $result['parent_id'];
-    }
+    $thumb = $m_db->getMediaFolderPath($p_id).'/'.$thumb;
     return $thumb;
 }
 
@@ -26,20 +20,11 @@ function getFolderThumbnailPath($id)
     $thumb  = "";
     $p_id   = -1;
     $m_db   = new mediaDB();
-    $result = $m_db->querySingle("SELECT parent_id, thumbnail, foldername FROM media_folders WHERE id=$id;", true);
+    $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     $thumb = $result['thumbnail'];
-    if ($result['foldername'] != "")
-        $thumb = $result['foldername'].'/'.$thumb;
-    $p_id  = $result['parent_id'];
-    while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "")
-            $thumb = $result['foldername'].'/'.$thumb;
-        $p_id  = $result['parent_id'];
-    }
+    $thumb = $m_db->getMediaFolderPath($id).'/'.$thumb;
     return $thumb;
 }
 
@@ -69,17 +54,8 @@ function updateObjectThumbnail($id)
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "") {
-            $thumbnail = $result['foldername'].'/'.$thumbnail;
-            $filename  = $result['foldername'].'/'.$filename;
-        }
-        $p_id  = $result['parent_id'];
-    }
-    $filename  = $image_folder.'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$thumbnail;
+    $filename  = $image_folder.'/'.$m_db->getMediaFolderPath($p_id).'/'.$filename;
+    $thumbnail = $thumb_folder.'/'.$m_db->getMediaFolderPath($p_id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
 
@@ -132,28 +108,13 @@ function updateFolderThumbnail($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Folder info
-    $result = $m_db->querySingle("SELECT parent_id, thumbnail, foldername FROM media_folders WHERE id=$id;", true);
+    $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     if ($result['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
     $filename  = $result['thumbnail'];
     $thumbnail = $result['thumbnail'];
-    if ($result['foldername'] != "") {
-            $thumbnail = $result['foldername'].'/'.$thumbnail;
-            $filename  = $result['foldername'].'/'.$filename;
-    }
-    $p_id      = $result['parent_id'];
-    // Retreive full path
-    while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "") {
-            $thumbnail = $result['foldername'].'/'.$thumbnail;
-            $filename  = $result['foldername'].'/'.$filename;
-        }
-        $p_id  = $result['parent_id'];
-    }
-    $filename  = $image_folder.'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$thumbnail;
+    $filename  = $image_folder.'/'.$m_db->getMediaFolderPath($id).'/'.$filename;
+    $thumbnail = $thumb_folder.'/'.$m_db->getMediaFolderPath($id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
