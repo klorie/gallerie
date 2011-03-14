@@ -1,6 +1,7 @@
 <?php
 
 require_once "thumbnail.php";
+require_once "resized.php";
 
 $folder = new mediaFolder(NULL);
 
@@ -27,9 +28,10 @@ print("ID OF Activity 2007 = ".$media_db->getMediaFolderID('Activity_2007')."\n"
 print("Thumbnail of picture 25 = ".getObjectThumbnailPath(25)."\n");
 print("Thumbnail of folder   7 = ".getFolderThumbnailPath(7)."\n");
 print("Thumbnail of folder   3 = ".getFolderThumbnailPath(3)."\n");
-$media_db->close();
+print("Resized   of picture 25 = ".getObjectResizedPath(25)."\n");
 updateObjectThumbnail(35);
 updateFolderThumbnail(3);
+updateObjectResized(35);
 /*
 $media_db = new mediaDB();
 
