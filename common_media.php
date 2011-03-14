@@ -115,7 +115,7 @@ class mediaFolder
         return $fullname;
     }
 
-    function loadFromPath($source_path)
+    function loadFromPath($source_path = "")
     {
         global $image_folder;
         global $folder_thumbname;
