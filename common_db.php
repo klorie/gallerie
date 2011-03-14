@@ -224,8 +224,7 @@ class mediaDB extends SQLite3
         }
         // Fetch elements
         $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id;");
-        if ($results === FALSE)
-            throw new Exception($this->lastErrorMsg());
+        if ($results === FALSE) throw new Exception($this->lastErrorMsg());
         while($row = $results->fetchArray()) {
             if ($row['id'] != -1) {
                 $element = new mediaObject($media);
@@ -245,14 +244,32 @@ class mediaDB extends SQLite3
         foreach($path_array as $current_path_level) {
             $parent_id = $folder_id;
             $result = $this->querySingle("SELECT id FROM media_folders WHERE parent_id=$parent_id AND foldername='$current_path_level';");
-            if ($result === FALSE)
-                throw new Exception($this->lastErrorMsg());
-            else if ($result != NULL)
+            if ($result === FALSE) throw new Exception($this->lastErrorMsg());
+            if ($result != NULL)
                 $folder_id = $result;
             else
                 return -1;
         }
         return $folder_id;
+    }
+
+    function getMediaFolderPath($id)
+    {
+        // Return folder (which id is given in arg) full path
+        $parent_id   = -1;
+        $folder_path = "";
+        $result = $this->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$id;", true);
+        if ($result === FALSE) throw new Exception($this->lastErrorMsg());
+        $parent_id = $result['parent_id'];
+        if ($result['foldername'] != "")
+            $folder_path = $result['foldername'];
+        while($parent_id != -1) {
+            $result = $this->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$parent_id;", true);
+            $parent_id = $result['parent_id'];
+            if ($result['foldername'] != "")
+                $folder_path = $result['foldername'].'/'.$folder_path; 
+        }
+        return $folder_path;
     }
 }
 
