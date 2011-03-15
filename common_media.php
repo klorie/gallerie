@@ -251,7 +251,10 @@ class mediaObject
                 $this->height = $exif['COMPUTED']['Height'];
             }
             if (isset($exif['Model'])) $this->camera         = $exif['Model'];
-            if (isset($exif['ISOSpeedRatings'])) $this->iso  = $exif['ISOSpeedRatings'];
+            if (isset($exif['ISOSpeedRatings'])) {
+                if (is_array($exif['ISOSpeedRatings'])) $this->iso = $exif['ISOSpeedRatings'][0];
+                else                                    $this->iso = $exif['ISOSpeedRatings'];
+            }
             if (exif_get_lens($exif)) $this->lens            = exif_get_lens($exif);
             $this->lens_is_zoom                              = exif_is_zoom($exif);
             if (exif_get_focal($exif)) $this->focal          = exif_get_focal($exif);
