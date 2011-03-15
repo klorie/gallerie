@@ -8,7 +8,7 @@ class mediaDB extends SQLite3
     {
         // Method which initialize the database with proper structure
         $query  = "CREATE TABLE media_objects (id INTEGER PRIMARY KEY AUTOINCREMENT, folder_id INTEGER, type TEXT, ";
-        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, thumbnail TEXT, camera TEXT, ";
+        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, thumbnail TEXT, camera TEXT, ";
         $query .= "focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
         $query .= "width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);";
         if (!$this->exec($query))
@@ -60,7 +60,7 @@ class mediaDB extends SQLite3
             $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
         else
             $query = 'REPLACE INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
-        $query .= 'focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
+        $query .= 'download_path, focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
         $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
             $query .= $store_id. ', ';
@@ -68,26 +68,27 @@ class mediaDB extends SQLite3
             $query .= $media->folder->db_id. ', ';
         } else
             $query .= ' -1, ';
-        $query .= "'".$media->type        . "', ";
-        $query .= "'".$media->title       . "', ";
-        $query .= $media->filesize        . ', ';
-        $query .= "'".$media->lastmod     . "', ";
-        $query .= "'".$media->filename    . "', ";
-        $query .= "'".$media->thumbnail   . "', ";
-        $query .= $media->focal           . ', ';
-        $query .= "'".$media->lens        . "', ";
-        $query .= "'".$media->fstop       . "', ";
-        $query .= "'".$media->shutter     . "', ";
-        $query .= $media->iso             . ', ';
-        $query .= "'".$media->originaldate. "', ";
-        $query .= $media->width           . ', ';
-        $query .= $media->height          . ', ';
-        $query .= $media->lens_is_zoom    . ', ';
-        $query .= "'".$media->camera      . "', ";
-        $query .= "'".$media->duration    . "', ";
-        $query .= $media->longitude       . ', ';
-        $query .= $media->latitude        . ', ';
-        $query .= $media->altitude        . ');';
+        $query .= "'".$media->type         . "', ";
+        $query .= "'".$media->title        . "', ";
+        $query .= $media->filesize         . ', ';
+        $query .= "'".$media->lastmod      . "', ";
+        $query .= "'".$media->filename     . "', ";
+        $query .= "'".$media->thumbnail    . "', ";
+        $query .= "'".$media->download_path. "', ";
+        $query .= $media->focal            . ', ';
+        $query .= "'".$media->lens         . "', ";
+        $query .= "'".$media->fstop        . "', ";
+        $query .= "'".$media->shutter      . "', ";
+        $query .= $media->iso              . ', ';
+        $query .= "'".$media->originaldate . "', ";
+        $query .= $media->width            . ', ';
+        $query .= $media->height           . ', ';
+        $query .= $media->lens_is_zoom     . ', ';
+        $query .= "'".$media->camera       . "', ";
+        $query .= "'".$media->duration     . "', ";
+        $query .= $media->longitude        . ', ';
+        $query .= $media->latitude         . ', ';
+        $query .= $media->altitude         . ');';
         if ($this->exec($query) == FALSE) {
             print("-E- Failed query: $query\n");
             throw new Exception($this->lastErrorMsg());
@@ -113,28 +114,29 @@ class mediaDB extends SQLite3
         if ($result === FALSE) {
             throw new Exception($this->lastErrorMsg());
         } else {
-            $media->db_id        = $id;
-            $media->folder_id    = $result['folder_id'];
-            $media->title        = $result['title'];
-            $media->type         = $result['type'];
-            $media->camera       = $result['camera'];
-            $media->filesize     = $result['filesize'];
-            $media->lastmod      = $result['lastmod'];
-            $media->filename     = $result['filename'];
-            $media->thumbnail    = $result['thumbnail'];
-            $media->focal        = $result['focal'];
-            $media->lens         = $result['lens'];
-            $media->fstop        = $result['fstop'];
-            $media->shutter      = $result['shutter'];
-            $media->iso          = $result['iso'];
-            $media->originaldate = $result['originaldate'];
-            $media->width        = $result['width'];
-            $media->height       = $result['height'];
-            $media->lens_is_zoom = $result['lens_is_zoom'];
-            $media->duration     = $result['duration'];
-            $media->longitude    = $result['longitude'];
-            $media->latitude     = $result['latitude'];
-            $media->altitude     = $result['altitude'];
+            $media->db_id         = $id;
+            $media->folder_id     = $result['folder_id'];
+            $media->title         = $result['title'];
+            $media->type          = $result['type'];
+            $media->camera        = $result['camera'];
+            $media->filesize      = $result['filesize'];
+            $media->lastmod       = $result['lastmod'];
+            $media->filename      = $result['filename'];
+            $media->thumbnail     = $result['thumbnail'];
+            $media->download_path = $result['download_path'];
+            $media->focal         = $result['focal'];
+            $media->lens          = $result['lens'];
+            $media->fstop         = $result['fstop'];
+            $media->shutter       = $result['shutter'];
+            $media->iso           = $result['iso'];
+            $media->originaldate  = $result['originaldate'];
+            $media->width         = $result['width'];
+            $media->height        = $result['height'];
+            $media->lens_is_zoom  = $result['lens_is_zoom'];
+            $media->duration      = $result['duration'];
+            $media->longitude     = $result['longitude'];
+            $media->latitude      = $result['latitude'];
+            $media->altitude      = $result['altitude'];
         }
         // Load corresponding tags
         $results = $this->query("SELECT name FROM media_tags WHERE media_id=$id;");
@@ -235,7 +237,7 @@ class mediaDB extends SQLite3
         }
     }
 
-    function getMediaFolderID($path)
+    function getFolderID($path)
     {
         // Top folder get db_id = 1 by construction
         if ($path == "") return 1;
@@ -256,7 +258,7 @@ class mediaDB extends SQLite3
         return $folder_id;
     }
 
-    function getMediaFolderPath($id)
+    function getFolderPath($id)
     {
         // Return folder (which id is given in arg) full path
         $parent_id   = -1;
@@ -268,6 +270,7 @@ class mediaDB extends SQLite3
             $folder_path = $result['foldername'];
         while($parent_id != -1) {
             $result = $this->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$parent_id;", true);
+            if ($result === false) throw new Exception($this->lastErrorMsg());
             $parent_id = $result['parent_id'];
             if ($result['foldername'] != "")
                 $folder_path = $result['foldername'].'/'.$folder_path; 
@@ -290,10 +293,18 @@ class mediaDB extends SQLite3
         return $neighbor_array;
     }
 
-    function getMediaFolderTitle($id)
+    function getFolderTitle($id)
     {
         // Return folder (which id is given in arg) title
         $result = $this->querySingle("SELECT title FROM media_folders WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->lastErrorMsg());
+        return $result;
+    }
+
+    function getFolderName($id)
+    {
+        // Return folder (which id is given in arg) name
+        $result = $this->querySingle("SELECT foldername FROM media_folders WHERE id=$id;");
         if ($result === FALSE) throw new Exception($this->lastErrorMsg());
         return $result;
     }
@@ -321,6 +332,49 @@ class mediaDB extends SQLite3
         }
         return $latest_array;
     }
+
+    function getFolderHierarchy($id)
+    {
+        $folder_array[] = $id;
+        // Return array of folders from top level up to id
+        $parent_id = $this->querySingle("SELECT parent_id FROM media_folders WHERE id=$id;");
+        if ($parent_id === false) throw new Exception($this->lastErrorMsg());
+        while($parent_id != -1) {
+            array_unshift($folder_array, $parent_id);
+            $parent_id = $this->querySingle("SELECT parent_id FROM media_folders WHERE id=$parent_id;");
+        }
+        return $folder_array;
+    }
+
+    function getSubFolders($id)
+    {
+        global $reverse_subalbum_sort;
+
+        $sub_array = array();
+        // Returns array of id of neighbor folders
+        $query = "SELECT id FROM media_folders WHERE parent_id=$id";
+        if ($reverse_subalbum_sort != 0) $query .= " ORDER BY lastmod DESC;";
+        else                             $query .= " ORDER BY lastmod ASC;";
+        $results = $this->query($query);
+        if ($results === false) throw new Exception($this->lastErrorMsg());
+        while($row = $results->fetchArray()) {
+            $sub_array[] = $row['id'];
+        }
+        return $sub_array;
+    }
+
+    function getFolderElements($id)
+    {
+        $element_list = array();
+        // Returns array of id of folder elements
+        $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id;");
+        if ($results === false) throw new Exception($this->lastErrorMsg());
+        while($row = $results->fetchArray()) {
+            $element_list[] = $row['id'];
+        }
+        return $element_list;
+    }
+
 }
 
 ?>
