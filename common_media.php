@@ -109,7 +109,8 @@ class mediaFolder
         $fullname = $this->name;
         $parent   = $this->parent;
         while($parent != NULL) {
-            $fullname = $parent->name.'/'.$fullname;
+            if ($parent->name != "")
+                $fullname = $parent->name.'/'.$fullname;
             $parent   = $parent->parent;
         }
         return $fullname;
@@ -171,6 +172,9 @@ class mediaFolder
             else if (count($this->subfolder) > 0)
                 $this->thumbnail = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
         }
+        // Reset modification time to very old value when no elements in the folder
+        if (count($this->element) == 0)
+            $this->lastmod = '01/01/1970 00:00:00';
     }
 }
 
