@@ -128,7 +128,7 @@ class mediaFolder
             $source_fullpath = $image_folder;
 
         $dir = @dir($source_fullpath) or die("Failed to open $source_fullpath for reading");
-        $this->lastmod = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullpath));
+        $this->lastmod = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullpath));
 
         while(($entry = $dir->read()) !== false) {
             // skip hidden files
@@ -174,36 +174,37 @@ class mediaFolder
         }
         // Reset modification time to very old value when no elements in the folder
         if (count($this->element) == 0)
-            $this->lastmod = '01/01/1970 00:00:00';
+            $this->lastmod = '1970/01/01 00:00:00';
     }
 }
 
 class mediaObject
 {
-    public $db_id        = -1;
-    public $folder_id    = -1;
-    public $folder       = NULL;
-    public $type         = "";
-    public $tags         = array();
-    public $title        = "";
-    public $filesize     = -1;
-    public $duration     = "";
-    public $lastmod      = "";
-    public $filename     = "";
-    public $thumbnail    = "";
-    public $camera       = "";
-    public $focal        = -1;
-    public $lens         = "";
-    public $fstop        = "";
-    public $shutter      = "";
-    public $iso          = -1;
-    public $originaldate = "";
-    public $width        = -1;
-    public $height       = -1;
-    public $lens_is_zoom = -1;
-    public $longitude    =  9999.0;
-    public $latitude     =  9999.0;
-    public $altitude     = -9999.0;
+    public $db_id         = -1;
+    public $folder_id     = -1;
+    public $folder        = NULL;
+    public $type          = "";
+    public $tags          = array();
+    public $title         = "";
+    public $filesize      = -1;
+    public $duration      = "";
+    public $lastmod       = "";
+    public $filename      = "";
+    public $download_path = "";
+    public $thumbnail     = "";
+    public $camera        = "";
+    public $focal         = -1;
+    public $lens          = "";
+    public $fstop         = "";
+    public $shutter       = "";
+    public $iso           = -1;
+    public $originaldate  = "";
+    public $width         = -1;
+    public $height        = -1;
+    public $lens_is_zoom  = -1;
+    public $longitude     =  9999.0;
+    public $latitude      =  9999.0;
+    public $altitude      = -9999.0;
 
     function __construct(mediaFolder $folder = NULL)
     {
@@ -214,12 +215,12 @@ class mediaObject
     {
         global $image_folder;
 
-        if ($this->folder != NULL)
-            $source_fullname = $image_folder.'/'.$this->folder->fullname().'/'.$source_filename;
-        else
-            $source_fullname = $image_folder.'/'.$source_filename;
+        if ($this->folder != NULL) $this->download_path = $this->folder->fullname().'/'.$source_filename;
+        else                       $this->download_path = $source_filename;
+
         $this->filename  = $source_filename;
-        $this->lastmod   = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullname));
+        $source_fullname = $image_folder.'/'.$this->download_path;
+        $this->lastmod   = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
         $info            = pathinfo($source_fullname);
         $ext             = strtolower($info['extension']);
         $fname_noext     = $info['filename'];
@@ -242,7 +243,7 @@ class mediaObject
             if (!empty($edate)) {
                 $edate = split(':', str_replace(' ', ':', $edate));
                 $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
-                $edate = strftime('%d/%m/%Y %H:%M:%S', strtotime($edate));
+                $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
                 $this->originaldate = $edate;
             }
             if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) { 
@@ -260,7 +261,7 @@ class mediaObject
             if (exif_get_longitude($exif)) $this->longitude  = exif_get_longitude($exif);
             if (isset($exif['GPSAltitude'])) $this->altitude = exif_get_float($exif['GPSAltitude']);
         }
-        if ($this->originaldate == "") $this->originaldate = strftime('%d/%m/%Y %H:%M:%S', filemtime($source_fullname));
+        if ($this->originaldate == "") $this->originaldate = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
         $this->title = $info['filename'];
         $this->title = strtr($this->title, "_", " ");
         if ($this->type == 'picture') {
@@ -286,6 +287,33 @@ class mediaObject
             }
         }
         $this->filesize = filesize($source_fullname);
+    }
+
+    function getSubTitle()
+    {
+        global $image_folder;
+
+        $subtitle = "";
+        // Returns subtitle string: Camera - ISO, Lens (@ focal if zoom), exposure time, aperture <br/> date
+        if ($this->camera != "")      $subtitle  = $this->camera." - ";
+        if ($this->iso != -1)         $subtitle .= $this->iso."ISO, ";
+        if ($this->lens != "")        $subtitle .= $this->lens;
+        if ($this->lens_is_zoom == 1) $subtitle .= " @ ".$this->focal."mm";
+        if ($subtitle != "")          $subtitle .= ", ";
+        if ($this->shutter != "")     $subtitle .= $this->shutter.", ";
+        if ($this->fstop != "")       $subtitle .= $this->fstop;
+        if ($subtitle != "")          $subtitle .= "<br />";
+        $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
+        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
+        $esize  = "";
+        if ($this->type == 'movie')
+            $esize = $this->duration;
+        else
+            if ($this->filesize >= (1024*1024)) $esize = sprintf("(%.1fM", $this->filesize / (1024*1024));
+            else                                $esize = sprintf("(%dK",  $this->filesize / 1024);
+        $subtitle .= $esize.", ".$this->width."x".$this->height.")";
+
+        return $subtitle;
     }
 }
 
