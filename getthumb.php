@@ -9,7 +9,7 @@ if (isset($_REQUEST['folder'])) {
     $object = $_REQUEST['id'];
 } else {
 	header('HTTP/1.1 400 Bad Request');
-	die('folder or object was not specified');
+	die('folder or id was not specified');
 }
 
 global $thumb_folder;

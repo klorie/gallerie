@@ -9,9 +9,11 @@ function getObjectThumbnailPath($id)
     $result = $m_db->querySingle("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $thumb = $result['thumbnail'];
-    $p_id  = $result['folder_id'];
-    $thumb = $m_db->getMediaFolderPath($p_id).'/'.$thumb;
+    $thumb  = $result['thumbnail'];
+    $p_id   = $result['folder_id'];
+    $folder = $m_db->getMediaFolderPath($p_id);
+    if ($folder != "")
+        $thumb = $folder.'/'.$thumb;
     return $thumb;
 }
 
@@ -23,8 +25,10 @@ function getFolderThumbnailPath($id)
     $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $thumb = $result['thumbnail'];
-    $thumb = $m_db->getMediaFolderPath($id).'/'.$thumb;
+    $thumb  = $result['thumbnail'];
+    $folder = $m_db->getMediaFolderPath($p_id);
+    if ($folder != "")
+        $thumb = $folder.'/'.$thumb;
     return $thumb;
 }
 
