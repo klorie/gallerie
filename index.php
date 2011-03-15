@@ -1,7 +1,6 @@
 <?php
 // Start PHP code
-require_once "common_db.php";
-require_once "thumbnail.php";
+require_once "common_browser.php";
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
@@ -21,18 +20,14 @@ else
 
 if ($cache_time !== false && 
     $enable_cache == true &&
-    $cache_time > filemtime("./index.php") &&
-    $cache_time > filemtime("./common_db.php") && 
     $cache_time > filemtime("./config.php")  && 
     $cache_time > filemtime("$image_folder/$path") &&
     $cache_time > filemtime("$thumb_folder/$path")) {
   readfile($cache);
 } else {
   ob_start();
-//  $dirlist  = getFileList($path);
-  $m_db     = new mediaDB();
-  $m_folder = new mediaFolder();
-  $m_db->loadMediaFolder($m_folder, $m_db->getMediaFolderID($path));
+  $m_db        = new mediaDB();
+  $m_folder_id = $m_db->getFolderID($path);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -46,9 +41,7 @@ if ($cache_time !== false &&
   <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
-<?php if(count($m_folder->element) > 0)
-    echo "  <script src=\"http://lite.piclens.com/current/piclens_optimized.js\" type=\"text/javascript\"></script>\n";
-?>
+  <script src=\"http://lite.piclens.com/current/piclens_optimized.js\" type=\"text/javascript\"></script>
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
@@ -83,32 +76,27 @@ if ($cache_time !== false &&
 
 <?php
 // Issue Cooliris header
+/*
 if (count($m_folder->element) > 0) {  
    echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 }
+*/
 echo "</head>\n";
 echo "<body>\n";
 
 echo "<div id=\"wrap\">\n";
 echo "<div id=\"sidebar\">\n";
 
-//output <ul tag only if something inside to be w3c compliant
-if (count($m_folder->subfolder) > 0) {
-  echo "<h3>Sous-Albums</h3>\n";  
-  echo "<ul class=\"menu\">\n";
-  // Build menu with all sub-directories
-  foreach($m_folder->subfolder as $subfolder) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$subfolder->fullname()."\" >".htmlentities($subfolder->title)."</a></li>\n";
-  }
-  echo "</ul>\n";
-}
+// Build menu with all sub-directories
+displaySubFolderMenu($m_folder_id, $m_db);
+
 if ($path != "") {
   echo "<h3>Albums Voisins</h3>\n";
-  $neighborlist = $m_db->getNeighborFolders($m_folder->db_id);
+  $neighborlist = $m_db->getNeighborFolders($m_folder_id);
   if (count($neighborlist) > 0) {
     echo "<ul class=\"menu\">\n";
     foreach($neighborlist as $neighbor) {
-      echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$m_db->getMediaFolderPath($neighbor)."\" >".htmlentities($m_db->getMediaFolderTitle($neighbor))."</a></li>\n";
+      echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($neighbor))."\" >".htmlentities($m_db->getFolderTitle($neighbor))."</a></li>\n";
     }
     echo "</ul>\n";
   }
@@ -118,7 +106,7 @@ if ($path == "") {
     echo "<h3>Nouveaut&eacute;s</h3>\n";
     echo "<ul class=\"menu\">\n";
     foreach($latestfolderlist as $latestfolder) {
-        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$m_db->getMediaFolderPath($latestfolder)."\" >".htmlentities($m_db->getMediaFolderTitle($latestfolder))."</a></li>\n";
+        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($latestfolder))."\" >".htmlentities($m_db->getFolderTitle($latestfolder))."</a></li>\n";
     }
     echo "</ul>\n";
 }
@@ -129,7 +117,7 @@ echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n";
 // Build menu with only top-level directories
 $topfolderlist = $m_db->getTopLevelFolders();
 foreach($topfolderlist as $topfolder) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$m_db->getMediaFolderPath($topfolder)."\" >".htmlentities($m_db->getMediaFolderTitle($topfolder))."</a> </li>\n";
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($topfolder))."\" >".htmlentities($m_db->getFolderTitle($topfolder))."</a> </li>\n";
 }
 echo "</ul>\n"; 
 echo "<div id=\"content\">\n"; 
@@ -137,97 +125,26 @@ echo "<h1>".htmlentities($gal_title)."</h1>\n";
 
 // Path dirs and link
 echo "<h3 id=\"gallery\">\n";
-//if ($path != "") {
-//  echo "<a href=\"".$_SERVER["PHP_SELF"]."\">Accueil</a>";
-//  $pathArr = explode("/", $path);
-//  for ($i = 0; $i < count($pathArr); $i++) {
-//    // Get directory title
-//    $dirPath  = implode("/", array_slice($pathArr, 0, $i+1));
-//    $dirList  = getFileList(dirname($dirPath));
-//    $dirTitle = "";
-//    foreach($dirList[dir] as $file) {
-//      if (strcmp($file['name'], $pathArr[$i]) == 0)
-//        $dirTitle = $file['title'];
-//    }
-//    $dirLink = getPathLink($dirPath);
-//    echo "/<a href=\"$dirLink\">".htmlentities($dirTitle)."</a>";
-//  }
-//}
-if (count($m_folder->element) > 0) {
-  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a> ]\n";
+if ($path != "") {
+  echo "<a href=\"".$_SERVER["PHP_SELF"]."\">Accueil</a>";
+  $folderhierarchy = $m_db->getFolderHierarchy($m_folder_id);
+  foreach($folderhierarchy as $fhier) {
+      if ($fhier == 1) continue; // Discard top-level
+      echo "/<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
+  }
 }
+//if (count($m_folder->element) > 0) {
+//  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a> ]\n";
+//}
 
 echo "</h3>\n";
 
-// Show list of subfolders, output <ul tag only if something inside to be w3c compliant
-if (count($m_folder->subfolder) > 0) {
-    echo "<ul class=\"galleryfolder\">\n";
-    foreach($m_folder->subfolder as $subfolder) {
-        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($subfolder->fullname())."\" title=\"".htmlentities($subfolder->title)."\" >";
-        echo "<img src=\"./getthumb.php?folder=$subfolder->db_id\" alt=\"".$subfolder->name."\"/>";
-        echo "<br />".htmlentities($subfolder->title)."</a></li>\n";
-    }
-    echo "</ul>\n";
-    // Separate Directory list and Pictures
-    echo "<div class=\"clearfix\"></div>\n";
-    echo "<h3></h3>\n";
-}
+// Show list of subfolders
+displaySubFolderList($m_folder_id, $m_db);
 
 // Show list of pictures
-if (count($m_folder->element) > 0)   {
-    $tabcount = count($m_folder->element) / $thumbs_per_page;
-    if (count($m_folder->element) > $thumbs_per_page) {
-        echo "<ul class=\"tabs\">\n";
-        for ($t = 0; $t < $tabcount; $t++) {
-            echo "\t<li><a href=\"#\">".($t+1)."</a></li>\n";
-        }
-        echo "</ul>\n";
-        echo "<div class=\"clearfix\"></div>\n";
-    }
-    echo "<ul class=\"gallery\">\n";
-    $tabthumb = 0;
-    $videoid  = 0;
-    foreach($m_folder->element as $element) {
-        if ($element->type == 'movide') {
-            // Video
-            echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
-            $videoid++;
-        } else {
-            // Images
-            echo "<li><a href=\"./getresized.php?id=$element->db_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->camera).htmlentities($element->lastmod)."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=&quot;".$image_folder."/".htmlentities($element->folder->fullname())."/".htmlentities($element->filename)."&quot;&gt;".htmlentities($element->title)."&lt;/a&gt; ".htmlentities($element->filesize)."\">";
-        }
-        echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?id=$element->db_id\" title=\"".htmlentities($element->title)."\"></div><div class=\"tooltip\">".htmlentities($element->title)."<br />".htmlentities($element->lastmod);
-//        if ($file['tags'] != '')
-//            echo "<br /><i>".htmlentities($file['tags'])."</i>";
-//        else if (($file['type'] == 'video/x-flv') && ($file['size'] != ''))
-//            echo "<br /><i>".$file['size']."</i>";
-        echo "</div></a></li>\n";
-        $tabthumb++;
-        if ($tabthumb >= $thumbs_per_page) {
-            $tabthumb = 0;
-            echo "</ul>\n<ul class=\"gallery\">\n";
-        }
-    }
-    if (($tabthumb < $thumbs_per_page) && ($tabcount > 1)) {
-        while($tabthumb < $thumbs_per_page) {
-            echo "<li></li>\n";
-            $tabthumb++;
-        }
-    }
-    echo "</ul>\n";
-    // Videos overlay
-    $videoid  = 0;
-    foreach($m_folder->element as $element) {
-        if($element->type == 'movie') {
-            echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-            echo "<a class=\"player\" href=\"".getObjectResizedPath($element->db_id)."\"></a>";
-            echo "</div>\n";
-            $videoid++;
-        }
-    }
-    echo "<div class=\"clearfix\"></div>\n";
-    echo "<h3></h3>\n";
-}
+displayElementList($m_folder_id, $m_db);
+
 // Show a link to upper folder
 if ($path != "") {
     $pathArr = explode("/", $path, -1);
@@ -253,7 +170,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.9.1 - H. Raffard &amp; C. Laury - 2010/08/27</li>
+<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury - 2011/03/15</li>
 </ul>
 <br clear="all" /> 
 </div>
