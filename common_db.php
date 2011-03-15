@@ -1,4 +1,5 @@
 <?php
+require_once "common.php";
 require_once "common_media.php";
 
 class mediaDB extends SQLite3
@@ -236,6 +237,8 @@ class mediaDB extends SQLite3
 
     function getMediaFolderID($path)
     {
+        // Top folder get db_id = 1 by construction
+        if ($path == "") return 1;
         // Find folder ID in DB according to the path given (relative to the gallery)
         $path_array = explode('/', $path);
         $parent_id  = 1;
@@ -270,6 +273,53 @@ class mediaDB extends SQLite3
                 $folder_path = $result['foldername'].'/'.$folder_path; 
         }
         return $folder_path;
+    }
+
+    function getNeighborFolders($id)
+    {
+        $neighbor_array = array();
+        $parent_id      = $this->querySingle("SELECT parent_id FROM media_folders WHERE id=$id;");
+        if ($parent_id === FALSE) throw new Exception($this->lastErrorMsg());
+        // Returns array of id of neighbor folders
+        $results = $this->query("SELECT id FROM media_folders WHERE parent_id=$parent_id;");
+        if ($results === FALSE) throw new Exception($this->lastErrorMsg());
+        while($row = $results->fetchArray()) {
+            if ($row['id'] != $id)
+                $neighbor_array[] = $row['id'];
+        }
+        return $neighbor_array;
+    }
+
+    function getMediaFolderTitle($id)
+    {
+        // Return folder (which id is given in arg) title
+        $result = $this->querySingle("SELECT title FROM media_folders WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->lastErrorMsg());
+        return $result;
+    }
+
+    function getTopLevelFolders()
+    {
+        $top_array = array();
+        // Returns array of id of top folders
+        $results = $this->query("SELECT id FROM media_folders WHERE parent_id=1;");
+        if ($results === FALSE) throw new Exception($this->lastErrorMsg());
+        while($row = $results->fetchArray()) {
+            $top_array[] = $row['id'];
+        }
+        return $top_array;
+    }
+
+    function getLatestUpdatedFolder($nb_latest)
+    {
+        $latest_array = array();
+        // Return array of id of latest updated folders
+        $results = $this->query("SELECT id FROM media_folders ORDER BY lastmod DESC;");
+        if ($results === FALSE) throw new Exception($this->lastErrorMsg());
+        while(($row = $results->fetchArray()) && (count($latest_array < $nb_latest))) {
+            $latest_array[] = $row['id'];
+        }
+        return $latest_array;
     }
 }
 
