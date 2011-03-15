@@ -68,24 +68,24 @@ class mediaDB extends SQLite3
             $query .= $media->folder->db_id. ', ';
         } else
             $query .= ' -1, ';
-        $query .= "'".$media->type         . "', ";
-        $query .= "'".$media->title        . "', ";
+        $query .= "'".$this->escapeString($media->type)         . "', ";
+        $query .= "'".$this->escapeString($media->title)        . "', ";
         $query .= $media->filesize         . ', ';
-        $query .= "'".$media->lastmod      . "', ";
-        $query .= "'".$media->filename     . "', ";
-        $query .= "'".$media->thumbnail    . "', ";
-        $query .= "'".$media->download_path. "', ";
+        $query .= "'".$this->escapeString($media->lastmod)      . "', ";
+        $query .= "'".$this->escapeString($media->filename)     . "', ";
+        $query .= "'".$this->escapeString($media->thumbnail)    . "', ";
+        $query .= "'".$this->escapeString($media->download_path). "', ";
         $query .= $media->focal            . ', ';
-        $query .= "'".$media->lens         . "', ";
-        $query .= "'".$media->fstop        . "', ";
-        $query .= "'".$media->shutter      . "', ";
+        $query .= "'".$this->escapeString($media->lens)         . "', ";
+        $query .= "'".$this->escapeString($media->fstop)        . "', ";
+        $query .= "'".$this->escapeString($media->shutter)      . "', ";
         $query .= $media->iso              . ', ';
-        $query .= "'".$media->originaldate . "', ";
+        $query .= "'".$this->escapeString($media->originaldate) . "', ";
         $query .= $media->width            . ', ';
         $query .= $media->height           . ', ';
         $query .= $media->lens_is_zoom     . ', ';
-        $query .= "'".$media->camera       . "', ";
-        $query .= "'".$media->duration     . "', ";
+        $query .= "'".$this->escapeString($media->camera)       . "', ";
+        $query .= "'".$this->escapeString($media->duration)     . "', ";
         $query .= $media->longitude        . ', ';
         $query .= $media->latitude         . ', ';
         $query .= $media->altitude         . ');';
@@ -102,8 +102,11 @@ class mediaDB extends SQLite3
                 throw new Exception($this->lastErrorMsg());
         }
         foreach ($media->tags as $tag) {
-            if ($this->exec("REPLACE INTO media_tags (media_id, name) VALUES ($media->db_id, '$tag');") == FALSE)
+            $query = "REPLACE INTO media_tags (media_id, name) VALUES ($media->db_id, '".$this->escapeString($tag)."');";
+            if ($this->exec($query) == FALSE) {
+                print("-E-  Failed query was: $query\n");
                 throw new Exception($this->lastErrorMsg());
+            }
         }
     }
 
@@ -170,19 +173,19 @@ class mediaDB extends SQLite3
     {
         $store_id = $this->findMediaFolderID($media);
         if ($store_id != -1)
-            $query = "REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername, thumbnail) VALUES (";
+            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername, thumbnail) VALUES (';
         else
-            $query = "REPLACE INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (";
+            $query = 'REPLACE INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (';
         if ($store_id != -1)
             $query .= $store_id.', ';
         if ($media->parent == NULL)
             $query .= "-1, ";
         else
             $query .= $media->parent->db_id.", ";
-        $query .= "'".$media->title."', ";
-        $query .= "'".$media->lastmod."', ";
-        $query .= "'".$media->name."', ";
-        $query .= "'".$media->thumbnail."');";
+        $query .= "'".$this->escapeString($media->title)."', ";
+        $query .= "'".$this->escapeString($media->lastmod)."', ";
+        $query .= "'".$this->escapeString($media->name)."', ";
+        $query .= "'".$this->escapeString($media->thumbnail)."');";
         if ($this->exec($query) == FALSE) {
             print("-E-  Failed query: $query\n");
             throw new Exception($this->lastErrorMsg());
