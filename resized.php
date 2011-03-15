@@ -1,7 +1,7 @@
 <?php
 require_once "common_db.php";
 
-function getObjectResizedPath($id)
+function getResizedPath($id)
 {
     $resized = "";
     $p_id    = -1;
@@ -21,7 +21,7 @@ function getObjectResizedPath($id)
     return $resized;
 }
 
-function updateObjectResized($id)
+function updateResized($id)
 {
     global $resized_size;
     global $resized_folder;

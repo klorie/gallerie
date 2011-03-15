@@ -4,12 +4,6 @@
 require_once "thumbnail.php";
 require_once "resized.php";
 
-function cleanDirectory($path, $base_folder)
-{
-    global $image_folder;
-
-}        
-
 global $thumb_folder;
 global $resized_folder;
 global $image_folder;
@@ -52,7 +46,7 @@ echo "Processing folders...\n";
 $folder_list = $gallery_db->query("SELECT id FROM media_folders;");
 if($folder_list === false) throw new Exception ($gallery_db->lastErrorMsg());
 while($folder = $folder_list->fetchArray()) {
-    $folder_path = $gallery_db->getMediaFolderPath($folder['id']);
+    $folder_path = $gallery_db->getFolderPath($folder['id']);
     echo "-D- processing $folder_path \n";
     if (!file_exists("$thumb_folder/$folder_path")) { 
         mkdir("$thumb_folder/$folder_path", 0777, true);
@@ -75,14 +69,14 @@ while($folder = $folder_list->fetchArray()) {
             $element_list = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=".$folder['id']);
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
-                if (stristr(getObjectThumbnailPath($element['id']), "$folder_path/$fname") !== false)
+                if (stristr(getThumbnailPath($element['id']), "$folder_path/$fname") !== false)
                     $found = true;
-                else if (($folder_path == "") && stristr(getObjectThumbnailPath($element['id']), "$fname") !== false)
+                else if (($folder_path == "") && (stristr(getThumbnailPath($element['id']), "$fname") !== false))
                     $found = true;
             }
             if ($found == false) {
                 // Image not found, removing thumbnail
-                echo "$fname object not found, removing generated file\n";
+                echo "$fname element not found, removing thumbnail\n";
                 unlink("$thumb_folder/$folder_path/$fname");
             }
         }
@@ -101,12 +95,14 @@ while($folder = $folder_list->fetchArray()) {
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
                 $fname_noext = substr($fname, 0, strlen($fname) - 3);
-                if (stristr(getObjectResizedPath($element['id']), "$folder_path/$fname_noext") !== false)
+                if (stristr(getResizedPath($element['id']), "$folder_path/$fname_noext") !== false)
+                    $found = true;
+                else if (($folder_path == "") && (stristr(getResizedPath($element['id']), "$fname_noext") !== false))
                     $found = true;
             }
             if ($found == false) {
                 // Image not found, removing resized
-                echo "$fname object not found, removing generated file\n";
+                echo "$fname element not found, removing resized\n";
                 unlink("$resized_folder/$folder_path/$fname");
             }
         }
@@ -119,8 +115,8 @@ echo "Processing elements...";
 $element_list = $gallery_db->query("SELECT id FROM media_objects;");
 if($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
 while($element = $element_list->fetchArray()) {
-    updateObjectThumbnail($element['id']);
-    updateObjectResized($element['id']);
+    updateThumbnail($element['id']);
+    updateResized($element['id']);
 }
 echo "[ Done ]\n";
 

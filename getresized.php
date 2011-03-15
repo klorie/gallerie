@@ -11,7 +11,7 @@ if (isset($_REQUEST['id'])) {
 
 global $resized_folder;
 
-$resized = $resized_folder.'/'.getObjectResizedPath($object);
+$resized = $resized_folder.'/'.getResizedPath($object);
     
 if (!file_exists($resized)) {
     $resized = './images/nothumb.jpg';

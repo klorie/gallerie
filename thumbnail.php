@@ -1,7 +1,7 @@
 <?php
 require_once "common_db.php";
 
-function getObjectThumbnailPath($id)
+function getThumbnailPath($id)
 {
     $thumb  = "";
     $p_id   = -1;
@@ -11,7 +11,7 @@ function getObjectThumbnailPath($id)
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     $thumb  = $result['thumbnail'];
     $p_id   = $result['folder_id'];
-    $folder = $m_db->getMediaFolderPath($p_id);
+    $folder = $m_db->getFolderPath($p_id);
     if ($folder != "")
         $thumb = $folder.'/'.$thumb;
     return $thumb;
@@ -26,13 +26,13 @@ function getFolderThumbnailPath($id)
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     $thumb  = $result['thumbnail'];
-    $folder = $m_db->getMediaFolderPath($p_id);
+    $folder = $m_db->getFolderPath($id);
     if ($folder != "")
         $thumb = $folder.'/'.$thumb;
     return $thumb;
 }
 
-function updateObjectThumbnail($id)
+function updateThumbnail($id)
 {
     global $thumb_size;
     global $thumb_folder;
@@ -58,8 +58,8 @@ function updateObjectThumbnail($id)
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    $filename  = $image_folder.'/'.$m_db->getMediaFolderPath($p_id).'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$m_db->getMediaFolderPath($p_id).'/'.$thumbnail;
+    $filename  = $image_folder.'/'.$m_db->getFolderPath($p_id).'/'.$filename;
+    $thumbnail = $thumb_folder.'/'.$m_db->getFolderPath($p_id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
 
@@ -117,8 +117,8 @@ function updateFolderThumbnail($id)
     if ($result['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
     $filename  = $result['thumbnail'];
     $thumbnail = $result['thumbnail'];
-    $filename  = $image_folder.'/'.$m_db->getMediaFolderPath($id).'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$m_db->getMediaFolderPath($id).'/'.$thumbnail;
+    $filename  = $image_folder.'/'.$m_db->getFolderPath($id).'/'.$filename;
+    $thumbnail = $thumb_folder.'/'.$m_db->getFolderPath($id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 

@@ -16,7 +16,7 @@ global $thumb_folder;
 
 $thumbnail = "";
 if ($object != -1)
-    $thumbnail = $thumb_folder.'/'.getObjectThumbnailPath($object);
+    $thumbnail = $thumb_folder.'/'.getThumbnailPath($object);
 else
     $thumbnail = $thumb_folder.'/'.getFolderThumbnailPath($folder);
     
