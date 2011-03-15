@@ -5,6 +5,5 @@ thumbnails/
 resized/
 # Ignore Generated files
 gallery.db
-latest_updates.php
 # Ignore work in progress
 dev/
