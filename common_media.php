@@ -241,7 +241,7 @@ class mediaObject
             if (isset($exif['DateTimeOriginal'])) $edate = $exif['DateTimeOriginal'];
             if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
             if (!empty($edate)) {
-                $edate = split(':', str_replace(' ', ':', $edate));
+                $edate = explode(':', str_replace(' ', ':', $edate));
                 $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
                 $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
                 $this->originaldate = $edate;

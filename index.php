@@ -41,7 +41,7 @@ if ($cache_time !== false &&
   <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
   <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
-  <script src=\"http://lite.piclens.com/current/piclens_optimized.js\" type=\"text/javascript\"></script>
+  <script src="http://lite.piclens.com/current/piclens_optimized.js" type="text/javascript"></script>
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
