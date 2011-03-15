@@ -43,7 +43,7 @@ class mediaDB extends SQLite3
             $query .= $media->folder->db_id;
         else
             $query .= "-1";
-        $query .= " AND filename = '$media->filename'";
+        $query .= " AND filename = '".$this->escapeString($media->filename)."'";
 
         $result = $this->querySingle($query);
 
@@ -159,7 +159,7 @@ class mediaDB extends SQLite3
             $query .= $media->parent->db_id;
         else
             $query .= "-1";
-        $query .= " AND foldername = '$media->name'";
+        $query .= " AND foldername = '".$this->escapeString($media->name)."'";
 
         $result = $this->querySingle($query);
 
@@ -252,7 +252,7 @@ class mediaDB extends SQLite3
 
         foreach($path_array as $current_path_level) {
             $parent_id = $folder_id;
-            $result = $this->querySingle("SELECT id FROM media_folders WHERE parent_id=$parent_id AND foldername='$current_path_level';");
+            $result = $this->querySingle("SELECT id FROM media_folders WHERE parent_id=$parent_id AND foldername='".$this->escapeString($current_path_level)."';");
             if ($result === FALSE) throw new Exception($this->lastErrorMsg());
             if ($result != NULL)
                 $folder_id = $result;
