@@ -184,6 +184,7 @@ class mediaDB extends SQLite3
         $query .= "'".$media->name."', ";
         $query .= "'".$media->thumbnail."');";
         if ($this->exec($query) == FALSE) {
+            print("-E-  Failed query: $query\n");
             throw new Exception($this->lastErrorMsg());
         } else {
             $media->db_id = $this->lastInsertRowID();
