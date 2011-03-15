@@ -27,10 +27,10 @@ if (isset($argv[1])) $clean = ($argv[1] == "--clean");
 if ($clean) {
     // Clean all unneeded thumbnails
     echo "Removing all thumbnails\n";
-    deleteDir("$thumb_folder") ;
+    exec("rm -rf $thumb_folder");
     mkdir("$thumb_folder");
     echo "Removing all resized\n";
-    deleteDir("$resized_folder");
+    exec("rm -rf $resized_folder");
     mkdir("$resized_folder");
 }
 
@@ -76,6 +76,8 @@ while($folder = $folder_list->fetchArray()) {
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
                 if (stristr(getObjectThumbnailPath($element['id']), "$folder_path/$fname") !== false)
+                    $found = true;
+                else if (($folder_path == "") && stristr(getObjectThumbnailPath($element['id']), "$fname") !== false)
                     $found = true;
             }
             if ($found == false) {
