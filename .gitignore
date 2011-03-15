@@ -5,5 +5,6 @@ thumbnails/
 resized/
 # Ignore Generated files
 gallery.db
+*.swp
 # Ignore work in progress
 dev/
