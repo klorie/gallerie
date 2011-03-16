@@ -127,10 +127,12 @@ class mediaFolder
         else
             $source_fullpath = $image_folder;
 
-        $dir = @dir($source_fullpath) or die("Failed to open $source_fullpath for reading");
+
+        $current_dir_list = scandir($source_fullpath);
+        if ($current_dir_list === false) die("-E- Failed to open $source_fullpath for reading");
         $this->lastmod = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullpath));
 
-        while(($entry = $dir->read()) !== false) {
+        foreach($current_dir_list as $entry) {
             // skip hidden files
             if ($entry[0] == '.') continue;
             if (is_dir("$source_fullpath/$entry")) {
@@ -271,7 +273,7 @@ class mediaObject
             $size = getimagesize($source_fullname, $imginfo);
             if (isset($imginfo["APP13"])) {
                 $iptc = iptcparse($imginfo["APP13"]);
-                if (is_array($iptc) && isset($iptc["2#120"][0]))
+                if (is_array($iptc) && isset($iptc["2#120"][0]) && ($iptc["2#120"][0] != ""))
                     $this->title = $iptc["2#120"][0];
                 if (is_array($iptc) && ($iptc["2#025"][0] != ""))
                     for ($t = 0; $t < count($iptc["2#025"]); $t++) {
@@ -298,11 +300,15 @@ class mediaObject
 
         $subtitle = "";
         // Returns subtitle string: Camera - ISO, Lens (@ focal if zoom), exposure time, aperture <br/> date
-        if ($this->camera != "")      $subtitle  = $this->camera." - ";
+        if ($this->camera != "") {
+            $subtitle = $this->camera;
+            if ($this->iso != -1)
+                $subtitle .= " - ";
+        }
         if ($this->iso != -1)         $subtitle .= $this->iso."ISO, ";
         if ($this->lens != "")        $subtitle .= $this->lens;
         if ($this->lens_is_zoom == 1) $subtitle .= " @ ".$this->focal."mm";
-        if ($subtitle != "")          $subtitle .= ", ";
+        if ($this->lens != "")        $subtitle .= ", ";
         if ($this->shutter != "")     $subtitle .= $this->shutter.", ";
         if ($this->fstop != "")       $subtitle .= $this->fstop;
         if ($subtitle != "")          $subtitle .= "<br />";
