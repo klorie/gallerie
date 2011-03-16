@@ -131,4 +131,61 @@ function displaySubFolderMenu($id, mediaDB &$db = NULL)
     if ($db == NULL)
         $m_db->close();
 }
+
+function displayNeighborFoldersMenu($id, mediaDB &$db = NULL)
+{
+    $m_db = NULL;
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+
+    echo "<h3>Albums Voisins</h3>\n";
+    $neighborlist = $m_db->getNeighborFolders($id);
+    if (count($neighborlist) > 0) {
+        echo "<ul class=\"menu\">\n";
+        foreach($neighborlist as $neighbor) {
+            echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($neighbor))."\" >".htmlentities($m_db->getFolderTitle($neighbor))."</a></li>\n";
+        }
+        echo "</ul>\n";
+    }
+
+    if ($db == NULL)
+        $m_db->close();
+}
+
+function displayLatestFoldersMenu(mediaDB &$db = NULL)
+{
+    global $latest_album_count;
+
+    $m_db = NULL;
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+    $latestfolderlist = $m_db->getLatestUpdatedFolder($latest_album_count);
+    echo "<h3>Nouveaut&eacute;s</h3>\n";
+    echo "<ul class=\"menu\">\n";
+    foreach($latestfolderlist as $latestfolder) {
+        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($latestfolder))."\" >".htmlentities($m_db->getFolderTitle($latestfolder))."</a></li>\n";
+    }
+    echo "</ul>\n";
+
+    if ($db == NULL)
+        $m_db->close();
+}
+
+function displayTopFoldersMenu(mediaDB &$db = NULL)
+{
+    $m_db = NULL;
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+    echo "<ul class=\"submenu\">\n"; 
+    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n"; 
+    // Build menu with only top-level directories
+    $topfolderlist = $m_db->getSubFolders(1);
+    foreach($topfolderlist as $topfolder) {
+        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($topfolder))."\" >".htmlentities($m_db->getFolderTitle($topfolder))."</a> </li>\n";
+    }
+    echo "</ul>\n"; 
+
+    if ($db == NULL)
+        $m_db->close();
+}
 ?>
