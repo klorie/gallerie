@@ -297,7 +297,7 @@ class mediaObject
         $this->filesize = filesize($source_fullname);
     }
 
-    function getSubTitle()
+    function getSubTitle($rss=false)
     {
         global $image_folder;
 
@@ -314,6 +314,9 @@ class mediaObject
         if ($this->lens != "")        $subtitle .= ", ";
         if ($this->shutter != "")     $subtitle .= $this->shutter.", ";
         if ($this->fstop != "")       $subtitle .= $this->fstop;
+        // RSS Subtitle stops here
+        if ($rss == true) 
+            return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
         $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
         $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
