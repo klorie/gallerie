@@ -40,11 +40,26 @@ echo "Parsing gallery folder...";
 $gallery = new mediaFolder();
 $gallery->loadFromPath();
 echo "[ Done ]\n";
-
+$mtime = explode(' ', microtime());
+$totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
+if ($totaltime < 60) {
+    echo "-D- Parsing done in $totaltime min\n";
+} else {
+    $totaltime = $totaltime / 60;
+    echo "-D- Parsing done in $totaltime hours\n";
+}
 echo "Storing information into database...";
 $gallery_db = new mediaDB();
 $gallery_db->storeMediaFolder($gallery);
 echo "[ Done ]\n";
+$mtime = explode(' ', microtime());
+$totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
+if ($totaltime < 60) {
+    echo "-D- Storing done in $totaltime min\n";
+} else {
+    $totaltime = $totaltime / 60;
+    echo "-D- Storing done in $totaltime hours\n";
+}
 
 $element_count = $gallery_db->querySingle("SELECT COUNT(*) FROM media_objects;");
 $folder_count  = $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
@@ -78,9 +93,9 @@ while($folder = $folder_list->fetchArray()) {
             $element_list = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=".$folder['id']);
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
-                if (stristr(getThumbnailPath($element['id']), "$folder_path/$fname") !== false)
+                if (stristr(getThumbnailPath($element['id'], $gallery_db), "$folder_path/$fname") !== false)
                     $found = true;
-                else if (($folder_path == "") && (stristr(getThumbnailPath($element['id']), "$fname") !== false))
+                else if (($folder_path == "") && (stristr(getThumbnailPath($element['id'], $gallery_db), "$fname") !== false))
                     $found = true;
             }
             if ($found == false) {
@@ -104,9 +119,9 @@ while($folder = $folder_list->fetchArray()) {
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
                 $fname_noext = substr($fname, 0, strlen($fname) - 3);
-                if (stristr(getResizedPath($element['id']), "$folder_path/$fname_noext") !== false)
+                if (stristr(getResizedPath($element['id'], $gallery_db), "$folder_path/$fname_noext") !== false)
                     $found = true;
-                else if (($folder_path == "") && (stristr(getResizedPath($element['id']), "$fname_noext") !== false))
+                else if (($folder_path == "") && (stristr(getResizedPath($element['id'], $gallery_db), "$fname_noext") !== false))
                     $found = true;
             }
             if ($found == false) {
