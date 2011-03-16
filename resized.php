@@ -1,11 +1,15 @@
 <?php
 require_once "common_db.php";
 
-function getResizedPath($id)
+function getResizedPath($id, mediaDB &$db = NULL)
 {
     $resized = "";
     $p_id    = -1;
-    $m_db    = new mediaDB();
+    $m_db    = NULL;
+    if ($db == NULL)
+        $m_db = new mediaDB();
+    else
+        $m_db = $db;
     $result  = $m_db->querySingle("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
@@ -18,6 +22,8 @@ function getResizedPath($id)
             $resized = $result['foldername'].'/'.$resized;
         $p_id  = $result['parent_id'];
     }
+    if ($db == NULL)
+        $m_db->close();
     return $resized;
 }
 
