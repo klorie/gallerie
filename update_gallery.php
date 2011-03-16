@@ -11,6 +11,11 @@ global $image_folder;
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
 
+// This script may run for a loooong time...
+if (!ini_get('safe_mode')) {
+    set_time_limit(9999);
+}
+
 $clean = false;
 if ((isset($_REQUEST['clean']))) {
     $clean = $_REQUEST['clean'];
@@ -31,11 +36,15 @@ if ($clean) {
 // Remove database to ensure clean update
 unlink("gallery.db");
 
+echo "Parsing gallery folder...";
 $gallery = new mediaFolder();
 $gallery->loadFromPath();
+echo "[ Done ]\n";
 
+echo "Storing information into database...";
 $gallery_db = new mediaDB();
 $gallery_db->storeMediaFolder($gallery);
+echo "[ Done ]\n";
 
 $element_count = $gallery_db->querySingle("SELECT COUNT(*) FROM media_objects;");
 $folder_count  = $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
