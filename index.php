@@ -1,6 +1,7 @@
 <?php
 // Start PHP code
 require_once "common_browser.php";
+require_once "googlemaps.php";
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
@@ -67,7 +68,7 @@ if ($cache_time !== false &&
          expose: '#111',
          effect: 'apple',
          onLoad: function(content) {
-             this.getOverlay.find("a.player").flowplayer(0).load();
+            this.getOverlay.find("a.player").flowplayer(0).load();
          }
       });
       $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
@@ -108,9 +109,11 @@ if ($path != "") {
   }
 }
 if ($m_db->getFolderElementsCount($m_folder_id) > 1) {
-  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id', delay:6});\">Diaporama</a> ]\n";
+    echo " [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id', delay:6});\">Diaporama</a> ]\n";
 }
-
+if (getFolderGeolocalizedCount($m_folder_id, $m_db) > 0) {
+    echo " [ <a href=\"getmap.php?id=$m_folder_id\">Carte</a> ]\n";
+}
 echo "</h3>\n";
 
 // Show list of subfolders
