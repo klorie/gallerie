@@ -115,7 +115,7 @@ echo "<div id=\"content-container\">\n";
 echo "<ul class=\"submenu\">\n"; 
 echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n"; 
 // Build menu with only top-level directories
-$topfolderlist = $m_db->getTopLevelFolders();
+$topfolderlist = $m_db->getSubFolders(1);
 foreach($topfolderlist as $topfolder) {
     echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($topfolder))."\" >".htmlentities($m_db->getFolderTitle($topfolder))."</a> </li>\n";
 }
