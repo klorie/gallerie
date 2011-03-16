@@ -76,11 +76,7 @@ if ($cache_time !== false &&
 
 <?php
 // Issue Cooliris header
-/*
-if (count($m_folder->element) > 0) {  
-   echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
-}
-*/
+echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
@@ -133,9 +129,9 @@ if ($path != "") {
       echo "/<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
   }
 }
-//if (count($m_folder->element) > 0) {
-//  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a> ]\n";
-//}
+if ($m_db->getFolderElementsCount($m_folder_id) > 1) {
+  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id', delay:6});\">Diaporama</a> ]\n";
+}
 
 echo "</h3>\n";
 
