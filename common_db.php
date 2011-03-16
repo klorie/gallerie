@@ -53,13 +53,15 @@ class mediaDB extends SQLite3
             return $result;
     }
 
-    function storeMediaObject(mediaObject &$media)
+    function storeMediaObject(mediaObject &$media, $update=false)
     {
-        $store_id = $this->findMediaObjectID($media);
+        $store_id = -1;
+        if ($update == true)
+            $store_id = $this->findMediaObjectID($media);
         if ($store_id != -1)
             $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
         else
-            $query = 'REPLACE INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
+            $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
         $query .= 'download_path, focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
         $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
@@ -169,13 +171,16 @@ class mediaDB extends SQLite3
             return $result;        
     }
 
-    function storeMediaFolder(mediaFolder &$media)
+    function storeMediaFolder(mediaFolder &$media, $update=false)
     {
-        $store_id = $this->findMediaFolderID($media);
+        $store_id = -1;
+        if ($update == true)
+            $store_id = $this->findMediaFolderID($media);
+
         if ($store_id != -1)
             $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername, thumbnail) VALUES (';
         else
-            $query = 'REPLACE INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (';
+            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (';
         if ($store_id != -1)
             $query .= $store_id.', ';
         if ($media->parent == NULL)
@@ -194,11 +199,11 @@ class mediaDB extends SQLite3
         }
         if (count($media->subfolder) > 0) {
             foreach($media->subfolder as $subfolder)
-                $this->storeMediaFolder($subfolder);
+                $this->storeMediaFolder($subfolder, $update);
         }
         if (count($media->element) > 0) {
             foreach($media->element as $element)
-                $this->storeMediaObject($element);
+                $this->storeMediaObject($element, $update);
         }
     }
 
@@ -331,7 +336,7 @@ class mediaDB extends SQLite3
         // Return array of id of latest updated folders
         $results = $this->query("SELECT id FROM media_folders ORDER BY lastmod DESC;");
         if ($results === FALSE) throw new Exception($this->lastErrorMsg());
-        while(($row = $results->fetchArray()) && (count($latest_array < $nb_latest))) {
+        while(($row = $results->fetchArray()) && (count($latest_array) < $nb_latest)) {
             $latest_array[] = $row['id'];
         }
         return $latest_array;
