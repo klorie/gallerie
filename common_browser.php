@@ -7,6 +7,7 @@ function displayElementList($id, mediaDB &$db = NULL)
 {
     global $thumbs_per_page;
     global $image_folder;
+    global $resized_folder;
 
     $m_db = NULL;
 
