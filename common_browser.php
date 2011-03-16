@@ -1,6 +1,7 @@
 <?php
 
 require_once "common_db.php";
+require_once "resized.php";
 
 function displayElementList($id, mediaDB &$db = NULL)
 {
