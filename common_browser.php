@@ -81,6 +81,8 @@ function displayElementList($id, mediaDB &$db = NULL)
         echo "<div class=\"clearfix\"></div>\n";
         echo "<h3></h3>\n";
     }
+    if ($db == NULL)
+        $m_db->close();
 }
 
 function displaySubFolderList($id, mediaDB &$db = NULL)
