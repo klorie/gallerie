@@ -10,11 +10,12 @@ function getResizedPath($id, mediaDB &$db = NULL)
         $m_db = new mediaDB();
     else
         $m_db = $db;
-    $result  = $m_db->querySingle("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;", true);
+    $result  = $m_db->querySingle("SELECT folder_id, resized FROM media_objects WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $resized = $result['thumbnail'];
+    $resized = $result['resized'];
     $p_id    = $result['folder_id'];
+
     while($p_id != -1) {
         $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
         if ($result === false) throw new Exception($m_db->lastErrorMsg());
@@ -44,11 +45,11 @@ function updateResized($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Object info
-    $result = $m_db->querySingle("SELECT folder_id, thumbnail, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
+    $result = $m_db->querySingle("SELECT folder_id, resized, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    if ($result['thumbnail'] == "") return false; // Should never happen
+    if ($result['resized'] == "") return false; // Should never happen
     $filename = $result['filename'];
-    $resized  = $result['thumbnail'];
+    $resized  = $result['resized'];
     $type     = $result['type'];
     $lastmod  = $result['lastmod'];
     $p_id     = $result['folder_id'];
@@ -64,11 +65,6 @@ function updateResized($id)
     }
     $filename = $image_folder.'/'.$filename;
     $resized  = $resized_folder.'/'.$resized;
-
-    if ($type == 'movie') {
-        $info    = pathinfo($resized);
-        $resized = $info['dirname'].'/'.$info['filename'].'.flv';
-    }
 
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 
