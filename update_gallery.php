@@ -12,9 +12,7 @@ $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
 
 // This script may run for a loooong time...
-if (!ini_get('safe_mode')) {
-    set_time_limit(9999);
-}
+set_time_limit(9999);
 
 $clean = false;
 if ((isset($_REQUEST['clean']))) {
@@ -93,9 +91,10 @@ while($folder = $folder_list->fetchArray()) {
             $element_list = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=".$folder['id']);
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
-                if (stristr(getThumbnailPath($element['id'], $gallery_db), "$folder_path/$fname") !== false)
+                $thumbnail_path = getThumbnailPath($element['id'], $gallery_db);
+                if (stristr($thumbnail_path, "$folder_path/$fname") !== false)
                     $found = true;
-                else if (($folder_path == "") && (stristr(getThumbnailPath($element['id'], $gallery_db), "$fname") !== false))
+                else if (($folder_path == "") && (stristr($thumbnail_path, "$fname") !== false))
                     $found = true;
             }
             if ($found == false) {
@@ -118,10 +117,11 @@ while($folder = $folder_list->fetchArray()) {
             $element_list = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=".$folder['id']);
             if ($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
             while($element = $element_list->fetchArray()) {
-                $fname_noext = substr($fname, 0, strlen($fname) - 3);
-                if (stristr(getResizedPath($element['id'], $gallery_db), "$folder_path/$fname_noext") !== false)
+                $fname_noext  = substr($fname, 0, strlen($fname) - 3);
+                $resized_path = getResizedPath($element['id'], $gallery_db);
+                if (stristr($resized_path, "$folder_path/$fname_noext") !== false)
                     $found = true;
-                else if (($folder_path == "") && (stristr(getResizedPath($element['id'], $gallery_db), "$fname_noext") !== false))
+                else if (($folder_path == "") && (stristr($resized_path, "$fname_noext") !== false))
                     $found = true;
             }
             if ($found == false) {
