@@ -154,12 +154,20 @@ foreach($folder_list as $folder_id) {
 echo "Folder processing done.\n";
 
 echo "Processing elements...";
-$element_list = $gallery_db->query("SELECT id FROM media_objects;");
+$element_count = 0;
+$element_list  = $gallery_db->query("SELECT id FROM media_objects;");
 if($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
 while($element = $element_list->fetchArray()) {
     updateThumbnail($element['id']);
     updateResized($element['id']);
+    if (($element_count++ % 100) == 0) echo ".";
 }
+echo "[ Done ]\n";
+
+// Clean all unneeded thumbnails
+echo "Clearing cache...";
+exec("rm -rf $cache_folder");
+mkdir("$cache_folder");
 echo "[ Done ]\n";
 
 $mtime = explode(' ', microtime());
