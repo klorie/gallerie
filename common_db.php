@@ -8,8 +8,8 @@ class mediaDB extends SQLite3
     {
         // Method which initialize the database with proper structure
         $query  = "CREATE TABLE media_objects (id INTEGER PRIMARY KEY AUTOINCREMENT, folder_id INTEGER, type TEXT, ";
-        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, thumbnail TEXT, camera TEXT, ";
-        $query .= "focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
+        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, thumbnail TEXT, resized TEXT, ";
+        $query .= "camera TEXT, focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
         $query .= "width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);";
         if (!$this->exec($query))
             throw new Exception($this->lastErrorMsg());
@@ -20,6 +20,8 @@ class mediaDB extends SQLite3
         if (!$this->exec('CREATE TABLE media_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, media_id INTEGER);')) 
             throw new Exception($this->lastErrorMsg());
         if (!$this->exec('CREATE INDEX media_tag_name ON media_tags(name);'))
+            throw new Exception($this->lastErrorMsg());
+        if (!$this->exec('CREATE INDEX media_tag_media_id ON media_tags(media_id);'))
             throw new Exception($this->lastErrorMsg());
         if (!$this->exec('CREATE INDEX media_folders_parent_id ON media_folders(parent_id);'))
             throw new Exception($this->lastErrorMsg());
@@ -67,9 +69,9 @@ class mediaDB extends SQLite3
         if ($update == true)
             $store_id = $this->findMediaObjectID($media);
         if ($store_id != -1)
-            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
+            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, resized, ';
         else
-            $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, ';
+            $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, resized, ';
         $query .= 'download_path, focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
         $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
@@ -84,6 +86,7 @@ class mediaDB extends SQLite3
         $query .= "'".$this->escapeString($media->lastmod)      . "', ";
         $query .= "'".$this->escapeString($media->filename)     . "', ";
         $query .= "'".$this->escapeString($media->thumbnail)    . "', ";
+        $query .= "'".$this->escapeString($media->resized)      . "', ";
         $query .= "'".$this->escapeString($media->download_path). "', ";
         $query .= $media->focal            . ', ';
         $query .= "'".$this->escapeString($media->lens)         . "', ";
@@ -136,6 +139,7 @@ class mediaDB extends SQLite3
             $media->lastmod       = $result['lastmod'];
             $media->filename      = $result['filename'];
             $media->thumbnail     = $result['thumbnail'];
+            $media->resized       = $result['resized'];
             $media->download_path = $result['download_path'];
             $media->focal         = $result['focal'];
             $media->lens          = $result['lens'];
@@ -158,6 +162,7 @@ class mediaDB extends SQLite3
         while($row = $results->fetchArray()) {
             $media->tags[] = $row['name'];
         }
+        $results->finalize();
     }
 
     function findMediaFolderID(mediaFolder &$media)
@@ -241,6 +246,7 @@ class mediaDB extends SQLite3
                     $media->subfolder[] = $subfolder;
                 }
             }
+            $results->finalize();
         }
         // Fetch elements
         $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id;");
@@ -252,6 +258,7 @@ class mediaDB extends SQLite3
                 $media->element[] = $element;
             }
         }
+        $results->finalize();
     }
 
     function getFolderID($path)
@@ -307,6 +314,7 @@ class mediaDB extends SQLite3
             if ($row['id'] != $id)
                 $neighbor_array[] = $row['id'];
         }
+        $results->finalize();
         return $neighbor_array;
     }
 
@@ -335,6 +343,7 @@ class mediaDB extends SQLite3
         while(($row = $results->fetchArray()) && (count($latest_array) < $nb_latest)) {
             $latest_array[] = $row['id'];
         }
+        $results->finalize();
         return $latest_array;
     }
 
@@ -379,6 +388,7 @@ class mediaDB extends SQLite3
         while($row = $results->fetchArray()) {
             $element_list[] = $row['id'];
         }
+        $results->finalize();
         return $element_list;
     }
 
