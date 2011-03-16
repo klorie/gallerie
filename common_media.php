@@ -194,6 +194,7 @@ class mediaObject
     public $filename      = "";
     public $download_path = "";
     public $thumbnail     = "";
+    public $resized       = "";
     public $camera        = "";
     public $focal         = -1;
     public $lens          = "";
@@ -227,11 +228,13 @@ class mediaObject
         $ext             = strtolower($info['extension']);
         $fname_noext     = $info['filename'];
         $this->thumbnail = $fname_noext.'.jpg';
-        if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp')
+        if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp') {
             $this->type = 'picture';
-        else if ($ext == 'mov' || $ext == 'mpg' || $ext == 'avi')
+            $this->resized = $fname_noext.'.jpg';
+        } else if ($ext == 'mov' || $ext == 'mpg' || $ext == 'avi') {
             $this->type = 'movie';
-        else
+            $this->resized = $fname_noext.'.flv';
+        } else
             throw new Exception('Unsupported file type !');
 
         if ($ext == 'jpg')
