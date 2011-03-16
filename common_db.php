@@ -27,6 +27,8 @@ class mediaDB extends SQLite3
             throw new Exception($this->lastErrorMsg());
         if (!$this->exec('CREATE INDEX media_objects_folder_id ON media_objects(folder_id);'))
             throw new Exception($this->lastErrorMsg());
+        if (!$this->exec('CREATE INDEX media_objects_filename ON media_objects(filename);'))
+            throw new Exception($this->lastErrorMsg());
     }
 
     function __construct()
@@ -324,18 +326,6 @@ class mediaDB extends SQLite3
         return $result;
     }
 
-    function getTopLevelFolders()
-    {
-        $top_array = array();
-        // Returns array of id of top folders
-        $results = $this->query("SELECT id FROM media_folders WHERE parent_id=1;");
-        if ($results === FALSE) throw new Exception($this->lastErrorMsg());
-        while($row = $results->fetchArray()) {
-            $top_array[] = $row['id'];
-        }
-        return $top_array;
-    }
-
     function getLatestUpdatedFolder($nb_latest)
     {
         $latest_array = array();
@@ -368,13 +358,15 @@ class mediaDB extends SQLite3
         $sub_array = array();
         // Returns array of id of neighbor folders
         $query = "SELECT id FROM media_folders WHERE parent_id=$id";
-        if ($reverse_subalbum_sort != 0) $query .= " ORDER BY lastmod DESC;";
-        else                             $query .= " ORDER BY lastmod ASC;";
+        if ($id == 1)                         $query .= " ORDER BY foldername ASC;";
+        else if ($reverse_subalbum_sort != 0) $query .= " ORDER BY foldername DESC;";
+        else                                  $query .= " ORDER BY foldername ASC;";
         $results = $this->query($query);
         if ($results === false) throw new Exception($this->lastErrorMsg());
         while($row = $results->fetchArray()) {
             $sub_array[] = $row['id'];
         }
+        $results->finalize();
         return $sub_array;
     }
 
@@ -382,7 +374,7 @@ class mediaDB extends SQLite3
     {
         $element_list = array();
         // Returns array of id of folder elements
-        $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id;");
+        $results = $this->query("SELECT id FROM media_objects WHERE folder_id=$id ORDER BY filename ASC;");
         if ($results === false) throw new Exception($this->lastErrorMsg());
         while($row = $results->fetchArray()) {
             $element_list[] = $row['id'];
