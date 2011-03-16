@@ -21,6 +21,12 @@ class mediaDB extends SQLite3
             throw new Exception($this->lastErrorMsg());
         if (!$this->exec('CREATE INDEX media_tag_name ON media_tags(name);'))
             throw new Exception($this->lastErrorMsg());
+        if (!$this->exec('CREATE INDEX media_folders_parent_id ON media_folders(parent_id);'))
+            throw new Exception($this->lastErrorMsg());
+        if (!$this->exec('CREATE INDEX media_folders_foldername ON media_folders(foldername);'))
+            throw new Exception($this->lastErrorMsg());
+        if (!$this->exec('CREATE INDEX media_objects_folder_id ON media_objects(folder_id);'))
+            throw new Exception($this->lastErrorMsg());
     }
 
     function __construct()
