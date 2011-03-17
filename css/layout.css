@@ -82,6 +82,15 @@ h3 {
 #map_canvas {
     height: 80%;
 }
+
+#map_info {
+    background: #000000;
+    padding:    15px  15px  15px  15px;
+	margin:     0;
+	border:     2px #313739 solid;
+	-moz-border-radius:    10px;
+	-webkit-border-radius: 10px;
+}
 	
 ul.menu {
     font-size:  1.1em;
