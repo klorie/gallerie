@@ -84,6 +84,8 @@ h3 {
 }
 
 #map_info {
+    text-align: center;
+    width:      160px;
     background: #000000;
     padding:    15px  15px  15px  15px;
 	margin:     0;
