@@ -49,9 +49,7 @@ if ($cache_time !== false &&
       $.tools.tooltip.conf.cancelDefault = false;
       $.tools.tooltip.conf.predelay = 1000;
       $(".dynamic-thumbnail").tooltip();
-      $("ul.tabs").tabs("ul.gallery", {
-        event: 'mouseover'
-      });
+      $("ul.tabs").tabs("ul.gallery");
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
     	padding: 30,
@@ -131,7 +129,7 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury - 2011/03/15</li>
+<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury</li>
 </ul>
 <br clear="all" /> 
 </div>

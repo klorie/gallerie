@@ -54,8 +54,8 @@ function getElementIcon($id, mediaDB &$db = NULL)
 
     while($tag = $tags->fetchArray()) {
         if      (stristr($tag['name'], 'Paysage') != false) {
+            // No break here as if there is another tag for this picture -> use it
             $result = 'images/markers/paysage.png';
-            break;
         } else if (stristr($tag['name'], 'Flore')   != false) {
             $result = 'images/markers/flore.png';
             break;
@@ -71,6 +71,9 @@ function getElementIcon($id, mediaDB &$db = NULL)
         } else if (stristr($tag['name'], 'Portrait') != false) {
             $result = 'images/markers/portrait.png';
             break;
+        } else if (stristr($tag['name'], 'Macro') != false) {
+            // No break here as if there is another tag for this picture -> use it
+            $result = 'images/markers/flore.png';
         }
     }
     $tags->finalize();
