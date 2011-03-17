@@ -179,15 +179,45 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
     echo "<ul class=\"submenu\">\n"; 
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n"; 
+    echo "<li><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php\"><b>Accueil</b></a></li>\n"; 
     // Build menu with only top-level directories
     $topfolderlist = $m_db->getSubFolders(1);
     foreach($topfolderlist as $topfolder) {
-        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($topfolder))."\" >".htmlentities($m_db->getFolderTitle($topfolder))."</a> </li>\n";
+        echo "<li><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" >".htmlentities($m_db->getFolderTitle($topfolder))."</a> </li>\n";
     }
     echo "</ul>\n"; 
 
     if ($db == NULL)
         $m_db->close();
+}
+
+function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link = true)
+{
+    $m_db = NULL;
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+    echo "<h3 id=\"gallery\">\n";
+    if ($id != 1) {
+        echo "<a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php\">Accueil</a>";
+        $folderhierarchy = $m_db->getFolderHierarchy($id);
+        foreach($folderhierarchy as $fhier) {
+            if ($fhier == 1) continue; // Discard top-level
+            echo "/<a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
+        }
+    }
+    if ($show_slide_map_link == true) {
+        if ($m_db->getFolderElementsCount($id) > 1) {
+            echo " [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/photos.rss.php?id=$id', delay:6});\">Diaporama</a> ]\n";
+        }
+        if (getFolderGeolocalizedCount($id, $m_db) > 0) {
+            $path = $m_db->getFolderPath($id);
+            echo " [ <a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/getmap.php?path=$path\">Carte</a> ]\n";
+        }
+    }
+    echo "</h3>\n";
+
+    if ($db == NULL)
+        $m_db->close();
+
 }
 ?>

@@ -5,7 +5,6 @@ require_once "googlemaps.php";
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
-$cwd = dirname($_SERVER["PHP_SELF"]);
 
 if (isset($_GET['path']))
     $path = $_GET["path"];
@@ -77,7 +76,7 @@ if ($cache_time !== false &&
 
 <?php
 // Issue Cooliris header
-echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
+echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"].'/.')."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
@@ -87,7 +86,7 @@ echo "<div id=\"sidebar\">\n";
 // Build menu with all sub-directories
 displaySubFolderMenu($m_folder_id, $m_db);
 
-if ($path == "") 
+if ($m_folder_id == 1) 
     displayLatestFoldersMenu($m_db);
 else
     displayNeighborFoldersMenu($m_folder_id, $m_db);
@@ -99,22 +98,7 @@ echo "<div id=\"content\">\n";
 echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
 
 // Path dirs and link
-echo "<h3 id=\"gallery\">\n";
-if ($path != "") {
-  echo "<a href=\"".$_SERVER["PHP_SELF"]."\">Accueil</a>";
-  $folderhierarchy = $m_db->getFolderHierarchy($m_folder_id);
-  foreach($folderhierarchy as $fhier) {
-      if ($fhier == 1) continue; // Discard top-level
-      echo "/<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
-  }
-}
-if ($m_db->getFolderElementsCount($m_folder_id) > 1) {
-    echo " [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?id=$m_folder_id', delay:6});\">Diaporama</a> ]\n";
-}
-if (getFolderGeolocalizedCount($m_folder_id, $m_db) > 0) {
-    echo " [ <a href=\"getmap.php?id=$m_folder_id\">Carte</a> ]\n";
-}
-echo "</h3>\n";
+displayFolderHierarchy($m_folder_id, $m_db);
 
 // Show list of subfolders
 displaySubFolderList($m_folder_id, $m_db);
