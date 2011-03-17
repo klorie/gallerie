@@ -25,38 +25,12 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
-  <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+  <script src="js/infobox_packed.js" type="text/javascript"></script>
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
-  <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
-  <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
-      $("a[rel^='prettyPhoto']").prettyPhoto({
-        animationSpeed: 'fast',
-    	padding: 30,
-	    opacity: 0.65,
-	    showTitle: true,
-	    allowresize: true,
-	    counter_separator_label: '/',
-	    theme: '<?php echo $gal_theme; ?>' 
-      });
-    });
-    $(function() {
-      $("a[rel^='#video']").overlay({
-         expose: '#111',
-         effect: 'apple',
-         onLoad: function(content) {
-            this.getOverlay.find("a.player").flowplayer(0).load();
-         }
-      });
-      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
-    });
-/*    $(function() {
-      $("#map_canvas").height($(document).height() * 0.6);
-    });*/
-    $(function() {
 <?php
 $element = new mediaObject();
 $m_db->loadMediaObject($element, $elements_list[0]);
@@ -73,15 +47,16 @@ $infoid = 0;
 foreach($elements_list as $element_id) {
     $m_db->loadMediaObject($element, $element_id);
     echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
-    echo "var contentString$infoid = '<div id=\"content\"><div id=\"siteNotice\"></div>'+\n";
-    echo "\t'<h1 id=\"firstHeading\" class=\"firstHeading\">".$element->title."</h1>'+\n";
-    echo "\t'<div id=\"bodyContent\">'+\n";
+    echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
+    echo "\t'<h2>".$element->title."</h2>'+\n";
+    echo "\t'<a href=\"./getresized.php?id=$element_id\">'+\n";
     echo "\t'<img src=\"./getthumb.php?id=$element_id\" alt=\"".$element->filename."\"/>'+\n";
-    echo "\t'<p>".$element->getSubTitle(true)."</p>'+\n";
-    echo "\t'</div></div>';\n";
-    echo "var infowindow$infoid = new google.maps.InfoWindow({ content: contentString$infoid });\n";
-    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, title:\"".$element->title."\" });\n";
-    echo "google.maps.event.addListener(marker$infoid, 'click', function() { infowindow$infoid.open(map, marker$infoid); });\n";
+    echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
+    echo "\t'</a></div>';\n";
+    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, title:'".$element->title."', icon:'".getElementIcon($element)."' });\n";
+    echo "var infooptions$infoid = { content: contentString$infoid, alignBottom: true, pixelOffset: new google.maps.Size(0, -35), boxClass: \"map_info\", closeBoxMargin: \"5px\" };\n";
+    echo "var infobox$infoid = new InfoBox(infooptions$infoid);\n";
+    echo "google.maps.event.addListener(marker$infoid, 'click', function() { infobox$infoid.open(map, marker$infoid); });\n";
     $infoid++;
 }
 ?>
