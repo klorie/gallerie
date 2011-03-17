@@ -8,14 +8,15 @@ $starttime = $starttime[1] + $starttime[0];
 if (isset($_GET['path']))
     $path = $_GET["path"];
 else {
-	header('HTTP/1.1 400 Bad Request');
-	die('path was not specified');
-    
+    $path = "";
 }
 $path = safeDirectory($path);
 
 $m_db          = new mediaDB();
-$id            = $m_db->getFolderID($path);
+if ($path != "")
+    $id        = $m_db->getFolderID($path);
+else
+    $id        = 1;
 $elements_list = getFolderGeolocalizedElements($id, $m_db);
 ?>
 <!DOCTYPE html>

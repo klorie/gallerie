@@ -26,7 +26,12 @@ function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
 
-    $results = $m_db->query("SELECT id FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;");
+    $query = "";
+    if ($id == 1)
+        $query = "SELECT id FROM media_objects WHERE longitude != 9999.0;";
+    else
+        $query = "SELECT id FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;";
+    $results = $m_db->query($query);
     if ($results === false) throw new Exception($m_db->lastErrorMsg());
     while($row = $results->fetchArray()) {
         $element_list[] = $row['id'];
@@ -98,7 +103,12 @@ function getFolderGeolocalizedBounds($id, mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
 
-    $results = $m_db->query("SELECT latitude, longitude FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;");
+    $query = "";
+    if ($id == 1)
+        $query = "SELECT latitude, longitude FROM media_objects WHERE longitude != 9999.0;";
+    else
+        $query = "SELECT latitude, longitude FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;";
+    $results = $m_db->query($query);
     if ($results === false) throw new Exception($m_db->lastErrorMsg());
     while($row = $results->fetchArray()) {
         if ($row['longitude'] < $longitude_min) $longitude_min = $row['longitude'];
