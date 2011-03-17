@@ -2,9 +2,11 @@
 	Content Redefinition
 ------------------------------------------------------------------------- */
 
-* { 
+html { 
     margin:  0; 
     border:  0; 
+    padding: 0;
+    height:  100%;
 } 
 
 body {
@@ -14,6 +16,7 @@ body {
 	background:  #728187 url(../images/bodyBackground.jpg) fixed top left repeat-x;
 	color:       #FFFFFF;
 	text-align:  left;
+    height:      100%;
 }
 
 a { color: #9db2b9; }
@@ -62,7 +65,7 @@ h3 {
 	float:       right; 
 	width:        84%;
 	margin-right:  1%; 
-	margin-left:  -15%;
+	margin-left: -15%;
 }
 
 #content {
@@ -73,6 +76,11 @@ h3 {
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
 	margin:     0 0 0 10px;
+    height:     90%;
+}
+
+#map_canvas {
+    height: 80%;
 }
 	
 ul.menu {
