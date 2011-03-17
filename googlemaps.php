@@ -38,4 +38,26 @@ function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
 
     return $element_list;
 }
+
+function getElementIcon(mediaObject $element)
+{
+    foreach($element->tags as $tag) {
+        if      (stristr($tag, 'Paysage') != false)
+            return 'images/markers/paysage.png';
+        else if (stristr($tag, 'Flore')   != false)
+            return 'images/markers/flore.png';
+        else if (stristr($tag, 'Faune')   != false)
+            return 'images/markers/faune.png';
+        else if (stristr($tag, 'Eglise')  != false)
+            return 'images/markers/eglise.png';
+        else if (stristr($tag, 'Pano')    != false)
+            return 'images/markers/panorama.png';
+        else if (stristr($tag, 'Portrait') != false)
+            return 'images/markers/portrait.png';
+    }
+    if ($element->type == 'movie')
+        return 'images/markers/movie.png';
+    else
+        return 'images/markers/picture.png';
+}
 ?>
