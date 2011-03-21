@@ -3,8 +3,10 @@ cache/
 gallery/
 thumbnails/
 resized/
+images/toplevel/
 # Ignore Generated files
 gallery.db
+css/toplevelmenu.css
 *.swp
 # Ignore work in progress
 dev/
