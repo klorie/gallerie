@@ -3,6 +3,7 @@
 // Start PHP code
 require_once "thumbnail.php";
 require_once "resized.php";
+require_once "common_browser.php";
 
 global $thumb_folder;
 global $resized_folder;
@@ -162,6 +163,11 @@ while($element = $element_list->fetchArray()) {
     updateResized($element['id']);
     if (($element_count++ % 100) == 0) echo ".";
 }
+echo "[ Done ]\n";
+
+echo "Updating gallery theme... ";
+updateTopFolderMenuThumbnail();
+generateTopFolderStylesheet($gallery_db);
 echo "[ Done ]\n";
 
 // Clean all unneeded thumbnails
