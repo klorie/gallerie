@@ -23,11 +23,16 @@ function getThumbnailPath($id, mediaDB &$db = NULL)
     return $thumb;
 }
 
-function getFolderThumbnailPath($id)
+function getFolderThumbnailPath($id, mediaDB &$db = NULL)
 {
     $thumb  = "";
     $p_id   = -1;
-    $m_db   = new mediaDB();
+    $m_db   = NULL;
+    if ($db == NULL)
+        $m_db = new mediaDB();
+    else
+        $m_db = $db;
+
     $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
 
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
@@ -35,6 +40,10 @@ function getFolderThumbnailPath($id)
     $folder = $m_db->getFolderPath($id);
     if ($folder != "")
         $thumb = $folder.'/'.$thumb;
+
+    if ($db == NULL)
+        $m_db->close();
+
     return $thumb;
 }
 
@@ -156,5 +165,42 @@ function updateFolderThumbnail($id)
     return true;
 }
 
+function updateTopFolderMenuThumbnail()
+{
+    global $thumb_folder;
+
+    $m_db = new mediaDB();
+
+    $results = $m_db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
+    if ($results === false) throw new Exception($m_db->lastErrorMsg());
+    while($row = $results->fetchArray()) {
+        $folder_thumb = $thumb_folder.'/'.getFolderThumbnailPath($row['id'], $m_db);
+        if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
+        if (getenv('MAGICK_THREAD_LIMIT') == "") die("-E-   This script requires the MAGICK_THREAD_LIMIT=1 line to be added in /etc/environment !\n");
+        $img    = new Imagick();
+        $img->ReadImage($folder_thumb);
+        $width  = $img->GetImageWidth();
+        $height = $img->GetImageHeight();
+        // calculate thumbnail size (80px)
+        // Warning - this will be ugly with vertical pictures
+        if ($width >= $height) {
+            $new_width  = 80;
+            $new_height = 80 * 0.75;
+        } else {
+            $new_height = 80;
+            $new_width  = 80 * 0.75;
+        }
+        $img->cropThumbnailImage($new_width, $new_height);
+        $img->setImageFormat("jpeg");
+        $img->setCompressionQuality(65);
+        $img->setImageFilename('images/toplevel/'.$row['foldername'].'.jpg');
+        $img->WriteImage();
+        $img->clear();
+        $img->destroy();
+    }
+    $results->finalize();
+
+    $m_db->close();
+}
 
 ?>
