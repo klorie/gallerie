@@ -220,4 +220,24 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
         $m_db->close();
 
 }
+
+function displayTopFoldersMenuNew(mediaDB &$db = NULL)
+{
+    $m_db = NULL;
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+    echo "<ul id=\"toplevel_navigation\">\n"; 
+    echo "<li class=\"home\"><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php\"><span><b>Accueil</b></span></a></li>\n"; 
+    // Build menu with only top-level directories
+    $topfolderlist = $m_db->getSubFolders(1);
+    foreach($topfolderlist as $topfolder) {
+        echo "<li class=\"".$m_db->getFolderName($topfolder)."\"><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
+    }
+    echo "</ul>\n"; 
+
+    if ($db == NULL)
+        $m_db->close();
+}
+
+
 ?>

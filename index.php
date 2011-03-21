@@ -20,9 +20,7 @@ else
 
 if ($cache_time !== false && 
     $enable_cache == true &&
-    $cache_time > filemtime("./config.php")  && 
-    $cache_time > filemtime("$image_folder/$path") &&
-    $cache_time > filemtime("$thumb_folder/$path")) {
+    $cache_time > filemtime("./config.php")) {
   readfile($cache);
 } else {
   ob_start();
@@ -34,15 +32,16 @@ if ($cache_time !== false &&
 <head> 
 <?php echo "<title>".$gal_title."</title>\n"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-  <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
-  <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
+  <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen"  />
+  <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" href="css/toplevelmenu.css" type="text/css" media="screen" />
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
   <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
-  <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
-  <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/jquery.prettyPhoto.js" type="text/javascript"></script> 
+  <script src="js/jquery.imageLoader.js" type="text/javascript"></script>
   <script src="http://lite.piclens.com/current/piclens_optimized.js" type="text/javascript"></script>
-  <script type="text/javascript" charset="utf-8">
+  <script type="text/javascript">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
       $.tools.tooltip.conf.relative = true;
@@ -71,12 +70,37 @@ if ($cache_time !== false &&
       $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
     });
  </script>		
+ <script type="text/javascript">
+     $(function() {
+         var d=300;
+         $('#toplevel_navigation a').each(function(){
+             $(this).stop().animate({
+                 'marginTop':'-80px'
+             },d+=150);
+         });
+
+         $('#toplevel_navigation > li').hover(
+         function () {
+             $('a',$(this)).stop().animate({
+                 'marginTop':'-2px'
+             },200);
+         },
+         function () {
+             $('a',$(this)).stop().animate({
+                 'marginTop':'-80px'
+             },200);
+         }
+     );
+     });
+ </script>
 
 <?php
 // Issue Cooliris header
 echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"].'/.')."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
+
+displayTopFoldersMenuNew($m_db);
 
 echo "<div id=\"wrap\">\n";
 echo "<div id=\"sidebar\">\n";
@@ -91,7 +115,7 @@ else
 
 echo "</div>\n";
 echo "<div id=\"content-container\">\n"; 
-displayTopFoldersMenu($m_db);
+//displayTopFoldersMenuNew($m_db);
 echo "<div id=\"content\">\n"; 
 echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
 
