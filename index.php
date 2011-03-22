@@ -26,6 +26,8 @@ if ($cache_time !== false &&
   ob_start();
   $m_db        = new mediaDB();
   $m_folder_id = $m_db->getFolderID($path);
+  if ($m_folder_id == -1)
+      $m_folder_id = 1; // If path not found, go back to home page
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -114,8 +116,7 @@ if ($path != "") {
 <?php
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-$today = date('Y/m/d \a\t H:i:s');
-printf('Page generated in %.3f seconds on %s', $totaltime, $today);
+printf('Page generated in %.2fs', round($totaltime, 2));
 ?>
 </div>
 <ul class="submenu">
@@ -128,10 +129,11 @@ printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 <?php
 $page = ob_get_contents();
 ob_end_clean();
-
-if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
-    mkdir("$cache_folder/$path", 0777, true);
-file_put_contents($cache, $page);
+if ($enable_cache == true) {
+    if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
+        mkdir("$cache_folder/$path", 0777, true);
+    file_put_contents($cache, $page);
+}
 echo $page;
 }
 ?>

@@ -92,9 +92,5 @@ $today = date('Y/m/d \a\t H:i:s');
 printf('Page generated in %.3f seconds on %s', $totaltime, $today);
 ?>
 </div>
-<ul class="submenu">
-<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury</li>
-</ul>
-<br clear="all" /> 
 </body>
 </html>

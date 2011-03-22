@@ -278,7 +278,7 @@ class mediaObject
                 $iptc = iptcparse($imginfo["APP13"]);
                 if (is_array($iptc) && isset($iptc["2#120"][0]) && ($iptc["2#120"][0] != ""))
                     $this->title = $iptc["2#120"][0];
-                if (is_array($iptc) && ($iptc["2#025"][0] != ""))
+                if (is_array($iptc) && isset($iptc["2#025"][0]) && ($iptc["2#025"][0] != ""))
                     for ($t = 0; $t < count($iptc["2#025"]); $t++) {
                         $this->tags[] = $iptc["2#025"][$t];
                     }
