@@ -341,7 +341,8 @@ class mediaDB extends SQLite3
         $results = $this->query("SELECT id FROM media_folders ORDER BY lastmod DESC;");
         if ($results === FALSE) throw new Exception($this->lastErrorMsg());
         while(($row = $results->fetchArray()) && (count($latest_array) < $nb_latest)) {
-            $latest_array[] = $row['id'];
+            if ($row['id'] != 1)
+                $latest_array[] = $row['id'];
         }
         $results->finalize();
         return $latest_array;

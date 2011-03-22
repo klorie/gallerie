@@ -26,10 +26,12 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
+  <link rel="stylesheet" href="css/toplevelmenu.css" type="text/css" media="screen" />
   <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
   <script src="js/infobox_packed.js" type="text/javascript"></script>
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
+  <script src="js/navigation.js" type="text/javascript"></script>
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
 <?php
@@ -74,7 +76,7 @@ foreach($elements_list as $element_id) {
 <body>
 <?php
 displayTopFoldersMenu($m_db);
-echo "<div id=\"content\">\n"; 
+echo "<div id=\"map_content\">\n"; 
 echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
 
 // Path dirs and link
