@@ -40,8 +40,15 @@ if ($cache_time !== false &&
   <link rel="stylesheet" href="css/sidemenu.css" type="text/css" media="screen" />
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
-  <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
-  <script src="js/jquery.prettyPhoto.js" type="text/javascript"></script> 
+<?php
+    if ($m_folder_id == 1) {
+        echo "  <script src=\"js/jquery.mousewheel.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/cloud-carousel.1.0.4.min.js\" type=\"text/javascript\"></script>\n";
+    } else {
+        echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
+    }
+?>
   <script src="js/jquery.imageLoader.js" type="text/javascript"></script>
   <script src="js/navigation.js" type="text/javascript"></script>
   <script src="http://lite.piclens.com/current/piclens_optimized.js" type="text/javascript"></script>
@@ -53,6 +60,15 @@ if ($cache_time !== false &&
       $.tools.tooltip.conf.predelay = 1000;
       $(".dynamic-thumbnail").tooltip();
       $("ul.tabs").tabs("ul.gallery");
+<?php
+    if ($m_folder_id == 1) {
+        echo "   $(\"#carousel\").CloudCarousel({\n";
+        echo "     xPos: 240, yPos: 30, mouseWheel: true,\n";
+        echo "     titleBox: $(\"#title-text\"),\n";
+        echo "     reflHeight: 50, minScale: 0.3\n";
+        echo "   });\n";
+    }
+?>
       $("a[rel^='prettyPhoto']").prettyPhoto({
         animationSpeed: 'fast',
     	padding: 30,
@@ -88,28 +104,44 @@ if ($m_folder_id != 1)
 displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
-echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
+if ($m_folder_id == 1) echo "<div style=\"text-align: center;\">\n";
+echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+if ($m_folder_id == 1) echo "</div>\n";
 
-// Path dirs and link
-displayFolderHierarchy($m_folder_id, $m_db);
-
-// Show list of subfolders
-displaySubFolderList($m_folder_id, $m_db);
-
-// Show list of pictures
-displayElementList($m_folder_id, $m_db);
-
-// Show a link to upper folder
-if ($path != "") {
-    $pathArr = explode("/", $path, -1);
-    $link = implode("/", $pathArr);
-    if ($link == "") {
-        // we're already in $baseDir, so skip the file
-        $back_link = $_SERVER["PHP_SELF"];
-    } else {
-        $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
+if ($m_folder_id == 1) {
+    // Display carousel
+    $folderlist = $m_db->getSubFolders(1);
+    echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
+    foreach($folderlist as $folder) {
+        $folder_title = htmlentities($m_db->getFolderTitle($folder));
+        echo "<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
+        echo "<img class=\"cloudcarousel\" src=\"./getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "</a>\n";
     }
-    echo "<a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
+    echo "</div>\n";
+    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3></div>\n";
+} else {
+    // Path dirs and link
+    displayFolderHierarchy($m_folder_id, $m_db);
+
+    // Show list of subfolders
+    displaySubFolderList($m_folder_id, $m_db);
+
+    // Show list of pictures
+    displayElementList($m_folder_id, $m_db);
+
+    // Show a link to upper folder
+    if ($path != "") {
+        $pathArr = explode("/", $path, -1);
+        $link = implode("/", $pathArr);
+        if ($link == "") {
+            // we're already in $baseDir, so skip the file
+            $back_link = $_SERVER["PHP_SELF"];
+        } else {
+            $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
+        }
+        echo "<a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
+    }
 }
 
 ?>
@@ -119,7 +151,7 @@ if ($path != "") {
 <?php
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-printf('Page generated in %.2fs', round($totaltime, 2));
+//printf('Page generated in %.2fs', round($totaltime, 2));
 ?>
 </div>
 <ul class="submenu">
