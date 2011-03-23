@@ -75,9 +75,8 @@ foreach($elements_list as $element_id) {
 </head>
 <body>
 <?php
-displayTopFoldersMenu($m_db);
 echo "<div id=\"map_content\">\n"; 
-echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
+echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 
 // Path dirs and link
 displayFolderHierarchy($id, $m_db, false);
@@ -88,8 +87,7 @@ displayFolderHierarchy($id, $m_db, false);
 <?php
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-$today = date('Y/m/d \a\t H:i:s');
-printf('Page generated in %.3f seconds on %s', $totaltime, $today);
+printf('Page generated in %.2fs', round($totaltime, 2));
 ?>
 </div>
 </body>
