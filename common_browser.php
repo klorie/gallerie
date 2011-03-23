@@ -280,7 +280,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     // Top level googlemap
     if ($id == 1) {
         $output .= "  <li class=\"googlemaps\">\n";
-        $output .= "  <h3>Cartographie</h3\n";
+        $output .= "  <h3>Cartographie</h3>\n";
         $output .= "  <a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/getmap.php\">Voir les photos sur une carte</a>\n";
         $output .= "  </li>\n";
     }
