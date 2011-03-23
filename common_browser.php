@@ -100,7 +100,7 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$m_db->getFolderName($subfolder)."\"/></div>";
+            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$m_db->getFolderName($subfolder)."\"></div>";
             echo "<div class=\"tooltip\">$subfolder_title</div>";
             echo "$subfolder_title</a></li>\n";        
         }
