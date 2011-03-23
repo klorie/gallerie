@@ -62,33 +62,35 @@ if ($cache_time !== false &&
       $("ul.tabs").tabs("ul.gallery");
 <?php
     if ($m_folder_id == 1) {
-        echo "   $(\"#carousel\").CloudCarousel({\n";
-        echo "     xPos: 240, yPos: 30, mouseWheel: true,\n";
-        echo "     titleBox: $(\"#title-text\"),\n";
-        echo "     reflHeight: 50, minScale: 0.3\n";
-        echo "   });\n";
+        echo "    $(\"#carousel\").CloudCarousel({\n";
+        echo "      xPos: 240, yPos: 30, mouseWheel: true,\n";
+        echo "      buttonLeft: $(\"#left-button\"), buttonRight: $(\"#right-button\"),\n";
+        echo "      titleBox: $(\"#title-text\"),\n";
+        echo "      reflHeight: 50, minScale: 0.3\n";
+        echo "    });\n";
+    } else {
+        echo "    $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
+        echo "      animationSpeed: 'fast',\n";
+    	echo "      padding: 30,\n";
+	    echo "      opacity: 0.65,\n";
+	    echo "      showTitle: true,\n";
+	    echo "      allowresize: true,\n";
+	    echo "      counter_separator_label: '/',\n";
+	    echo "      theme: '$gal_theme'\n";
+        echo "    });\n";
+        echo "  });\n";
+        echo "  $(function() {\n";
+        echo "    $(\"a[rel^='#video']\").overlay({\n";
+        echo "       expose: '#111',\n";
+        echo "       effect: 'apple',\n";
+        echo "       onLoad: function(content) {\n";
+        echo "          this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
+        echo "       }\n";
+        echo "    });\n";
+        echo "    $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
     }
+    echo "  });\n";
 ?>
-      $("a[rel^='prettyPhoto']").prettyPhoto({
-        animationSpeed: 'fast',
-    	padding: 30,
-	    opacity: 0.65,
-	    showTitle: true,
-	    allowresize: true,
-	    counter_separator_label: '/',
-	    theme: '<?php echo $gal_theme; ?>' 
-      });
-    });
-    $(function() {
-      $("a[rel^='#video']").overlay({
-         expose: '#111',
-         effect: 'apple',
-         onLoad: function(content) {
-            this.getOverlay.find("a.player").flowplayer(0).load();
-         }
-      });
-      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
-    });
  </script>
 
 <?php
@@ -119,7 +121,10 @@ if ($m_folder_id == 1) {
         echo "</a>\n";
     }
     echo "</div>\n";
-    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3></div>\n";
+    echo "<input type=\"image\" src=\"images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
+    echo "<input type=\"image\" src=\"images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
+    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3>";
+    echo "</div>\n";
 } else {
     // Path dirs and link
     displayFolderHierarchy($m_folder_id, $m_db);
@@ -143,7 +148,6 @@ if ($m_folder_id == 1) {
         echo "<a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
     }
 }
-
 ?>
 
 <div class="clearfix"></div> 
