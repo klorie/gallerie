@@ -81,7 +81,10 @@ echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].dirname($_SERVE
 echo "</head>\n";
 echo "<body>\n";
 
-displayTopFoldersMenu($m_db);
+// Do not display top level on the home page (redundant)
+if ($m_folder_id != 1)
+    displayTopFoldersMenu($m_db);
+
 displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
