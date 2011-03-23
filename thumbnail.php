@@ -118,18 +118,20 @@ function updateFolderThumbnail($id)
     global $image_folder;
     global $folder_thumbname;
 
-    $filename  = "";
-    $thumbnail = "";
-    $p_id      = -1;
+    $filename       = "";
+    $thumbnail      = "";
+    $p_id           = -1;
+    $thumbnail_size = $thumb_size;
 
     $m_db = new mediaDB();
 
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Folder info
-    $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
+    $result = $m_db->querySingle("SELECT thumbnail, parent_id FROM media_folders WHERE id=$id;", true);
     if ($result === false) throw new Exception($m_db->lastErrorMsg());
     if ($result['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
+    if ($result['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
     $filename  = $result['thumbnail'];
     $thumbnail = $result['thumbnail'];
     $filename  = $image_folder.'/'.$m_db->getFolderPath($id).'/'.$filename;
@@ -147,11 +149,11 @@ function updateFolderThumbnail($id)
     $height = $img->GetImageHeight();
     // calculate thumbnail size
     if ($width >= $height) {
-        $new_width  = $thumb_size;
-        $new_height = $thumb_size * 0.75;
+        $new_width  = $thumbnail_size;
+        $new_height = $thumbnail_size * 0.75;
     } else {
-        $new_height = $thumb_size;
-        $new_width  = $thumb_size * 0.75;
+        $new_height = $thumbnail_size;
+        $new_width  = $thumbnail_size * 0.75;
     }
     $img->cropThumbnailImage($new_width, $new_height);
     $img->setImageFormat("jpeg");
