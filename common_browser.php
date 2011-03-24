@@ -80,7 +80,6 @@ function displayElementList($id, mediaDB &$db = NULL)
             }
         }
         echo "<div class=\"clearfix\"></div>\n";
-        echo "<h2></h2>\n";
     }
     if ($db == NULL)
         $m_db->close();
@@ -101,13 +100,15 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
             echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$m_db->getFolderName($subfolder)."\"></div>";
-            echo "<div class=\"tooltip\">$subfolder_title</div>";
+            echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "$subfolder_title</a></li>\n";        
         }
         echo "</ul>\n";
         // Separate Directory list and Pictures
-        echo "<div class=\"clearfix\"></div>\n";
-        echo "<h2></h2>\n";
+        if ($m_db->getFolderElementsCount($id) > 0) {
+            echo "<div class=\"clearfix\"></div>\n";
+            echo "<h2></h2>\n";
+        }
     }
 
     if ($db == NULL)
