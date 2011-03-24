@@ -82,13 +82,6 @@ echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'
 displayFolderHierarchy($id, $m_db, false);
 ?>
 <div id="map_canvas"></div>
-<div class="clearfix"></div> 
-<br/>
-<?php
-$mtime = explode(' ', microtime());
-$totaltime = $mtime[0] + $mtime[1] - $starttime;
-printf('Page generated in %.2fs', round($totaltime, 2));
-?>
 </div>
 </body>
 </html>
