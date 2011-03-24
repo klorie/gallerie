@@ -398,6 +398,12 @@ class mediaDB extends SQLite3
         // Returns number of elements inside this folder (recursively if wanted)
         $results = $this->querySingle("SELECT COUNT(*) FROM media_objects WHERE folder_id=$id;");
         if ($results === false) throw new Exception($this->lastErrorMsg());
+        if ($recurse == true) {
+            $subfolders = $this->getSubFolders($id);
+            foreach($subfolders as $subfolder) {
+                $results += $this->getFolderElementsCount($subfolder, true);
+            }
+        }
         return $results;
     }
 
