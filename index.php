@@ -123,8 +123,7 @@ if ($m_folder_id == 1) {
     echo "</div>\n";
     echo "<input type=\"image\" src=\"images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
     echo "<input type=\"image\" src=\"images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
-    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3>";
-    echo "</div>\n";
+    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3></div>\n";
 } else {
     // Path dirs and link
     displayFolderHierarchy($m_folder_id, $m_db);
@@ -135,33 +134,12 @@ if ($m_folder_id == 1) {
     // Show list of pictures
     displayElementList($m_folder_id, $m_db);
 
-    // Show a link to upper folder
-    if ($path != "") {
-        $pathArr = explode("/", $path, -1);
-        $link = implode("/", $pathArr);
-        if ($link == "") {
-            // we're already in $baseDir, so skip the file
-            $back_link = $_SERVER["PHP_SELF"];
-        } else {
-            $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
-        }
-        echo "<a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
-    }
 }
 ?>
 
 <div class="clearfix"></div> 
-<br/>
-<?php
-$mtime = explode(' ', microtime());
-$totaltime = $mtime[0] + $mtime[1] - $starttime;
-//printf('Page generated in %.2fs', round($totaltime, 2));
-?>
 </div>
-<ul class="submenu">
-<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury</li>
-</ul>
-<br clear="all" /> 
+<?php displayFooter(); ?>
 </div>
 </body> 
 </html>
