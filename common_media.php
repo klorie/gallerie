@@ -90,14 +90,15 @@ function exif_get_longitude(&$exif)
 
 class mediaFolder
 {
-    public $parent    = NULL;
-    public $db_id     = -1;
-    public $title     = "";
-    public $lastmod   = "";
-    public $name      = "";
-    public $thumbnail = "";
-    public $subfolder = array();
-    public $element   = array();
+    public $parent       = NULL;
+    public $db_id        = -1;
+    public $title        = "";
+    public $originaldate = "";
+    public $lastmod      = "";
+    public $name         = "";
+    public $thumbnail    = "";
+    public $subfolder    = array();
+    public $element      = array();
 
     function __construct(mediaFolder $parent = NULL)
     {
@@ -121,6 +122,8 @@ class mediaFolder
         global $image_folder;
         global $folder_thumbname;
 
+        $edate = "";
+
         $this->name      = $source_path;
         if ($source_path != "")
             $source_fullpath = $image_folder.'/'.$this->fullname();
@@ -136,6 +139,7 @@ class mediaFolder
             // skip hidden files
             if ($entry[0] == '.') continue;
             if (is_dir("$source_fullpath/$entry")) {
+                // Subfolder
                 $subfolder = new mediaFolder($this);
                 $subfolder->loadFromPath($entry);
                 $this->subfolder[] = $subfolder;
@@ -143,15 +147,23 @@ class mediaFolder
                 // Found folder thumbnail
                 $this->thumbnail = $entry;
                 $exif = exif_read_data("$source_fullpath/$entry");
-                if ($exif != false && isset($exif['COMPUTED']['UserComment'])) {
-                    $this->title = $exif["COMPUTED"]["UserComment"];
-                    if ($this->title == "") {
-                        $this->title = strtr($source_path, "_", " ");
+                if ($exif != false) {
+                    if (isset($exif['DateTimeOriginal'])) $edate = $exif['DateTimeOriginal'];
+                    if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
+                    if (isset($exif['COMPUTED']['UserComment'])) {
+                        $this->title = $exif["COMPUTED"]["UserComment"];
                     }
-                } else {
-                    $this->title = strtr($source_path, "_", " ");
                 }
+                if (!empty($edate)) {
+                    $edate = explode(':', str_replace(' ', ':', $edate));
+                    $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+                    $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
+                    $this->originaldate = $edate;
+                }
+                if ($this->title == "")
+                    $this->title = strtr($source_path, "_", " ");
             } else {
+                // Plain file
                 $info = pathinfo("$source_fullpath/$entry");
                 $ext  = "";
                 if (!isset($info['extension']))
@@ -169,11 +181,14 @@ class mediaFolder
         }
         if ($this->thumbnail == "") {
             $this->title = strtr($source_path, "_", " ");
-            if (count($this->element) > 0)
-                $this->thumbnail = $this->element[0]->thumbnail;
-            else if (count($this->subfolder) > 0)
-                $this->thumbnail = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
-        }
+            if (count($this->element) > 0) {
+                $this->thumbnail    = $this->element[0]->thumbnail;
+                $this->originaldate = $this->element[0]->originaldate;
+            } else if (count($this->subfolder) > 0) {
+                $this->thumbnail    = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
+                $this->originaldate = $this->subfolder[0]->originaldate;
+            }
+        } 
         // Reset modification time to very old value when no elements in the folder
         if (count($this->element) == 0)
             $this->lastmod = '1970/01/01 00:00:00';
