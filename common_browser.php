@@ -9,6 +9,8 @@ function displayElementList($id, mediaDB &$db = NULL)
     global $image_folder;
     global $resized_folder;
 
+    setlocale(LC_ALL, "fr_FR.utf8");
+
     $m_db = NULL;
 
     if ($db == NULL) $m_db = new mediaDB();
@@ -41,7 +43,7 @@ function displayElementList($id, mediaDB &$db = NULL)
                 echo "<li><a href=\"./getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
             echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
-            echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%d/%m/%Y %Hh%M', strtotime($element->originaldate));
+            echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
                 $tagline = "";
@@ -99,8 +101,8 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$m_db->getFolderName($subfolder)."\"></div>";
-            echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
+            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$subfolder_title."\"></div>";
+            echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderDate($subfolder)."<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "$subfolder_title</a></li>\n";        
         }
         echo "</ul>\n";
