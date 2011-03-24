@@ -292,4 +292,11 @@ function displaySideMenu($id, mediaDB &$db = NULL)
         $m_db->close();
 }
 
+function displayFooter()
+{
+    echo "<ul class=\"submenu\">\n";
+    echo "<li>Gallerie v2.1.0 - H. Raffard &amp; C. Laury</li>\n";
+    echo "</ul>\n";
+    echo "<br clear=\"all\" />\n";
+}
 ?>
