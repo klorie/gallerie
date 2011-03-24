@@ -2,18 +2,20 @@
 	Content Redefinition
 ------------------------------------------------------------------------- */
 
-* { 
+html { 
     margin:  0; 
     border:  0; 
+    padding: 0;
+    height:  100%;
 } 
 
 body {
-	padding:     0 0 0 10px;
 	font-family: Verdana, Arial, Sans-Serif;
     font-size:   0.6em;
 	background:  #728187 url(../images/bodyBackground.jpg) fixed top left repeat-x;
 	color:       #FFFFFF;
 	text-align:  left;
+    height:      100%;
 }
 
 a { color: #9db2b9; }
@@ -22,57 +24,59 @@ a:hover { text-decoration: none; }
 h1 { 
     font-size: 2.0em; 
 }
+
+h1 a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
 	
 h2 {
 	font-size:     1.4em;
 	border-bottom: 1px #9db2b9 solid;
 	padding:       0 0 5px 0;
-	margin:        0 0 10px 0;
 }
 	
 h3 {     
     font-size:     1.4em;
-    border-bottom: 1px #9db2b9 solid;
     padding:       0 0 5px 0;
-    margin:        20px 0 10px 0; 
 }
 	
 /* ------------------------------------------------------------------------
 	Layout
 ------------------------------------------------------------------------- */
 
-#wrap {
-	position: relative;
-	margin:   10px 0 20px 0;
-}
-
-#sidebar {
-	position:   relative;
-	float:      left; 
-    width:      14%;
-	padding:    0 5px;
-	background: #000000;
-	border:     2px #313739 solid;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
-}
-	
-#content-container { 
-	position:    relative; 
-	float:       right; 
-	width:        84%;
-	margin-right:  1%; 
-	margin-left:  -15%;
-}
-
 #content {
-	clear:      left; 
-    padding:    15px 15px 15px 15px;
+    padding:    0 15px 15px 15px;
 	background: #000000;
 	border:     2px #313739 solid;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
-	margin:     0 0 0 10px;
+	margin:     0 15px 0 15px;
+}
+
+#map_content {
+	clear:      left; 
+    padding:    0 15px 15px 15px;
+	background: #000000;
+	border:     2px #313739 solid;
+	-moz-border-radius:    10px;
+	-webkit-border-radius: 10px;
+    height:     95%;
+}
+
+#map_canvas {
+    height: 85%;
+}
+
+#map_info {
+    text-align: center;
+    width:      160px;
+    background: #000000;
+    padding:    15px  15px  15px  15px;
+	margin:     0;
+	border:     2px #313739 solid;
+	-moz-border-radius:    10px;
+	-webkit-border-radius: 10px;
 }
 	
 ul.menu {
@@ -102,7 +106,7 @@ ul.submenu {
 	list-style: none;
 	background: #000000;
 	padding:    15px 30px 15px 20px;
-	margin:     0 0 10px 10px; 
+	margin:     0 0 10px 15px; 
 	border:     2px #313739 solid;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
@@ -156,7 +160,6 @@ ul.galleryfolder li a:hover {
 }
 	
 ul.gallery {
-    float:      left;
 	list-style: none;
     padding:    0;
     margin:     0px;

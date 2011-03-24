@@ -1,252 +1,153 @@
 <?php
 // Start PHP code
-require_once "common.php";
-require_once "config.php";
+require_once "common_browser.php";
+require_once "googlemaps.php";
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
-$cwd = dirname($_SERVER["PHP_SELF"]);
 
-$path = $_GET["path"];
+if (isset($_GET['path']))
+    $path = $_GET["path"];
+else
+    $path = "";
 $path = safeDirectory($path);
 
 $cache = "$cache_folder/$path/index.html";
-if (file_exists($cache) && ($dir_thumb_mode != "RANDOM"))
+if (file_exists($cache))
     $cache_time = filemtime($cache);
 else
     $cache_time = false;
 
 if ($cache_time !== false && 
-    $cache_time > filemtime("./index.php") &&
-    $cache_time > filemtime("./common.php") && 
-    $cache_time > filemtime("./config.php")  && 
-    $cache_time > filemtime_r("$image_folder/$path") &&
-    $cache_time > filemtime_r("$thumb_folder/$path")) {
+    $enable_cache == true &&
+    $cache_time > filemtime("./config.php")) {
   readfile($cache);
 } else {
   ob_start();
-  $dirlist = getFileList($path);
+  $m_db        = new mediaDB();
+  $m_folder_id = $m_db->getFolderID($path);
+  if ($m_folder_id == -1)
+      $m_folder_id = 1; // If path not found, go back to home page
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
 <?php echo "<title>".$gal_title."</title>\n"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-  <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" charset="utf-8" />
-  <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" charset="utf-8" /> 
+  <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen"  />
+  <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" href="css/toplevelmenu.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="css/sidemenu.css" type="text/css" media="screen" />
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
-  <script src="js/flowplayer-3.2.2.min.js" type="text/javascript"></script>
-  <script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script> 
-  <script src="js/jquery.imageLoader.js" type="text/javascript" charset="utf-8"></script>
-<?php if(count($dirlist[file]) > 1)
-    echo "  <script src=\"http://lite.piclens.com/current/piclens_optimized.js\" type=\"text/javascript\"></script>\n";
+<?php
+    if ($m_folder_id == 1) {
+        echo "  <script src=\"js/jquery.mousewheel.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/cloud-carousel.1.0.4.min.js\" type=\"text/javascript\"></script>\n";
+    } else {
+        echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
+    }
 ?>
-  <script type="text/javascript" charset="utf-8">
+  <script src="js/jquery.imageLoader.js" type="text/javascript"></script>
+  <script src="js/navigation.js" type="text/javascript"></script>
+  <script src="http://lite.piclens.com/current/piclens_optimized.js" type="text/javascript"></script>
+  <script type="text/javascript">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
       $.tools.tooltip.conf.relative = true;
       $.tools.tooltip.conf.cancelDefault = false;
       $.tools.tooltip.conf.predelay = 1000;
       $(".dynamic-thumbnail").tooltip();
-      $("ul.tabs").tabs("ul.gallery", {
-        event: 'mouseover'
-      });
-      $("a[rel^='prettyPhoto']").prettyPhoto({
-        animationSpeed: 'fast',
-    	padding: 30,
-	    opacity: 0.65,
-	    showTitle: true,
-	    allowresize: true,
-	    counter_separator_label: '/',
-	    theme: '<?php echo $gal_theme; ?>' 
-      });
-    });
-    $(function() {
-      $("a[rel^='#video']").overlay({
-         expose: '#111',
-         effect: 'apple',
-         onLoad: function(content) {
-             this.getOverlay.find("a.player").flowplayer(0).load();
-         }
-      });
-      $("a.player").flowplayer("./swf/flowplayer-3.2.2.swf", { clip: { scaling: 'fit' } });
-    });
- </script>		
+      $("ul.tabs").tabs("ul.gallery");
+<?php
+    if ($m_folder_id == 1) {
+        echo "    $(\"#carousel\").CloudCarousel({\n";
+        echo "      xPos: 240, yPos: 30, mouseWheel: true,\n";
+        echo "      buttonLeft: $(\"#left-button\"), buttonRight: $(\"#right-button\"),\n";
+        echo "      titleBox: $(\"#title-text\"),\n";
+        echo "      reflHeight: 50, minScale: 0.3\n";
+        echo "    });\n";
+    } else {
+        echo "    $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
+        echo "      animationSpeed: 'fast',\n";
+    	echo "      padding: 30,\n";
+	    echo "      opacity: 0.65,\n";
+	    echo "      showTitle: true,\n";
+	    echo "      allowresize: true,\n";
+	    echo "      counter_separator_label: '/',\n";
+	    echo "      theme: '$gal_theme'\n";
+        echo "    });\n";
+        echo "  });\n";
+        echo "  $(function() {\n";
+        echo "    $(\"a[rel^='#video']\").overlay({\n";
+        echo "       expose: '#111',\n";
+        echo "       effect: 'apple',\n";
+        echo "       onLoad: function(content) {\n";
+        echo "          this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
+        echo "       }\n";
+        echo "    });\n";
+        echo "    $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
+    }
+    echo "  });\n";
+?>
+ </script>
 
 <?php
-if ($enable_otf_gen == 1) {
-    // Create thumbnail/resize in current directory
-    if (!file_exists("$thumb_folder/$path"))  mkdir("$thumb_folder/$path");
-    if (!file_exists("$resize_folder/$path")) mkdir("$resize_folder/$path");
-}
-
 // Issue Cooliris header
-if (count($dirlist[file]) > 1) {  
-   echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
-}
+echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"].'/.')."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
-echo "<div id=\"wrap\">\n";
-echo "<div id=\"sidebar\">\n";
+// Do not display top level on the home page (redundant)
+if ($m_folder_id != 1)
+    displayTopFoldersMenu($m_db);
 
-//output <ul tag only if something inside to be w3c compliant
-if (count($dirlist[dir]) > 0) {
-  echo "<h3>Sous-Albums</h3>\n";  
-  echo "<ul class=\"menu\">\n";
-  // Build menu with all sub-directories
-  foreach($dirlist[dir] as $file) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a></li>\n";
-  }
-  echo "</ul>\n";
-}
-if ($path != "") {
-  echo "<h3>Albums Voisins</h3>\n";
-  if (dirname($path) === ".") 
-    $neighborpath = "";
-  else
-    $neighborpath = dirname($path);
-  $neighborlist = getFileList($neighborpath);
-  if (count($neighborlist[dir]) > 0) {
-    echo "<ul class=\"menu\">\n";
-    foreach($neighborlist[dir] as $file) {
-      if (strpos($file['fullname'], $path) !== false) continue;
-      echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a></li>\n";
-    }
-    echo "</ul>\n";
-  }
-}
-if ($path == "") {
-  include "latest_updates.php";
-  echo "<h3>Nouveaut&eacute;s</h3>\n";
-  echo "<ul class=\"menu\">\n";
-  foreach($latest_updated_album_list as $latest_album) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$latest_album[path]."\" >".htmlentities($latest_album[title])."</a></li>\n";
-  }
-  echo "</ul>\n";
-}
-echo "</div>\n";
-echo "<div id=\"content-container\">\n"; 
-echo "<ul class=\"submenu\">\n"; 
-echo "<li><a href=\"".$_SERVER["PHP_SELF"]."\"><b>Accueil</b></a></li>\n"; 
-// Build menu with only top-level directories
-$topdirlist = getFileList("");
-foreach($topdirlist[dir] as $file) {
-    echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".$file['fullname']."\" >".htmlentities($file['title'])."</a> </li>\n";
-}
-echo "</ul>\n"; 
+displaySideMenu($m_folder_id, $m_db);
+
 echo "<div id=\"content\">\n"; 
-echo "<h1>".htmlentities($gal_title)."</h1>\n"; 
+if ($m_folder_id == 1) echo "<div style=\"text-align: center;\">\n";
+echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+if ($m_folder_id == 1) echo "</div>\n";
 
-// Path dirs and link
-echo "<h3 id=\"gallery\">\n";
-if ($path != "") {
-  echo "<a href=\"".$_SERVER["PHP_SELF"]."\">Accueil</a>";
-  $pathArr = explode("/", $path);
-  for ($i = 0; $i < count($pathArr); $i++) {
-    // Get directory title
-    $dirPath  = implode("/", array_slice($pathArr, 0, $i+1));
-    $dirList  = getFileList(dirname($dirPath));
-    $dirTitle = "";
-    foreach($dirList[dir] as $file) {
-      if (strcmp($file['name'], $pathArr[$i]) == 0)
-        $dirTitle = $file['title'];
+if ($m_folder_id == 1) {
+    // Display carousel
+    $folderlist = $m_db->getSubFolders(1);
+    echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
+    foreach($folderlist as $folder) {
+        $folder_title = htmlentities($m_db->getFolderTitle($folder));
+        echo "<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
+        echo "<img class=\"cloudcarousel\" src=\"./getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "</a>\n";
     }
-    $dirLink = getPathLink($dirPath);
-    echo "/<a href=\"$dirLink\">".htmlentities($dirTitle)."</a>";
-  }
-}
-if (count($dirlist[file]) > 1) {
-  echo "      [ <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].$cwd."/photos.rss.php?path=".$path."', delay:6});\">Diaporama</a> ]\n";
-}
+    echo "</div>\n";
+    echo "<input type=\"image\" src=\"images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
+    echo "<input type=\"image\" src=\"images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
+    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3>";
+    echo "</div>\n";
+} else {
+    // Path dirs and link
+    displayFolderHierarchy($m_folder_id, $m_db);
 
-echo "</h3>\n";
+    // Show list of subfolders
+    displaySubFolderList($m_folder_id, $m_db);
 
-// Show list of subfolders, output <ul tag only if something inside to be w3c compliant
-if (count($dirlist[dir]) > 0) {
-    echo "<ul class=\"galleryfolder\">\n";
-    foreach($dirlist[dir] as $file) {
-        echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($file['fullname'])."\" title=\"".htmlentities($file['title'])."\" >";
-        $thumb = GetThumbsForDir($file['fullname']);  
-        echo "<img src=\"".$thumb."\" alt=\"".$file['name']."\"/>";
-        echo "<br />".htmlentities($file['title'])."</a></li>\n";
-    }
-    echo "</ul>\n";
-    // Separate Directory list and Pictures
-    echo "<div class=\"clearfix\"></div>\n";
-    echo "<h3></h3>\n";
-}
+    // Show list of pictures
+    displayElementList($m_folder_id, $m_db);
 
-// Show list of pictures
-if (count($dirlist[file]) > 0)   {
-    $tabcount = count($dirlist[file]) / $thumbs_per_page;
-    if (count($dirlist[file]) > $thumbs_per_page) {
-        echo "<ul class=\"tabs\">\n";
-        for ($t = 0; $t < $tabcount; $t++) {
-            echo "\t<li><a href=\"#\">".($t+1)."</a></li>\n";
-        }
-        echo "</ul>\n";
-        echo "<div class=\"clearfix\"></div>\n";
-    }
-    echo "<ul class=\"gallery\">\n";
-    $tabthumb = 0;
-    $videoid  = 0;
-    foreach($dirlist[file] as $file) {
-        if ($file['type'] == 'video/x-flv') {
-            // Video
-            echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
-            $videoid++;
+    // Show a link to upper folder
+    if ($path != "") {
+        $pathArr = explode("/", $path, -1);
+        $link = implode("/", $pathArr);
+        if ($link == "") {
+            // we're already in $baseDir, so skip the file
+            $back_link = $_SERVER["PHP_SELF"];
         } else {
-            // Images
-            echo "<li><a href=\"./resize.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($file['subtitle']).htmlentities($file['lastmod'])."&lt;br /&gt;T&eacute;l&eacute;charger: &lt;a href=&quot;".$image_folder."/".htmlentities($file['fullname'])."&quot;&gt;".htmlentities($file['name'])."&lt;/a&gt; ".htmlentities($file['size'])."\">";
+            $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
         }
-        echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?dir=".urlencode($file['dir'])."&file=".urlencode($file['name'])."\" title=\"".htmlentities($file['title'])."\"></div><div class=\"tooltip\">".htmlentities($file['title'])."<br />".htmlentities($file['lastmod']);
-        if ($file['tags'] != '')
-            echo "<br /><i>".htmlentities($file['tags'])."</i>";
-        else if (($file['type'] == 'video/x-flv') && ($file['size'] != ''))
-            echo "<br /><i>".$file['size']."</i>";
-        echo "</div></a></li>\n";
-        $tabthumb++;
-        if ($tabthumb >= $thumbs_per_page) {
-            $tabthumb = 0;
-            echo "</ul>\n<ul class=\"gallery\">\n";
-        }
+        echo "<a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
     }
-    if (($tabthumb < $thumbs_per_page) && ($tabcount > 1)) {
-        while($tabthumb < $thumbs_per_page) {
-            echo "<li></li>\n";
-            $tabthumb++;
-        }
-    }
-    echo "</ul>\n";
-    // Videos overlay
-    $videoid  = 0;
-    foreach($dirlist[file] as $file) {
-        if($file['type'] == 'video/x-flv') {
-            $fname_noext = substr($file['fullname'], 0, strlen($file['fullname']) - 4);
-            echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-            echo "<a class=\"player\" href=\"".$resize_folder."/".$fname_noext.".flv\"></a>";
-            echo "</div>\n";
-            $videoid++;
-        }
-    }
-    echo "<div class=\"clearfix\"></div>\n";
-    echo "<h3></h3>\n";
 }
-// Show a link to upper folder
-if ($path != "") {
-    $pathArr = explode("/", $path, -1);
-    $link = implode("/", $pathArr);
-    if ($link == "") {
-        // we're already in $baseDir, so skip the file
-        $back_link = $_SERVER["PHP_SELF"];
-    } else {
-        $back_link = $_SERVER["PHP_SELF"]."?path=".$link;
-    }
-    echo "<br /><br /><a href=\"".$back_link."\">Niveau sup&eacute;rieur</a>";
-}
-
 ?>
 
 <div class="clearfix"></div> 
@@ -254,24 +155,20 @@ if ($path != "") {
 <?php
 $mtime = explode(' ', microtime());
 $totaltime = $mtime[0] + $mtime[1] - $starttime;
-$today = date('Y/m/d \a\t H:i:s');
-printf('Page generated in %.3f seconds on %s', $totaltime, $today);
+//printf('Page generated in %.2fs', round($totaltime, 2));
 ?>
 </div>
 <ul class="submenu">
-<li>Gallerie v1.9.1 - H. Raffard &amp; C. Laury - 2010/08/27</li>
+<li>Gallerie v2.0.0 - H. Raffard &amp; C. Laury</li>
 </ul>
 <br clear="all" /> 
-</div>
 </div>
 </body> 
 </html>
 <?php
 $page = ob_get_contents();
 ob_end_clean();
-
-if ($dir_thumb_mode != "RANDOM") {
-    // Only write cache when needed
+if ($enable_cache == true) {
     if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
         mkdir("$cache_folder/$path", 0777, true);
     file_put_contents($cache, $page);

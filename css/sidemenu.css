@@ -1,0 +1,50 @@
+ul#side_navigation {
+    position: fixed;
+    margin: 0px;
+    padding: 0px;
+    top: 10px;
+    left: 0px;
+    list-style: none;
+    z-index:99999;
+}
+
+ul#side_navigation li {
+    width: 200px;
+    margin-left: -180px;
+    padding-bottom: 10px;
+    padding-left:   10px;
+    display: block;
+    background-color: #000000;
+    background-repeat: no-repeat;
+    background-position: 178px 10px;
+    border: 1px solid #313739;
+    -moz-border-radius: 0px 10px 10px 0px;
+    -webkit-border-top-right-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -khtml-border-top-right-radius: 10px;
+    -khtml-border-bottom-right-radius: 10px;
+    opacity: 0.7;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+}
+
+ul#side_navigation li.other_folders {
+    background-image: url(../images/folder.png);
+}
+
+ul#side_navigation li.googlemaps {
+    background-image: url(../images/googlemaps.png);
+}
+
+#side_navigation a {
+    font-size:       1.1em;
+	display:         block;
+    margin:          0 10px 0 0;
+    padding:         3px 5px 3px 5px;
+    color:           #FFFFFF;
+    text-decoration: none;
+}
+
+#side_navigation a:hover {
+    color:           #9DB2B9;
+	background:      #333333;
+}
