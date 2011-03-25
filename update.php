@@ -1,188 +1,52 @@
 <?php
 
-// Start PHP code
-require_once "thumbnail.php";
-require_once "resized.php";
-require_once "common_browser.php";
+echo "<html xmlns=\"http://www.w3.org/1999/xthml\" xml:lang=\"en\">\n";
+echo "<link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\" />\n";
+echo "<link type=\"text/css\" href=\"css/jquery-ui-1.8.11.custom.css\" rel=\"stylesheet\" />\n";	
+echo "<script src=\"js/jquery-1.5.1.min.js\" type=\"text/javascript\"></script>\n";
+echo "<script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
+echo "<script src=\"js/update.js\" type=\"text/javascript\"></script>\n";
+echo "<head>\n";
+echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
+echo "</head>\n";
+echo "<body>\n";
+echo "<div id=\"content\">\n"; 
 
-global $thumb_folder;
-global $resized_folder;
-global $image_folder;
+$base_dir = dirname($_SERVER['SCRIPT_FILENAME']);
+session_start();
+$_SESSION['BASE_DIR'] = $base_dir;
+$_SESSION['status']   = "";
+$_SESSION['progress'] = 0;
 
-$starttime = explode(' ', microtime());
-$starttime = $starttime[1] + $starttime[0];
+echo "<h1>Gallerie Administration</h1>\n";
 
-// This script may run for a loooong time...
-set_time_limit(9999);
+echo "<h3><a href=\"#\" id=\"update_db\">Update Gallerie Database</a></h3>\n";
+echo "<div id=\"update_db_progress\"></div>\n";
+echo "<div id=\"update_db_status\"></div>\n";
 
-$clean = false;
-if ((isset($_REQUEST['clean']))) {
-    $clean = $_REQUEST['clean'];
-}
-if (isset($argv[1])) $clean = ($argv[1] == "--clean");
-// Free does not allow directories to be removed, only files.
-//
-if ($clean) {
-    // Clean all unneeded thumbnails
-    echo "Removing all thumbnails\n";
-    exec("rm -rf $thumb_folder");
-    mkdir("$thumb_folder");
-    echo "Removing all resized\n";
-    exec("rm -rf $resized_folder");
-    mkdir("$resized_folder");
-}
+echo "<h3><a href=\"#\" id=\"update_theme\">Update Gallerie Theme</a></h3>\n";
+echo "<div id=\"update_theme_progress\"></div>\n";
+echo "<div id=\"update_theme_status\"></div>\n";
 
-// Remove database to ensure clean update
-unlink("gallery.db");
+echo "<h3><a href=\"#\" id=\"update_thumb\">Update Thumbnails and Resized pictures</a></h3>\n";
+echo "<div id=\"update_thumb_progress\"></div>\n";
+echo "<div id=\"update_thumb_status\"></div>\n";
 
-echo "Parsing gallery folder...";
-$gallery = new mediaFolder();
-$gallery->loadFromPath();
-echo "[ Done ]\n";
-$mtime = explode(' ', microtime());
-$totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
-if ($totaltime < 60) {
-    echo "-D- Parsing done in $totaltime min\n";
-} else {
-    $totaltime = $totaltime / 60;
-    echo "-D- Parsing done in $totaltime hours\n";
-}
-echo "Storing information into database...";
-$gallery_db = new mediaDB();
-$gallery_db->storeMediaFolder($gallery);
-echo "[ Done ]\n";
-$mtime = explode(' ', microtime());
-$totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
-if ($totaltime < 60) {
-    echo "-D- Storing done in $totaltime min\n";
-} else {
-    $totaltime = $totaltime / 60;
-    echo "-D- Storing done in $totaltime hours\n";
-}
+echo "<h3><a href=\"#\" id=\"clean_thumb\">Clean Thumbnails and Resized pictures</a></h3>\n";
+echo "<div id=\"clean_thumb_progress\"></div>\n";
+echo "<div id=\"clean_thumb_status\"></div>\n";
 
-$element_count = $gallery_db->querySingle("SELECT COUNT(*) FROM media_objects;");
-$folder_count  = $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
-echo "Found $element_count elements and $folder_count folders to process\n";
+echo "<h3><a href=\"#\" id=\"clear_thumb\">Clear Thumbnails and Resized pictures</a></h3>\n";
+echo "<div id=\"clear_thumb_progress\"></div>\n";
+echo "<div id=\"clear_thumb_status\"></div>\n";
 
-// Clean and create folders
-echo "Processing folders...\n";
-$folder_list = array();
-$folder_list_db = $gallery_db->query("SELECT id FROM media_folders;");
-if($folder_list_db === false) throw new Exception ($gallery_db->lastErrorMsg());
-while($folder = $folder_list_db->fetchArray(SQLITE3_ASSOC)) {
-    $folder_list[] = $folder['id'];
-}
-$folder_list_db->finalize();
+echo "<h3><a href=\"#\" id=\"clear_cache\">Clear HTML cache</a></h3>\n";
+echo "<div id=\"clear_cache_progress\"></div>\n";
+echo "<div id=\"clear_cache_status\"></div>\n";
 
-foreach($folder_list as $folder_id) {
-    $folder_path = $gallery_db->getFolderPath($folder_id);
-    echo "-D- processing $folder_path \n";
-    if (!file_exists("$thumb_folder/$folder_path")) { 
-        mkdir("$thumb_folder/$folder_path", 0777, true);
-    }
-    if (!file_exists("$resized_folder/$folder_path")) {
-        mkdir("$resized_folder/$folder_path", 0777, true); 
-    }
-    updateFolderThumbnail($folder_id);
+echo "<h3><a href=\"index.php\">Back to Gallerie</a></h3>\n";
 
-    // build folder thumbnail list
-    $thumbnail_list = array();
-    $thumbnail_list_db = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=$folder_id;");
-    if ($thumbnail_list_db === false) throw new Exception($gallery_db->lastErrorMsg());
-    while($thumbnail_db = $thumbnail_list_db->fetchArray(SQLITE3_ASSOC)) {
-        $thumbnail_list[] = getThumbnailPath($thumbnail_db['id']);
-    }
-    $thumbnail_list_db->finalize();
-
-    // open the thumbnail directory
-    $dir = opendir("$thumb_folder/$folder_path");
-    if ($dir === false) echo "-E-   Failed to open $thumb_folder/$folder_path !\n";
-
-    // loop through it
-    while (false !== ($fname = readdir($dir))) {
-        if (is_file("$thumb_folder/$folder_path/$fname")) {
-            if ($fname == $folder_thumbname) continue;
-            // Check if file exist
-            $found = false;
-            foreach($thumbnail_list as $thumbnail_path) {
-                if (stristr($thumbnail_path, "$folder_path/$fname") !== false)
-                    $found = true;
-                else if (($folder_path == "") && (stristr($thumbnail_path, "$fname") !== false))
-                    $found = true;
-            }
-            if ($found == false) {
-                // Image not found, removing thumbnail
-                echo "$fname element not found, removing thumbnail\n";
-                unlink("$thumb_folder/$folder_path/$fname");
-            }
-        }
-    }
-    closedir($dir);
-
-    // build folder reszied list
-    $resized_list = array();
-    $resized_list_db = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=$folder_id;");
-    if ($resized_list_db === false) throw new Exception($gallery_db->lastErrorMsg());
-    while($resized_db = $resized_list_db->fetchArray(SQLITE3_ASSOC)) {
-        $resized_list[] = getResizedPath($resized_db['id']);
-    }
-    $resized_list_db->finalize();
-
-    // open the resized directory
-    $dir = opendir("$resized_folder/$folder_path");
-
-    // loop through it
-    while (false !== ($fname = readdir($dir))) {
-        if (is_file("$resized_folder/$folder_path/$fname")) {
-            // Check if file exist
-            $found = false;
-            foreach($resized_list as $resized_path) {
-                $fname_noext  = substr($fname, 0, strlen($fname) - 3);
-                if (stristr($resized_path, "$folder_path/$fname_noext") !== false)
-                    $found = true;
-                else if (($folder_path == "") && (stristr($resized_path, "$fname_noext") !== false))
-                    $found = true;
-            }
-            if ($found == false) {
-                // Image not found, removing resized
-                echo "$fname element not found, removing resized\n";
-                unlink("$resized_folder/$folder_path/$fname");
-            }
-        }
-    }
-    closedir($dir);
-}
-echo "Folder processing done.\n";
-
-echo "Processing elements...";
-$element_count = 0;
-$element_list  = $gallery_db->query("SELECT id FROM media_objects;");
-if($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
-while($element = $element_list->fetchArray()) {
-    updateThumbnail($element['id']);
-    updateResized($element['id']);
-    if (($element_count++ % 100) == 0) echo ".";
-}
-echo "[ Done ]\n";
-
-echo "Updating gallery theme... ";
-updateTopFolderMenuThumbnail();
-generateTopFolderStylesheet($gallery_db);
-echo "[ Done ]\n";
-
-// Clean all unneeded thumbnails
-echo "Clearing cache...";
-exec("rm -rf $cache_folder");
-mkdir("$cache_folder");
-echo "[ Done ]\n";
-
-$mtime = explode(' ', microtime());
-$totaltime = ($mtime[0] + $mtime[1] - $starttime) / 60;
-if ($totaltime < 60) {
-    echo "Processing done in $totaltime min\n";
-} else {
-    $totaltime = $totaltime / 60;
-    echo "Processing done in $totaltime hours\n";
-}
-
+echo "</div>\n";
+echo "</body>\n";
+echo "</html>\n";
 ?>
