@@ -36,10 +36,10 @@ class mediaDB extends SQLite3
     function __construct()
     {
         try {
-            $this->open('gallery.db', SQLITE3_OPEN_READWRITE);
+            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE);
         } catch (Exception $e) {
             // Database does not exists, create it
-            $this->open('gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
             $this->init_database();
         }
     }

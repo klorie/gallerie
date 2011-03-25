@@ -126,10 +126,10 @@ class mediaFolder
 
         $this->name      = $source_path;
         if ($source_path != "")
-            $source_fullpath = $image_folder.'/'.$this->fullname();
+            $source_fullpath = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$image_folder.'/'.$this->fullname();
         else
-            $source_fullpath = $image_folder;
-
+            $source_fullpath = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$image_folder;
+        $source_fullpath = realpath($source_fullpath);
 
         $current_dir_list = scandir($source_fullpath);
         if ($current_dir_list === false) die("-E- Failed to open $source_fullpath for reading");

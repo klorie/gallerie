@@ -165,7 +165,7 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
         $m_db->close();
 }
 
-function generateTopFolderStylesheet(mediaDB &$db = NULL)
+function generateTopFolderStylesheet(mediaDB &$db = NULL, $base_dir = "")
 {
     $m_db = NULL;
     if ($db == NULL) $m_db = new mediaDB();
@@ -227,7 +227,7 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
     if ($db == NULL)
         $m_db->close();
 
-    file_put_contents('css/toplevelmenu.css', $css);
+    file_put_contents("$base_dir/css/toplevelmenu.css", $css);
 }
 
 function displaySideMenu($id, mediaDB &$db = NULL)
