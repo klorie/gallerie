@@ -167,7 +167,7 @@ function updateFolderThumbnail($id)
     return true;
 }
 
-function updateTopFolderMenuThumbnail()
+function updateTopFolderMenuThumbnail($base_dir = "")
 {
     global $thumb_folder;
 
@@ -195,7 +195,7 @@ function updateTopFolderMenuThumbnail()
         $img->cropThumbnailImage($new_width, $new_height);
         $img->setImageFormat("jpeg");
         $img->setCompressionQuality(65);
-        $img->setImageFilename('images/toplevel/'.$row['foldername'].'.jpg');
+        $img->setImageFilename("$base_dir/images/toplevel/".$row['foldername'].".jpg");
         $img->WriteImage();
         $img->clear();
         $img->destroy();
