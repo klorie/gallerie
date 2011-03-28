@@ -126,13 +126,13 @@ class mediaFolder
 
         $this->name      = $source_path;
         if ($source_path != "")
-            $source_fullpath = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$image_folder.'/'.$this->fullname();
+            $source_fullpath = baseDir()."/$image_folder/".$this->fullname();
         else
-            $source_fullpath = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$image_folder;
+            $source_fullpath = baseDir()."/$image_folder";
         $source_fullpath = realpath($source_fullpath);
 
         $current_dir_list = scandir($source_fullpath);
-        if ($current_dir_list === false) die("-E- Failed to open $source_fullpath for reading");
+        if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
         $this->lastmod = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullpath));
 
         foreach($current_dir_list as $entry) {
@@ -237,7 +237,7 @@ class mediaObject
         else                       $this->download_path = $source_filename;
 
         $this->filename  = $source_filename;
-        $source_fullname = $image_folder.'/'.$this->download_path;
+        $source_fullname = baseDir()."/$image_folder/".$this->download_path;
         $this->lastmod   = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
         $info            = pathinfo($source_fullname);
         $ext             = strtolower($info['extension']);
@@ -334,7 +334,7 @@ class mediaObject
             return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
         $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
-        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
+        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"".baseURL()."/$image_folder/$this->download_path\">$this->filename</a> ";
         $esize  = "";
         if ($this->type == 'movie')
             $esize = $this->duration;
