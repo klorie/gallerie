@@ -12,7 +12,7 @@ else
     $path = "";
 $path = safeDirectory($path);
 
-$cache = "$cache_folder/$path/index.html";
+$cache = baseDir()."/$cache_folder/$path/index.html";
 if (file_exists($cache))
     $cache_time = filemtime($cache);
 else
@@ -20,7 +20,7 @@ else
 
 if ($cache_time !== false && 
     $enable_cache == true &&
-    $cache_time > filemtime("./config.php")) {
+    $cache_time > filemtime(baseDir()."/config.php")) {
   readfile($cache);
 } else {
   ob_start();
@@ -39,7 +39,7 @@ if ($cache_time !== false &&
   <link rel="stylesheet" href="css/toplevelmenu.css" type="text/css" media="screen" />
   <link rel="stylesheet" href="css/sidemenu.css" type="text/css" media="screen" />
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
-  <script src="js/jquery.tools-1.2.1.min.js" type="text/javascript"></script>
+  <script src="js/jquery.tools-1.2.5.min.js" type="text/javascript"></script>
 <?php
     if ($m_folder_id == 1) {
         echo "  <script src=\"js/jquery.mousewheel.min.js\" type=\"text/javascript\"></script>\n";
@@ -95,7 +95,7 @@ if ($cache_time !== false &&
 
 <?php
 // Issue Cooliris header
-echo "  <link rel=\"alternate\" href=\"".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"].'/.')."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
+echo "  <link rel=\"alternate\" href=\"".baseURL()."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
@@ -107,7 +107,7 @@ displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
 if ($m_folder_id == 1) echo "<div style=\"text-align: center;\">\n";
-echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+echo "<h1><a href=\"".baseURL()."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 if ($m_folder_id == 1) echo "</div>\n";
 
 if ($m_folder_id == 1) {
@@ -116,14 +116,14 @@ if ($m_folder_id == 1) {
     echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
-        echo "<a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
-        echo "<img class=\"cloudcarousel\" src=\"./getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "<a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
+        echo "<img class=\"cloudcarousel\" src=\"".baseURL()."/getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
         echo "</a>\n";
     }
     echo "</div>\n";
-    echo "<input type=\"image\" src=\"images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
-    echo "<input type=\"image\" src=\"images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
-    echo "<div style=\"text-align: center;\"><h3 id=\"title-text\"></h3></div>\n";
+    echo "<input type=\"image\" src=\"".baseURL()."/images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
+    echo "<input type=\"image\" src=\"".baseURL()."/images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
+    echo "<div style=\"text-align: center;\"><h1 id=\"title-text\"></h1></div>\n";
 } else {
     // Path dirs and link
     displayFolderHierarchy($m_folder_id, $m_db);
