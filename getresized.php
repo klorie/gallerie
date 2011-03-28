@@ -11,10 +11,10 @@ if (isset($_REQUEST['id'])) {
 
 global $resized_folder;
 
-$resized = $resized_folder.'/'.getResizedPath($object);
+$resized = baseDir()."/$resized_folder/".getResizedPath($object);
     
 if (!file_exists($resized)) {
-    $resized = './images/nothumb.jpg';
+    $resized = baseDir().'/images/nothumb.jpg';
 }
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($resized));

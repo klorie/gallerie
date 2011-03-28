@@ -16,12 +16,12 @@ global $thumb_folder;
 
 $thumbnail = "";
 if ($object != -1)
-    $thumbnail = $thumb_folder.'/'.getThumbnailPath($object);
+    $thumbnail = baseDir()."/$thumb_folder/".getThumbnailPath($object);
 else
-    $thumbnail = $thumb_folder.'/'.getFolderThumbnailPath($folder);
+    $thumbnail = baseDir()."/$thumb_folder/".getFolderThumbnailPath($folder);
     
 if (!file_exists($thumbnail)) {
-    $thumbnail = './images/nothumb.jpg';
+    $thumbnail = baseDir().'/images/nothumb.jpg';
 }
 
 $gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));
