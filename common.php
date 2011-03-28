@@ -67,4 +67,14 @@ function getProcessingTime($starttime)
         return round($totaltime, 2)."h";
     }
 }
+
+function baseDir()
+{
+    return dirname($_SERVER['SCRIPT_FILENAME']);
+}
+
+function baseURL()
+{
+    return "http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']);
+}
 ?>
