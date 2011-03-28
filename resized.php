@@ -63,8 +63,8 @@ function updateResized($id)
         }
         $p_id  = $result['parent_id'];
     }
-    $filename = $image_folder.'/'.$filename;
-    $resized  = $resized_folder.'/'.$resized;
+    $filename = baseDir()."/$image_folder/".$filename;
+    $resized  = baseDir()."/$resized_folder/".$resized;
 
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 

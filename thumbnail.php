@@ -73,8 +73,8 @@ function updateThumbnail($id)
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    $filename  = $image_folder.'/'.$m_db->getFolderPath($p_id).'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$m_db->getFolderPath($p_id).'/'.$thumbnail;
+    $filename  = baseDir()."/$image_folder/".$m_db->getFolderPath($p_id).'/'.$filename;
+    $thumbnail = baseDir()."/$thumb_folder/".$m_db->getFolderPath($p_id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
 
@@ -134,15 +134,14 @@ function updateFolderThumbnail($id)
     if ($result['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
     $filename  = $result['thumbnail'];
     $thumbnail = $result['thumbnail'];
-    $filename  = $image_folder.'/'.$m_db->getFolderPath($id).'/'.$filename;
-    $thumbnail = $thumb_folder.'/'.$m_db->getFolderPath($id).'/'.$thumbnail;
+    $filename  = baseDir()."/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
+    $thumbnail = baseDir()."/$thumb_folder/".$m_db->getFolderPath($id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
     // Create picture thumbnail
     // load image and get image size
     if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
-    if (getenv('MAGICK_THREAD_LIMIT') == "") die("-E-   This script requires the MAGICK_THREAD_LIMIT=1 line to be added in /etc/environment !\n");
     $img    = new Imagick();
     $img->ReadImage($filename);
     $width  = $img->GetImageWidth();
@@ -167,7 +166,7 @@ function updateFolderThumbnail($id)
     return true;
 }
 
-function updateTopFolderMenuThumbnail($base_dir = "")
+function updateTopFolderMenuThumbnail()
 {
     global $thumb_folder;
 
@@ -176,9 +175,8 @@ function updateTopFolderMenuThumbnail($base_dir = "")
     $results = $m_db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
     if ($results === false) throw new Exception($m_db->lastErrorMsg());
     while($row = $results->fetchArray()) {
-        $folder_thumb = $thumb_folder.'/'.getFolderThumbnailPath($row['id'], $m_db);
+        $folder_thumb = baseDir()."/$thumb_folder/".getFolderThumbnailPath($row['id'], $m_db);
         if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
-        if (getenv('MAGICK_THREAD_LIMIT') == "") die("-E-   This script requires the MAGICK_THREAD_LIMIT=1 line to be added in /etc/environment !\n");
         $img    = new Imagick();
         $img->ReadImage($folder_thumb);
         $width  = $img->GetImageWidth();
@@ -195,7 +193,7 @@ function updateTopFolderMenuThumbnail($base_dir = "")
         $img->cropThumbnailImage($new_width, $new_height);
         $img->setImageFormat("jpeg");
         $img->setCompressionQuality(65);
-        $img->setImageFilename("$base_dir/images/toplevel/".$row['foldername'].".jpg");
+        $img->setImageFilename(baseDir()."/images/toplevel/".$row['foldername'].".jpg");
         $img->WriteImage();
         $img->clear();
         $img->destroy();
