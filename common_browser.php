@@ -40,9 +40,9 @@ function displayElementList($id, mediaDB &$db = NULL)
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"./getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<li><a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
+            echo "<div class=\"dynamic-thumbnail\" src=\"".baseURL()."/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
@@ -76,7 +76,7 @@ function displayElementList($id, mediaDB &$db = NULL)
             $m_db->loadMediaObject($element, $current_id);
             if($element->type == 'movie') {
                 echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-                echo "<a class=\"player\" href=\"$resized_folder/".getResizedPath($current_id)."\"></a>";
+                echo "<a class=\"player\" href=\"".baseURL()."/$resized_folder/".getResizedPath($current_id)."\"></a>";
                 echo "</div>\n";
                 $videoid++;
             }
@@ -100,8 +100,8 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         echo "<ul class=\"galleryfolder\">\n";        
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
-            echo "<li><a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<div class=\"dynamic-thumbnail\" src=\"./getthumb.php?folder=$subfolder\" title=\"".$subfolder_title."\"></div>";
+            echo "<li><a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
+            echo "<div class=\"dynamic-thumbnail\" src=\"".baseURL()."/getthumb.php?folder=$subfolder\" title=\"".$subfolder_title."\"></div>";
             echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderDate($subfolder)."<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "$subfolder_title</a></li>\n";        
         }
@@ -124,20 +124,20 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
     else             $m_db = $db;
     echo "<h2 id=\"gallery\">\n";
     if ($id != 1) {
-        echo "<a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php\">Accueil</a>";
+        echo "<a href=\"".baseURL()."/index.php\">Accueil</a>";
         $folderhierarchy = $m_db->getFolderHierarchy($id);
         foreach($folderhierarchy as $fhier) {
             if ($fhier == 1) continue; // Discard top-level
-            echo "/<a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
+            echo "/<a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
         }
     }
     if ($show_slide_map_link == true) {
         if ($m_db->getFolderElementsCount($id) > 1) {
-            echo " <a href=\"javascript:PicLensLite.start({feedUrl:'http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/photos.rss.php?id=$id', delay:6});\"><img src=\"images/slideshow.png\" alt=\"Diaporama\" title=\"Diaporama\" height=\"32\" align=\"center\" border=\"0\" /></a>\n";
+            echo " <a href=\"javascript:PicLensLite.start({feedUrl:'".baseURL()."/photos.rss.php?id=$id', delay:6});\"><img src=\"".baseURL()."/images/slideshow.png\" alt=\"Diaporama\" title=\"Diaporama\" height=\"32\" align=\"center\" border=\"0\" /></a>\n";
         }
         if (getFolderGeolocalizedCount($id, $m_db) > 0) {
             $path = $m_db->getFolderPath($id);
-            echo " <a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/getmap.php?path=$path\"><img src=\"images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
+            echo " <a href=\"".baseURL()."/getmap.php?path=$path\"><img src=\"".baseURL()."/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
         }
     }
     echo "</h2>\n";
@@ -153,11 +153,11 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
     echo "<ul id=\"toplevel_navigation\">\n"; 
-    echo "<li class=\"home\"><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php\"><span><b>Accueil</b></span></a></li>\n"; 
+    echo "<li class=\"home\"><a href=\"".baseURL()."/index.php\"><span><b>Accueil</b></span></a></li>\n"; 
     // Build menu with only top-level directories
     $topfolderlist = $m_db->getSubFolders(1);
     foreach($topfolderlist as $topfolder) {
-        echo "<li class=\"".$m_db->getFolderName($topfolder)."\"><a href=\"http://".$_SERVER["SERVER_NAME"].dirname($_SERVER["PHP_SELF"])."/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
+        echo "<li class=\"".$m_db->getFolderName($topfolder)."\"><a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
     }
     echo "</ul>\n"; 
 
@@ -165,7 +165,7 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
         $m_db->close();
 }
 
-function generateTopFolderStylesheet(mediaDB &$db = NULL, $base_dir = "")
+function generateTopFolderStylesheet(mediaDB &$db = NULL)
 {
     $m_db = NULL;
     if ($db == NULL) $m_db = new mediaDB();
@@ -227,7 +227,7 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL, $base_dir = "")
     if ($db == NULL)
         $m_db->close();
 
-    file_put_contents("$base_dir/css/toplevelmenu.css", $css);
+    file_put_contents(baseDir()."/css/toplevelmenu.css", $css);
 }
 
 function displaySideMenu($id, mediaDB &$db = NULL)
@@ -249,7 +249,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
         $latestfolderlist = $m_db->getLatestUpdatedFolder($latest_album_count);
         foreach($latestfolderlist as $latestfolder) {
             $latestfolder_title = htmlentities($m_db->getFolderTitle($latestfolder));
-            $output .= "    <a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
+            $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
         }
         $output .= "  </div>\n";
         $output_ok = true;
@@ -260,7 +260,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
             $output .= "  <div><h3>Albums Voisins</h3>\n";
             foreach($neighborlist as $neighbor) {
                 $neighbor_title = htmlentities($m_db->getFolderTitle($neighbor));
-                $output .= "    <a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
+                $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
             }
             $output .= "  </div>\n";
             $output_ok = true;
@@ -273,7 +273,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
             $output .= "  <div><h3>Sous-Albums</h3>\n";        
             foreach($subfolder_list as $subfolder) {
                 $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
-                $output .= "    <a href=\"".$_SERVER["PHP_SELF"]."?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
+                $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
             }
             $output .= "  </div>\n";
             $output_ok = true;
@@ -284,7 +284,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     if ($id == 1) {
         $output .= "  <li class=\"googlemaps\">\n";
         $output .= "  <h3>Cartographie</h3>\n";
-        $output .= "  <a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/getmap.php\">Voir les photos sur une carte</a>\n";
+        $output .= "  <a href=\"".baseURL()."/getmap.php\">Voir les photos sur une carte</a>\n";
         $output .= "  </li>\n";
     }
     $output .= "</ul>\n"; 
