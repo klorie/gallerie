@@ -235,8 +235,16 @@ if ($task == 'clear_thumb') {
     session_commit();
     $gallery_db->close();
 } else if ($task == 'clear_cache') {
+    @session_start();
+    $_SESSION['progress'] = 0;
+    $_SESSION['status']   = "Clearing cache...";
+    session_commit();
     exec("rm -rf ".baseDir()."/$cache_folder");
     @mkdir(baseDir()."/$cache_folder");   
+    @session_start();
+    $_SESSION['progress'] = 100;
+    $_SESSION['status']   = "Cache cleared.";
+    session_commit();
 } else {
     throw new Exception ("Wrong task selected ($task) !");
 }
