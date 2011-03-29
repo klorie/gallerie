@@ -1,6 +1,6 @@
 <?php
 
-require_once "common.php";
+require_once "common_browser.php";
 
 echo "<html xmlns=\"http://www.w3.org/1999/xthml\" xml:lang=\"en\">\n";
 echo "<link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\" />\n";
@@ -51,6 +51,9 @@ echo "BASE_URL = ".baseURL()."<br />\n";
 echo "<h3><a href=\"index.php\">Back to Gallerie</a></h3>\n";
 
 echo "</div>\n";
+
+displayFooter();
+
 echo "</body>\n";
 echo "</html>\n";
 ?>
