@@ -105,6 +105,19 @@ class mediaFolder
         $this->parent = $parent;
     }
 
+    function getSubFolderCount($recursive = true)
+    {
+        $subfoldercount = count($this->subfolder);
+
+        if($recursive == true) {
+            foreach($this->subfolder as $subfolder) {
+                $subfoldercount += $subfolder->getSubFolderCount();
+            }
+        }
+
+        return $subfoldercount;
+    }
+
     function fullname()
     {
         $fullname = $this->name;
@@ -130,6 +143,10 @@ class mediaFolder
         else
             $source_fullpath = baseDir()."/$image_folder";
         $source_fullpath = realpath($source_fullpath);
+
+        @session_start();
+        $_SESSION['status'] = "Loading $source_fullpath ...";
+        session_commit();
 
         $current_dir_list = scandir($source_fullpath);
         if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
