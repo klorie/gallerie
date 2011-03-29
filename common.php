@@ -75,6 +75,6 @@ function baseDir()
 
 function baseURL()
 {
-    return "http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']);
+    return "http://".$_SERVER['SERVER_NAME'].rtrim(dirname($_SERVER['PHP_SELF']), "/");
 }
 ?>
