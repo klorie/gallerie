@@ -192,7 +192,7 @@ class mediaFolder
                 $element->loadFromFile($entry);
                 $this->element[] = $element;
                 // Update modification time according to most recent element in folder
-                if (strtotime($element->lastmod) < strtotime($this->lastmod))
+                if (strtotime($element->lastmod) > strtotime($this->lastmod))
                     $this->lastmod = $element->lastmod;
             }
         }
