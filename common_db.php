@@ -14,7 +14,7 @@ class mediaDB extends SQLite3
         if (!$this->exec($query))
             throw new Exception($this->lastErrorMsg());
         $query  = "CREATE TABLE media_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, parent_id INTEGER, title TEXT, ";
-        $query .= "lastmod DATETIME, thumbnail TEXT, foldername TEXT);";
+        $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail TEXT, foldername TEXT);";
         if (!$this->exec($query))
             throw new Exception($this->lastErrorMsg());
         if (!$this->exec('CREATE TABLE media_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, media_id INTEGER);')) 
@@ -36,10 +36,10 @@ class mediaDB extends SQLite3
     function __construct()
     {
         try {
-            $this->open('gallery.db', SQLITE3_OPEN_READWRITE);
+            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE);
         } catch (Exception $e) {
             // Database does not exists, create it
-            $this->open('gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
             $this->init_database();
         }
     }
@@ -186,14 +186,19 @@ class mediaDB extends SQLite3
 
     function storeMediaFolder(mediaFolder &$media, $update=false)
     {
+        @session_start();
+        $_SESSION['nbfolders'] += 1;
+        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 90) + 10;
+        $_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
+        session_commit();
         $store_id = -1;
         if ($update == true)
             $store_id = $this->findMediaFolderID($media);
 
         if ($store_id != -1)
-            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, foldername, thumbnail) VALUES (';
+            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, originaldate, foldername, thumbnail) VALUES (';
         else
-            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, foldername, thumbnail) VALUES (';
+            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail) VALUES (';
         if ($store_id != -1)
             $query .= $store_id.', ';
         if ($media->parent == NULL)
@@ -202,6 +207,7 @@ class mediaDB extends SQLite3
             $query .= $media->parent->db_id.", ";
         $query .= "'".$this->escapeString($media->title)."', ";
         $query .= "'".$this->escapeString($media->lastmod)."', ";
+        $query .= "'".$this->escapeString($media->originaldate)."', ";
         $query .= "'".$this->escapeString($media->name)."', ";
         $query .= "'".$this->escapeString($media->thumbnail)."');";
         if ($this->exec($query) == FALSE) {
@@ -227,11 +233,12 @@ class mediaDB extends SQLite3
         if ($result === FALSE) {
             throw new Exception($this->lastErrorMsg());
         } else {
-            $media->db_id     = $id;
-            $media->title     = $result['title'];
-            $media->lastmod   = $result['lastmod'];
-            $media->name      = $result['foldername'];
-            $media->thumbnail = $result['thumbnail'];
+            $media->db_id        = $id;
+            $media->title        = $result['title'];
+            $media->lastmod      = $result['lastmod'];
+            $media->originaldate = $result['originaldate'];
+            $media->name         = $result['foldername'];
+            $media->thumbnail    = $result['thumbnail'];
         }
         // Fetch subfolders if required
         if ($depth > 0) {
@@ -334,6 +341,15 @@ class mediaDB extends SQLite3
         return $result;
     }
 
+    function getFolderDate($id)
+    {
+        setlocale(LC_ALL, "fr_FR.utf8");
+        // Return folder (which id is given in arg) date
+        $result = $this->querySingle("SELECT originaldate FROM media_folders WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->lastErrorMsg());
+        return strftime("%e %B %Y", strtotime($result));
+    }
+
     function getLatestUpdatedFolder($nb_latest)
     {
         $latest_array = array();
@@ -398,6 +414,12 @@ class mediaDB extends SQLite3
         // Returns number of elements inside this folder (recursively if wanted)
         $results = $this->querySingle("SELECT COUNT(*) FROM media_objects WHERE folder_id=$id;");
         if ($results === false) throw new Exception($this->lastErrorMsg());
+        if ($recurse == true) {
+            $subfolders = $this->getSubFolders($id);
+            foreach($subfolders as $subfolder) {
+                $results += $this->getFolderElementsCount($subfolder, true);
+            }
+        }
         return $results;
     }
 

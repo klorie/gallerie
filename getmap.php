@@ -59,8 +59,8 @@ foreach($elements_list as $element_id) {
     echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
     echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
     echo "\t'<h2>".$element->title."</h2>'+\n";
-    echo "\t'<a href=\"./getresized.php?id=$element_id\">'+\n";
-    echo "\t'<img src=\"./getthumb.php?id=$element_id\" alt=\"".$element->filename."\"/>'+\n";
+    echo "\t'<a href=\"".baseURL()."/getresized.php?id=$element_id\">'+\n";
+    echo "\t'<img src=\"".baseURL()."/getthumb.php?id=$element_id\" alt=\"".$element->filename."\"/>'+\n";
     echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
     echo "\t'</a></div>';\n";
     echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, title:'".$element->title."', icon:'".getElementIcon($element_id, $m_db)."' });\n";
@@ -76,19 +76,12 @@ foreach($elements_list as $element_id) {
 <body>
 <?php
 echo "<div id=\"map_content\">\n"; 
-echo "<h1><a href=\"http://".$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF'])."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+echo "<h1><a href=\"".baseURL()."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 
 // Path dirs and link
 displayFolderHierarchy($id, $m_db, false);
 ?>
 <div id="map_canvas"></div>
-<div class="clearfix"></div> 
-<br/>
-<?php
-$mtime = explode(' ', microtime());
-$totaltime = $mtime[0] + $mtime[1] - $starttime;
-printf('Page generated in %.2fs', round($totaltime, 2));
-?>
 </div>
 </body>
 </html>

@@ -52,4 +52,29 @@ function parentFolder($path) {
     else
         return "";
 }
+
+function getProcessingTime($starttime)
+{
+    $mtime = explode(' ', microtime());
+    $totaltime = ($mtime[0] + $mtime[1] - $starttime);
+    if ($totaltime < 60) {
+        return round($totaltime, 1)."s";
+    } else if ($totaltime < 3600) {
+        $totaltime = $totaltime / 60;
+        return round($totaltime, 1)."min";
+    } else {
+        $totaltime = $totaltime / 3600;
+        return round($totaltime, 2)."h";
+    }
+}
+
+function baseDir()
+{
+    return dirname($_SERVER['SCRIPT_FILENAME']);
+}
+
+function baseURL()
+{
+    return "http://".$_SERVER['SERVER_NAME'].rtrim(dirname($_SERVER['PHP_SELF']), "/");
+}
 ?>

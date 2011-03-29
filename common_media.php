@@ -90,18 +90,32 @@ function exif_get_longitude(&$exif)
 
 class mediaFolder
 {
-    public $parent    = NULL;
-    public $db_id     = -1;
-    public $title     = "";
-    public $lastmod   = "";
-    public $name      = "";
-    public $thumbnail = "";
-    public $subfolder = array();
-    public $element   = array();
+    public $parent       = NULL;
+    public $db_id        = -1;
+    public $title        = "";
+    public $originaldate = "";
+    public $lastmod      = "";
+    public $name         = "";
+    public $thumbnail    = "";
+    public $subfolder    = array();
+    public $element      = array();
 
     function __construct(mediaFolder $parent = NULL)
     {
         $this->parent = $parent;
+    }
+
+    function getSubFolderCount($recursive = true)
+    {
+        $subfoldercount = count($this->subfolder);
+
+        if($recursive == true) {
+            foreach($this->subfolder as $subfolder) {
+                $subfoldercount += $subfolder->getSubFolderCount();
+            }
+        }
+
+        return $subfoldercount;
     }
 
     function fullname()
@@ -121,21 +135,30 @@ class mediaFolder
         global $image_folder;
         global $folder_thumbname;
 
+        $edate = "";
+
         $this->name      = $source_path;
         if ($source_path != "")
-            $source_fullpath = $image_folder.'/'.$this->fullname();
+            $source_fullpath = baseDir()."/$image_folder/".$this->fullname();
         else
-            $source_fullpath = $image_folder;
+            $source_fullpath = baseDir()."/$image_folder";
+        $source_fullpath = realpath($source_fullpath);
 
+        @session_start();
+        $_SESSION['status'] = "Loading $source_fullpath ...";
+        session_commit();
 
         $current_dir_list = scandir($source_fullpath);
-        if ($current_dir_list === false) die("-E- Failed to open $source_fullpath for reading");
-        $this->lastmod = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullpath));
+        if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
+
+        // Reset modification time to very old value when no elements in the folder
+        $this->lastmod = '1970/01/01 00:00:00';
 
         foreach($current_dir_list as $entry) {
             // skip hidden files
             if ($entry[0] == '.') continue;
             if (is_dir("$source_fullpath/$entry")) {
+                // Subfolder
                 $subfolder = new mediaFolder($this);
                 $subfolder->loadFromPath($entry);
                 $this->subfolder[] = $subfolder;
@@ -143,15 +166,23 @@ class mediaFolder
                 // Found folder thumbnail
                 $this->thumbnail = $entry;
                 $exif = exif_read_data("$source_fullpath/$entry");
-                if ($exif != false && isset($exif['COMPUTED']['UserComment'])) {
-                    $this->title = $exif["COMPUTED"]["UserComment"];
-                    if ($this->title == "") {
-                        $this->title = strtr($source_path, "_", " ");
+                if ($exif != false) {
+                    if (isset($exif['DateTimeOriginal'])) $edate = $exif['DateTimeOriginal'];
+                    if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
+                    if (isset($exif['COMPUTED']['UserComment'])) {
+                        $this->title = $exif["COMPUTED"]["UserComment"];
                     }
-                } else {
-                    $this->title = strtr($source_path, "_", " ");
                 }
+                if (!empty($edate)) {
+                    $edate = explode(':', str_replace(' ', ':', $edate));
+                    $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+                    $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
+                    $this->originaldate = $edate;
+                }
+                if ($this->title == "")
+                    $this->title = strtr($source_path, "_", " ");
             } else {
+                // Plain file
                 $info = pathinfo("$source_fullpath/$entry");
                 $ext  = "";
                 if (!isset($info['extension']))
@@ -163,20 +194,20 @@ class mediaFolder
                 $element->loadFromFile($entry);
                 $this->element[] = $element;
                 // Update modification time according to most recent element in folder
-                if (strtotime($element->lastmod) < strtotime($this->lastmod))
+                if (strtotime($element->lastmod) > strtotime($this->lastmod))
                     $this->lastmod = $element->lastmod;
             }
         }
         if ($this->thumbnail == "") {
             $this->title = strtr($source_path, "_", " ");
-            if (count($this->element) > 0)
-                $this->thumbnail = $this->element[0]->thumbnail;
-            else if (count($this->subfolder) > 0)
-                $this->thumbnail = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
-        }
-        // Reset modification time to very old value when no elements in the folder
-        if (count($this->element) == 0)
-            $this->lastmod = '1970/01/01 00:00:00';
+            if (count($this->element) > 0) {
+                $this->thumbnail    = $this->element[0]->thumbnail;
+                $this->originaldate = $this->element[0]->originaldate;
+            } else if (count($this->subfolder) > 0) {
+                $this->thumbnail    = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
+                $this->originaldate = $this->subfolder[0]->originaldate;
+            }
+        } 
     }
 }
 
@@ -222,7 +253,7 @@ class mediaObject
         else                       $this->download_path = $source_filename;
 
         $this->filename  = $source_filename;
-        $source_fullname = $image_folder.'/'.$this->download_path;
+        $source_fullname = baseDir()."/$image_folder/".$this->download_path;
         $this->lastmod   = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
         $info            = pathinfo($source_fullname);
         $ext             = strtolower($info['extension']);
@@ -319,7 +350,7 @@ class mediaObject
             return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
         $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
-        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
+        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"".baseURL()."/$image_folder/$this->download_path\">$this->filename</a> ";
         $esize  = "";
         if ($this->type == 'movie')
             $esize = $this->duration;

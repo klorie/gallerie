@@ -188,6 +188,7 @@ ul.gallery li a:hover {
 
 .tooltip { 
     display:    none; 
+    z-index:    999;
     background: transparent url(../images/black_arrow.png) no-repeat; 
     font-size:  10px; 
     height:     70px; 
