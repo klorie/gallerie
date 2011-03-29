@@ -47,7 +47,9 @@ if ($task == 'clear_thumb') {
     $gallery = new mediaFolder();
     $gallery->loadFromPath();
     @session_start();
-    $_SESSION['progress'] = 50;
+    $_SESSION['nbfolders'] = 0;
+    $_SESSION['totalfolders'] = $gallery->getSubFolderCount();
+    $_SESSION['progress'] = 10;
     $_SESSION['status']   = "Storing information into database";
     session_commit();
     $gallery_db = new mediaDB();
