@@ -186,6 +186,11 @@ class mediaDB extends SQLite3
 
     function storeMediaFolder(mediaFolder &$media, $update=false)
     {
+        @session_start();
+        $_SESSION['nbfolders'] += 1;
+        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 90) + 10;
+        $_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
+        session_commit();
         $store_id = -1;
         if ($update == true)
             $store_id = $this->findMediaFolderID($media);
