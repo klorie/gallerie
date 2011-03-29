@@ -150,7 +150,9 @@ class mediaFolder
 
         $current_dir_list = scandir($source_fullpath);
         if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
-        $this->lastmod = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullpath));
+
+        // Reset modification time to very old value when no elements in the folder
+        $this->lastmod = '1970/01/01 00:00:00';
 
         foreach($current_dir_list as $entry) {
             // skip hidden files
@@ -206,9 +208,6 @@ class mediaFolder
                 $this->originaldate = $this->subfolder[0]->originaldate;
             }
         } 
-        // Reset modification time to very old value when no elements in the folder
-        if (count($this->element) == 0)
-            $this->lastmod = '1970/01/01 00:00:00';
     }
 }
 
