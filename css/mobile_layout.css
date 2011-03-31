@@ -7,4 +7,6 @@
 .ui-block-a a, .ui-block-b a, .ui-block-c a {
     display: table-cell;
     vertical-align: middle;
+    margin: 0;
+    padding: 0;
 }
