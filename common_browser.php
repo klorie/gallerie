@@ -233,63 +233,56 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
 function displaySideMenu($id, mediaDB &$db = NULL)
 {
     global $latest_album_count;
-    $output    = "";
-    $output_ok = false;
 
     $m_db = NULL;
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
     // Display menu icon
-    $output .= "<ul id=\"side_navigation\">\n"; 
-    $output .= "  <li class=\"other_folders\">\n";
+    echo "<ul id=\"side_navigation\">\n"; 
+    echo "  <li class=\"other_folders\">\n";
     // Side folder or Latest Folders
-    if ($id == 1) {
-        // Latest folders
-        $output .= "  <div><h3>Nouveaut&eacute;s</h3>\n";
-        $latestfolderlist = $m_db->getLatestUpdatedFolder($latest_album_count);
-        foreach($latestfolderlist as $latestfolder) {
-            $latestfolder_title = htmlentities($m_db->getFolderTitle($latestfolder));
-            $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
-        }
-        $output .= "  </div>\n";
-        $output_ok = true;
-    } else {
+    if ($id != 1) {
         // Side folders
         $neighborlist = $m_db->getNeighborFolders($id);
         if (count($neighborlist) > 0) {
-            $output .= "  <div><h3>Albums Voisins</h3>\n";
+            echo "  <div><h3>Albums Voisins</h3>\n";
             foreach($neighborlist as $neighbor) {
                 $neighbor_title = htmlentities($m_db->getFolderTitle($neighbor));
-                $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
+                echo "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
             }
-            $output .= "  </div>\n";
-            $output_ok = true;
+            echo "  </div>\n";
         }
     }
+
     // Sub folders (not for toplevel)
     if ($id != 1) {
         $subfolder_list = $m_db->getSubFolders($id);
         if (count($subfolder_list) > 0) {
-            $output .= "  <div><h3>Sous-Albums</h3>\n";        
+            echo "  <div><h3>Sous-Albums</h3>\n";        
             foreach($subfolder_list as $subfolder) {
                 $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
-                $output .= "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
+                echo "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
             }
-            $output .= "  </div>\n";
-            $output_ok = true;
+            echo "  </div>\n";
         }
     }
-    $output .= "  </li>\n"; 
+    // Latest folders
+    echo "  <div><h3>Nouveaut&eacute;s</h3>\n";
+    $latestfolderlist = $m_db->getLatestUpdatedFolder($latest_album_count);
+    foreach($latestfolderlist as $latestfolder) {
+        $latestfolder_title = htmlentities($m_db->getFolderTitle($latestfolder));
+        echo "    <a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
+    }
+    echo "  </div>\n";
+    echo "  </li>\n"; 
     // Top level googlemap
     if ($id == 1) {
-        $output .= "  <li class=\"googlemaps\">\n";
-        $output .= "  <h3>Cartographie</h3>\n";
-        $output .= "  <a href=\"".baseURL()."/getmap.php\">Voir les photos sur une carte</a>\n";
-        $output .= "  </li>\n";
+        echo "  <li class=\"googlemaps\">\n";
+        echo "  <h3>Cartographie</h3>\n";
+        echo "  <a href=\"".baseURL()."/getmap.php\">Voir les photos sur une carte</a>\n";
+        echo "  </li>\n";
     }
-    $output .= "</ul>\n"; 
-
-    if ($output_ok == true) echo $output;
+    echo "</ul>\n"; 
 
     if ($db == NULL)
         $m_db->close();
@@ -298,7 +291,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
 function displayFooter()
 {
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v2.1.0 - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v2.2.0 - H. Raffard &amp; C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }
