@@ -25,12 +25,12 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
             echo "<div class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</div>";
             echo "</li>\n";        
         }
-        echo "</ul>\n";
-//        // Separate Directory list and Pictures
-//        if ($m_db->getFolderElementsCount($id) > 0) {
-//            echo "<div class=\"clearfix\"></div>\n";
-//            echo "<h2></h2>\n";
-//        }
+        // Separate Directory list and Pictures
+        if ($m_db->getFolderElementsCount($id) > 0) {
+            echo "<li data-role=\"list-divider\">Photos<span class=\"ui-li-count\">".$m_db->getFolderElementsCount($id)."</span></li>\n";
+        } else {
+          echo "</ul>\n";
+        }
     }
 
     if ($db == NULL)
@@ -50,22 +50,23 @@ function displayElementList($id, mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
 
-    $element_list = $m_db->getFolderElements($id);
+    $element_list   = $m_db->getFolderElements($id);
+    $subfolder_list = $m_db->getSubFolders($id);
 
-    $col_idx = 'a';
     if (count($element_list) > 0) {
-        echo "<div class=\"ui-grid-b\">\n";
+        if (count($subfolder_list) == 0) {
+            echo "<ul data-role=\"listview\" data-theme=\"a\">\n";
+        }
         foreach($element_list as $current_id) {
             $element = new mediaObject();
             $m_db->loadMediaObject($element, $current_id);
             if ($element->type == 'picture') {
-                echo "<div class=\"ui-block-$col_idx\">\n";
-                if      ($col_idx == 'a') $col_idx = 'b';
-                else if ($col_idx == 'b') $col_idx = 'c';
-                else                      $col_idx = 'a';   
-                echo "<a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
+                echo "<li>";
                 echo "<img src=\"".baseURL()."/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" />";
-                echo "</a></div>\n";
+                echo "<a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
+                echo "<h3>".htmlentities($element->title)."</h3><p>".htmlentities($element->getSubTitle(true))."</p>";
+                echo "<p class=\"ui-li-aside\">".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate))."</p>";
+                echo "</a></li>\n";
             }
         }
         echo "</div>\n";
