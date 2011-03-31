@@ -1,12 +1,7 @@
-.ui-block-a, .ui-block-b, .ui-block-c {
-    display: table;
-    width: 150px;
-    height: 150px;
-    text-align: center;
+h3.element-title {
+    font-size: 75%;
 }
-.ui-block-a a, .ui-block-b a, .ui-block-c a {
-    display: table-cell;
-    vertical-align: middle;
-    margin: 0;
-    padding: 0;
+p.element-subtitle {
+    font-size: 50%;
 }
+
