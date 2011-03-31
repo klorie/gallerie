@@ -16,6 +16,7 @@ if ($m_folder_id == -1)
   <head> 
 <?php echo "<title>".$gal_title."</title>\n"; ?> 
   <link rel="stylesheet" href="css/jquery.mobile-1.0a3.css" />
+  <link rel="stylesheet" href="css/mobile_layout.css" />
   <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
   <script type="text/javascript" src="js/jquery.mobile-1.0a3.min.js"></script>
 </head> 
@@ -33,7 +34,7 @@ if ($m_folder_id == -1)
 	</div><!-- /content -->
 
 	<div data-role="footer">
-		<h4>Gallerie Mobile v2.2.0 - C. Laury</h4>
+		<h1>Gallerie Mobile v2.2.0 - C. Laury</h1>
 	</div><!-- /footer -->
 </div><!-- /page -->
 

@@ -1,0 +1,10 @@
+.ui-block-a, .ui-block-b, .ui-block-c {
+    display: table;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+}
+.ui-block-a a, .ui-block-b a, .ui-block-c a {
+    display: table-cell;
+    vertical-align: middle;
+}

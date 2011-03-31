@@ -1,10 +1,12 @@
 <?php
 
 require_once "common_db.php";
+require_once "thumbnail.php";
 require_once "resized.php";
 
 function displaySubFolderList($id, mediaDB &$db = NULL)
 { 
+    global $thumb_folder;
     $m_db = NULL;
 
     if ($db == NULL) $m_db = new mediaDB();
@@ -17,9 +19,9 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li>";
-            echo "<img src=\"".baseURL()."/getthumb.php?folder=$subfolder\" title=\"".$subfolder_title."\" />";
-            echo "<a href=\"".baseURL()."/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>";
-            echo "<div class=\"ui-li-aside\"><p>".$m_db->getFolderDate($subfolder)."</p></div>";
+            echo "<img src=\"".baseURL()."/$thumb_folder/".getFolderThumbnailPath($subfolder)."\" title=\"".$subfolder_title."\" />";
+            echo "<a href=\"".baseURL()."/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" ><h4>$subfolder_title</h4></a>";
+            echo "<p>".$m_db->getFolderDate($subfolder)."</p>";
             echo "<div class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</div>";
             echo "</li>\n";        
         }
@@ -39,6 +41,7 @@ function displayElementList($id, mediaDB &$db = NULL)
 {
     global $image_folder;
     global $resized_folder;
+    global $thumb_folder;
 
     setlocale(LC_ALL, "fr_FR.utf8");
 
@@ -60,8 +63,8 @@ function displayElementList($id, mediaDB &$db = NULL)
                 if      ($col_idx == 'a') $col_idx = 'b';
                 else if ($col_idx == 'b') $col_idx = 'c';
                 else                      $col_idx = 'a';   
-                echo "<a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->getSubTitle())."\">";
-                echo "<img src=\"".baseURL()."/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\" />";
+                echo "<a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
+                echo "<img src=\"".baseURL()."/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" />";
                 echo "</a></div>\n";
             }
         }
