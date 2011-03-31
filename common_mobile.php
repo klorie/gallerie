@@ -64,8 +64,7 @@ function displayElementList($id, mediaDB &$db = NULL)
                 echo "<li>";
                 echo "<img src=\"".baseURL()."/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" />";
                 echo "<a href=\"".baseURL()."/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
-                echo "<h3>".htmlentities($element->title)."</h3><p>".htmlentities($element->getSubTitle(true))."</p>";
-                echo "<p class=\"ui-li-aside\">".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate))."</p>";
+                echo "<h3 class=\"element-title\">".htmlentities($element->title)."</h3><p class=\"element-subtitle\">".htmlentities($element->getSubTitle(true))."</p>";
                 echo "</a></li>\n";
             }
         }
