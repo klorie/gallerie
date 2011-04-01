@@ -7,6 +7,7 @@ images/toplevel/
 # Ignore Generated files
 gallery.db
 css/toplevelmenu.css
+config.local.php
 *.swp
 # Ignore work in progress
 dev/
