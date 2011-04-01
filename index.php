@@ -1,10 +1,10 @@
 <?php
 // Start PHP code
-require_once "common_browser.php";
-require_once "googlemaps.php";
+require_once "include.php";
+require_once "browser/display.php";
 
-$starttime = explode(' ', microtime());
-$starttime = $starttime[1] + $starttime[0];
+global $BASE_DIR;
+global $BASE_URL;
 
 if (isset($_GET['path']))
     $path = $_GET["path"];
@@ -12,22 +12,10 @@ else
     $path = "";
 $path = safeDirectory($path);
 
-$cache = baseDir()."/$cache_folder/$path/index.html";
-if (file_exists($cache))
-    $cache_time = filemtime($cache);
-else
-    $cache_time = false;
-
-if ($cache_time !== false && 
-    $enable_cache == true &&
-    $cache_time > filemtime(baseDir()."/config.php")) {
-  readfile($cache);
-} else {
-  ob_start();
-  $m_db        = new mediaDB();
-  $m_folder_id = $m_db->getFolderID($path);
-  if ($m_folder_id == -1)
-      $m_folder_id = 1; // If path not found, go back to home page
+$m_db        = new mediaDB();
+$m_folder_id = $m_db->getFolderID($path);
+if ($m_folder_id == -1)
+    $m_folder_id = 1; // If path not found, go back to home page
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -95,7 +83,7 @@ if ($cache_time !== false &&
 
 <?php
 // Issue Cooliris header
-echo "  <link rel=\"alternate\" href=\"".baseURL()."/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
+echo "  <link rel=\"alternate\" href=\"$BASE_URL/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
@@ -107,7 +95,7 @@ displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
 if ($m_folder_id == 1) echo "<div style=\"text-align: center;\">\n";
-echo "<h1><a href=\"".baseURL()."/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+echo "<h1><a href=\"$BASE_URL/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 if ($m_folder_id == 1) echo "</div>\n";
 
 if ($m_folder_id == 1) {
@@ -116,13 +104,13 @@ if ($m_folder_id == 1) {
     echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
-        echo "<a href=\"".baseURL()."/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
-        echo "<img class=\"cloudcarousel\" src=\"".baseURL()."/getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
+        echo "<img class=\"cloudcarousel\" src=\"$BASE_URL/browser/getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
         echo "</a>\n";
     }
     echo "</div>\n";
-    echo "<input type=\"image\" src=\"".baseURL()."/images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
-    echo "<input type=\"image\" src=\"".baseURL()."/images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
+    echo "<input type=\"image\" src=\"$BASE_URL/images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
+    echo "<input type=\"image\" src=\"$BASE_URL/images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
     echo "<div style=\"text-align: center;\"><h1 id=\"title-text\"></h1></div>\n";
 } else {
     // Path dirs and link
@@ -143,14 +131,3 @@ if ($m_folder_id == 1) {
 </div>
 </body> 
 </html>
-<?php
-$page = ob_get_contents();
-ob_end_clean();
-if ($enable_cache == true) {
-    if (!(file_exists("$cache_folder/$path") && is_dir("$cache_folder/$path")))
-        mkdir("$cache_folder/$path", 0777, true);
-    file_put_contents($cache, $page);
-}
-echo $page;
-}
-?>

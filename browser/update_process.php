@@ -1,9 +1,9 @@
 <?php
 // Start PHP code
-require_once "thumbnail.php";
-require_once "resized.php";
-require_once "common_browser.php";
+require_once "../include.php";
+require_once "display.php";
 
+global $BASE_DIR;
 global $thumb_folder;
 global $resized_folder;
 global $image_folder;
@@ -24,14 +24,14 @@ if ($task == 'clear_thumb') {
     $_SESSION['progress'] = 1;
     $_SESSION['status']   = "Removing all thumbnails";
     session_commit();
-    exec("rm -rf ".baseDir()."/$thumb_folder");
-    @mkdir(baseDir()."/$thumb_folder");
+    exec("rm -rf $BASE_DIR/$thumb_folder");
+    @mkdir("$BASE_DIR/$thumb_folder");
     @session_start();
     $_SESSION['progress'] = 50;
     $_SESSION['status']   = "Removing all resized";
     session_commit();
-    exec("rm -rf ".baseDir()."/$resized_folder");
-    @mkdir(baseDir()."/$resized_folder");
+    exec("rm -rf $BASE_DIR/$resized_folder");
+    @mkdir("$BASE_DIR/$resized_folder");
     @session_start();
     $_SESSION['progress'] = 100;
     $_SESSION['status']   = "Thumbnails and resized deleted.";
@@ -39,7 +39,7 @@ if ($task == 'clear_thumb') {
 } else if ($task == 'update_db') {
     // Update DB according to folder/file structure
     // Remove database to ensure clean update
-    @unlink(baseDir()."/gallery.db");
+    @unlink("$BASE_DIR/gallery.db");
     @session_start();
     $_SESSION['progress'] = 1;
     $_SESSION['status']   = "Parsing gallery folder";
@@ -89,11 +89,11 @@ if ($task == 'clear_thumb') {
         session_commit();
 
         $folder_path = $gallery_db->getFolderPath($folder_id);
-        if (!file_exists(baseDir()."/$thumb_folder/$folder_path")) { 
-            mkdir(baseDir()."/$thumb_folder/$folder_path", 0777, true);
+        if (!file_exists("$BASE_DIR/$thumb_folder/$folder_path")) { 
+            mkdir("$BASE_DIR/$thumb_folder/$folder_path", 0777, true);
         }
-        if (!file_exists(baseDir()."/$resized_folder/$folder_path")) {
-            mkdir(baseDir()."/$resized_folder/$folder_path", 0777, true); 
+        if (!file_exists("$BASE_DIR/$resized_folder/$folder_path")) {
+            mkdir("$BASE_DIR/$resized_folder/$folder_path", 0777, true); 
         }
         updateFolderThumbnail($folder_id);
         $folder_idx++;
@@ -151,12 +151,12 @@ if ($task == 'clear_thumb') {
         $thumbnail_list_db->finalize();
 
         // open the thumbnail directory
-        $dir = opendir(baseDir()."/$thumb_folder/$folder_path");
-        if ($dir === false) throw new Exception("-E-   Failed to open ".baseDir()."/$thumb_folder/$folder_path !");
+        $dir = opendir("$BASE_DIR/$thumb_folder/$folder_path");
+        if ($dir === false) throw new Exception("-E-   Failed to open $BASE_DIR/$thumb_folder/$folder_path !");
 
         // loop through it
         while (false !== ($fname = readdir($dir))) {
-            if (is_file(baseDir()."/$thumb_folder/$folder_path/$fname")) {
+            if (is_file("$BASE_DIR/$thumb_folder/$folder_path/$fname")) {
                 if ($fname == $folder_thumbname) continue;
                 // Check if file exist
                 $found = false;
@@ -168,7 +168,7 @@ if ($task == 'clear_thumb') {
                 }
                 if ($found == false) {
                     // Image not found, removing thumbnail
-                    unlink(baseDir()."/$thumb_folder/$folder_path/$fname");
+                    unlink("$BASE_DIR/$thumb_folder/$folder_path/$fname");
                 }
             }
         }
@@ -184,12 +184,12 @@ if ($task == 'clear_thumb') {
         $resized_list_db->finalize();
 
         // open the resized directory
-        $dir = opendir(baseDir()."/$resized_folder/$folder_path");
-        if ($dir === false) throw new Exception("-E-   Failed to open ".baseDir()."/$resized_folder/$folder_path !");
+        $dir = opendir("$BASE_DIR/$resized_folder/$folder_path");
+        if ($dir === false) throw new Exception("-E-   Failed to open $BASE_DIR/$resized_folder/$folder_path !");
 
         // loop through it
         while (false !== ($fname = readdir($dir))) {
-            if (is_file(baseDir()."/$resized_folder/$folder_path/$fname")) {
+            if (is_file("$BASE_DIR/$resized_folder/$folder_path/$fname")) {
                 // Check if file exist
                 $found = false;
                 foreach($resized_list as $resized_path) {
@@ -201,7 +201,7 @@ if ($task == 'clear_thumb') {
                 }
                 if ($found == false) {
                     // Image not found, removing resized
-                    unlink(baseDir()."/$resized_folder/$folder_path/$fname");
+                    unlink("$BASE_DIR/$resized_folder/$folder_path/$fname");
                 }
             }
         }
@@ -234,17 +234,6 @@ if ($task == 'clear_thumb') {
     $_SESSION['status']   = "Theme update complete.";
     session_commit();
     $gallery_db->close();
-} else if ($task == 'clear_cache') {
-    @session_start();
-    $_SESSION['progress'] = 0;
-    $_SESSION['status']   = "Clearing cache...";
-    session_commit();
-    exec("rm -rf ".baseDir()."/$cache_folder");
-    @mkdir(baseDir()."/$cache_folder");   
-    @session_start();
-    $_SESSION['progress'] = 100;
-    $_SESSION['status']   = "Cache cleared.";
-    session_commit();
 } else {
     throw new Exception ("Wrong task selected ($task) !");
 }

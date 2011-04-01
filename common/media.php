@@ -1,7 +1,5 @@
 <?php
 
-require_once "config.php";
-
 function exif_get_float($value)
 {
     $pos = strpos($value, '/');
@@ -132,6 +130,7 @@ class mediaFolder
 
     function loadFromPath($source_path = "")
     {
+        global $BASE_DIR;
         global $image_folder;
         global $folder_thumbname;
 
@@ -139,9 +138,9 @@ class mediaFolder
 
         $this->name      = $source_path;
         if ($source_path != "")
-            $source_fullpath = baseDir()."/$image_folder/".$this->fullname();
+            $source_fullpath = "$BASE_DIR/$image_folder/".$this->fullname();
         else
-            $source_fullpath = baseDir()."/$image_folder";
+            $source_fullpath = "$BASE_DIR/$image_folder";
         $source_fullpath = realpath($source_fullpath);
 
         @session_start();
@@ -247,13 +246,14 @@ class mediaObject
 
     function loadFromFile($source_filename)
     {
+        global $BASE_DIR;
         global $image_folder;
 
         if ($this->folder != NULL) $this->download_path = $this->folder->fullname().'/'.$source_filename;
         else                       $this->download_path = $source_filename;
 
         $this->filename  = $source_filename;
-        $source_fullname = baseDir()."/$image_folder/".$this->download_path;
+        $source_fullname = "$BASE_DIR/$image_folder/".$this->download_path;
         $this->lastmod   = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
         $info            = pathinfo($source_fullname);
         $ext             = strtolower($info['extension']);
@@ -330,6 +330,7 @@ class mediaObject
 
     function getSubTitle($rss=false)
     {
+        global $BASE_URL;
         global $image_folder;
 
         $subtitle = "";
@@ -350,7 +351,7 @@ class mediaObject
             return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
         $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
-        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"".baseURL()."/$image_folder/$this->download_path\">$this->filename</a> ";
+        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$BASE_URL/$image_folder/$this->download_path\">$this->filename</a> ";
         $esize  = "";
         if ($this->type == 'movie')
             $esize = $this->duration;

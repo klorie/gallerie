@@ -1,5 +1,4 @@
 <?php
-require_once "common_db.php";
 
 function getResizedPath($id, mediaDB &$db = NULL)
 {
@@ -30,6 +29,7 @@ function getResizedPath($id, mediaDB &$db = NULL)
 
 function updateResized($id)
 {
+    global $BASE_DIR;
     global $resized_size;
     global $resized_folder;
     global $image_folder;
@@ -63,8 +63,8 @@ function updateResized($id)
         }
         $p_id  = $result['parent_id'];
     }
-    $filename = baseDir()."/$image_folder/".$filename;
-    $resized  = baseDir()."/$resized_folder/".$resized;
+    $filename = "$BASE_DIR/$image_folder/".$filename;
+    $resized  = "$BASE_DIR/$resized_folder/".$resized;
 
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 

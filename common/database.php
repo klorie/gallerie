@@ -1,6 +1,4 @@
 <?php
-require_once "common.php";
-require_once "common_media.php";
 
 class mediaDB extends SQLite3
 {
@@ -34,12 +32,13 @@ class mediaDB extends SQLite3
     }
 
     function __construct()
-    {
+    {   
+        global $BASE_DIR;
         try {
-            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE);
+            $this->open($BASE_DIR.'/'.'gallery.db', SQLITE3_OPEN_READWRITE);
         } catch (Exception $e) {
             // Database does not exists, create it
-            $this->open(dirname($_SERVER['SCRIPT_FILENAME']).'/'.'gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+            $this->open($BASE_DIR.'/'.'gallery.db', SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
             $this->init_database();
         }
     }
@@ -188,7 +187,7 @@ class mediaDB extends SQLite3
     {
         @session_start();
         $_SESSION['nbfolders'] += 1;
-        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 90) + 10;
+        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 90) + 9;
         $_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
         session_commit();
         $store_id = -1;

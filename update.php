@@ -1,6 +1,7 @@
 <?php
 
-require_once "common_browser.php";
+require_once "include.php";
+require_once "browser/display.php";
 
 echo "<html xmlns=\"http://www.w3.org/1999/xthml\" xml:lang=\"en\">\n";
 echo "<link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\" />\n";
@@ -40,13 +41,9 @@ echo "<h3><a href=\"#\" id=\"clear_thumb\">Clear Thumbnails and Resized pictures
 echo "<div id=\"clear_thumb_progress\"></div>\n";
 echo "<div id=\"clear_thumb_status\"></div>\n";
 
-echo "<h3><a href=\"#\" id=\"clear_cache\">Clear HTML cache</a></h3>\n";
-echo "<div id=\"clear_cache_progress\"></div>\n";
-echo "<div id=\"clear_cache_status\"></div>\n";
-
 echo "<h3>Debug</h3>\n";
-echo "BASE_DIR = ".baseDir()."<br />\n";
-echo "BASE_URL = ".baseURL()."<br />\n";
+echo "BASE_DIR = $BASE_DIR <br />\n";
+echo "BASE_URL = $BASE_URL <br />\n";
 
 echo "<h3><a href=\"index.php\">Back to Gallerie</a></h3>\n";
 

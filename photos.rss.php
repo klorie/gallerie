@@ -1,7 +1,6 @@
 <?php
 
-require_once "resized.php";
-require_once "thumbnail.php";
+require_once "include.php";
 
 function &xml_encode(&$xml) {
     $xml = str_replace(array('ü', 'Ü', 'ö',
@@ -42,7 +41,7 @@ header("Content-Type: application/xml");
 echo "<"."?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?".">\n";
 echo "<rss version=\"2.0\" xmlns:media=\"http://search.yahoo.com/mrss\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n";
 echo "<channel>\n";
-echo "<atom:link href=\"".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]."\" rel=\"self\" type=\"application/rss+xml\" />\n";
+echo "<atom:link href=\"http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]."\" rel=\"self\" type=\"application/rss+xml\" />\n";
 
 // Issue items
 foreach($element_list as $element_id) {
@@ -52,11 +51,11 @@ foreach($element_list as $element_id) {
     echo "  <title>".utf8_encode(xml_encode($element->title))."</title>\n";
     echo "  <media:description>".utf8_encode(xml_encode($element->getSubTitle(true)))."</media:description>\n";
     echo "  <link>".$image_folder."/".$element->download_path."</link>\n";
-    echo "  <media:thumbnail url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/".$thumb_folder."/".getThumbnailPath($element_id)."\" />\n";
+    echo "  <media:thumbnail url=\"$BASE_URL/$thumb_folder/".getThumbnailPath($element_id)."\" />\n";
     if ($element->type == 'movie')
-        echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/".$resized_folder."/".getResizedPath($element_id)."\" type=\"video/x-flv\" />\n";
+        echo "  <media:content url=\"$BASE_URL/$resized_folder/".getResizedPath($element_id)."\" type=\"video/x-flv\" />\n";
     else
-        echo "  <media:content url=\"http://".$_SERVER["SERVER_NAME"].$cwd."/".$resized_folder."/".getResizedPath($element_id)."\" type=\"image/jpeg\" />\n";
+        echo "  <media:content url=\"$BASE_URL/$resized_folder/".getResizedPath($element_id)."\" type=\"image/jpeg\" />\n";
     echo "</item>\n";
 }
 echo "</channel>\n";

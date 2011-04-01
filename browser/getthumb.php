@@ -1,23 +1,31 @@
 <?php
-require_once "resized.php";
+
+require_once "../include.php";
 
 $object = -1;
-if (isset($_REQUEST['id'])) {
+$folder = -1;
+if (isset($_REQUEST['folder'])) {
+	$folder = $_REQUEST['folder'];
+} else if (isset($_REQUEST['id'])) {
     $object = $_REQUEST['id'];
 } else {
 	header('HTTP/1.1 400 Bad Request');
-	die('id was not specified');
+	die('folder or id was not specified');
 }
 
-global $resized_folder;
+global $thumb_folder;
 
-$resized = baseDir()."/$resized_folder/".getResizedPath($object);
+$thumbnail = "";
+if ($object != -1)
+    $thumbnail = "$BASE_DIR/$thumb_folder/".getThumbnailPath($object);
+else
+    $thumbnail = "$BASE_DIR/$thumb_folder/".getFolderThumbnailPath($folder);
     
-if (!file_exists($resized)) {
-    $resized = baseDir().'/images/nothumb.jpg';
+if (!file_exists($thumbnail)) {
+    $thumbnail = $BASE_DIR.'/images/nothumb.jpg';
 }
 
-$gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($resized));
+$gmdate_mod = gmdate("D, d M Y H:i:s", filemtime($thumbnail));
 if(!strstr($gmdate_mod, "GMT")) {
 	$gmdate_mod .= " GMT";
 }
@@ -30,7 +38,7 @@ if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 	}
 }
 
-$fileSize = filesize($resized);
+$fileSize = filesize($thumbnail);
 
 // send headers then display image
 header ('Content-Type: image/jpeg');
@@ -40,8 +48,7 @@ header ('Content-Length: ' . $fileSize);
 header ('Cache-Control: max-age=3600, must-revalidate');
 header ('Expires: ' . $gmdate_mod);
 
-readfile ($resized);
+readfile ($thumbnail);
 die();
-
 
 ?>

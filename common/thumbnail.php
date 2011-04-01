@@ -1,5 +1,4 @@
 <?php
-require_once "common_db.php";
 
 function getThumbnailPath($id, mediaDB &$db = NULL)
 {
@@ -49,6 +48,7 @@ function getFolderThumbnailPath($id, mediaDB &$db = NULL)
 
 function updateThumbnail($id)
 {
+    global $BASE_DIR;
     global $thumb_size;
     global $thumb_folder;
     global $image_folder;
@@ -73,8 +73,8 @@ function updateThumbnail($id)
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    $filename  = baseDir()."/$image_folder/".$m_db->getFolderPath($p_id).'/'.$filename;
-    $thumbnail = baseDir()."/$thumb_folder/".$m_db->getFolderPath($p_id).'/'.$thumbnail;
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($p_id).'/'.$filename;
+    $thumbnail = "$BASE_DIR/$thumb_folder/".$m_db->getFolderPath($p_id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
 
@@ -113,6 +113,7 @@ function updateThumbnail($id)
 
 function updateFolderThumbnail($id)
 {
+    global $BASE_DIR;
     global $thumb_size;
     global $thumb_folder;
     global $image_folder;
@@ -134,8 +135,8 @@ function updateFolderThumbnail($id)
     if ($result['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
     $filename  = $result['thumbnail'];
     $thumbnail = $result['thumbnail'];
-    $filename  = baseDir()."/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
-    $thumbnail = baseDir()."/$thumb_folder/".$m_db->getFolderPath($id).'/'.$thumbnail;
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
+    $thumbnail = "$BASE_DIR/$thumb_folder/".$m_db->getFolderPath($id).'/'.$thumbnail;
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
@@ -168,6 +169,7 @@ function updateFolderThumbnail($id)
 
 function updateTopFolderMenuThumbnail()
 {
+    global $BASE_DIR;
     global $thumb_folder;
 
     $m_db = new mediaDB();
@@ -175,7 +177,7 @@ function updateTopFolderMenuThumbnail()
     $results = $m_db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
     if ($results === false) throw new Exception($m_db->lastErrorMsg());
     while($row = $results->fetchArray()) {
-        $folder_thumb = baseDir()."/$thumb_folder/".getFolderThumbnailPath($row['id'], $m_db);
+        $folder_thumb = "$BASE_DIR/$thumb_folder/".getFolderThumbnailPath($row['id'], $m_db);
         if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
         $img    = new Imagick();
         $img->ReadImage($folder_thumb);
@@ -193,7 +195,7 @@ function updateTopFolderMenuThumbnail()
         $img->cropThumbnailImage($new_width, $new_height);
         $img->setImageFormat("jpeg");
         $img->setCompressionQuality(65);
-        $img->setImageFilename(baseDir()."/images/toplevel/".$row['foldername'].".jpg");
+        $img->setImageFilename("$BASE_DIR/images/toplevel/".$row['foldername'].".jpg");
         $img->WriteImage();
         $img->clear();
         $img->destroy();

@@ -1,5 +1,6 @@
 <?php
-require_once "common_mobile.php";
+require_once "include.php";
+require_once "mobile/display.php";
 
 if (isset($_GET['path']))
     $path = $_GET["path"];

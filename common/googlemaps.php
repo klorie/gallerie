@@ -1,7 +1,5 @@
 <?php
 
-require_once "common_db.php";
-
 function getFolderGeolocalizedCount($id, mediaDB &$db = NULL)
 {    
     $m_db = NULL;
@@ -46,6 +44,8 @@ function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
 
 function getElementIcon($id, mediaDB &$db = NULL)
 {
+    global $BASE_URL;
+
     $result = '';
 
     $m_db = NULL;
@@ -60,31 +60,31 @@ function getElementIcon($id, mediaDB &$db = NULL)
     while($tag = $tags->fetchArray()) {
         if      (stristr($tag['name'], 'Paysage') != false) {
             // No break here as if there is another tag for this picture -> use it
-            $result = 'images/markers/paysage.png';
+            $result = "$BASE_URL/images/markers/paysage.png";
         } else if (stristr($tag['name'], 'Flore')   != false) {
-            $result = 'images/markers/flore.png';
+            $result = "$BASE_URL/images/markers/flore.png";
             break;
         } else if (stristr($tag['name'], 'Faune')   != false) {
-            $result = 'images/markers/faune.png';
+            $result = "$BASE_URL/images/markers/faune.png";
             break;
         } else if (stristr($tag['name'], 'Eglise')  != false) {
-            $result = 'images/markers/eglise.png';
+            $result = "$BASE_URL/images/markers/eglise.png";
             break;
         } else if (stristr($tag['name'], 'Pano')    != false) {
-            $result = 'images/markers/panorama.png';
+            $result = "$BASE_URL/images/markers/panorama.png";
             break;
         } else if (stristr($tag['name'], 'Portrait') != false) {
-            $result = 'images/markers/portrait.png';
+            $result = "$BASE_URL/images/markers/portrait.png";
             break;
         } else if (stristr($tag['name'], 'Macro') != false) {
             // No break here as if there is another tag for this picture -> use it
-            $result = 'images/markers/flore.png';
+            $result = "$BASE_URL/images/markers/flore.png";
         }
     }
     $tags->finalize();
 
     if ($result == '')
-        $result = 'images/markers/picture.png';
+        $result = "$BASE_URL/images/markers/picture.png";
 
     if ($db == NULL)
         $m_db->close();
