@@ -132,9 +132,6 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
         }
     }
     if ($show_slide_map_link == true) {
-        if ($m_db->getFolderElementsCount($id) > 1) {
-            echo " <a href=\"javascript:PicLensLite.start({feedUrl:'$BASE_URL/photos.rss.php?id=$id', delay:6});\"><img src=\"$BASE_URL/images/slideshow.png\" alt=\"Diaporama\" title=\"Diaporama\" height=\"32\" align=\"center\" border=\"0\" /></a>\n";
-        }
         if (getFolderGeolocalizedCount($id, $m_db) > 0) {
             $path = $m_db->getFolderPath($id);
             echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";

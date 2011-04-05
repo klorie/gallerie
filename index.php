@@ -39,7 +39,6 @@ if ($m_folder_id == -1)
 ?>
   <script src="js/jquery.imageLoader.js" type="text/javascript"></script>
   <script src="js/navigation.js" type="text/javascript"></script>
-  <script src="http://lite.piclens.com/current/piclens_optimized.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(document).ready(function(){
       jQuery('.dynamic-thumbnail').loadImages();
@@ -82,8 +81,6 @@ if ($m_folder_id == -1)
  </script>
 
 <?php
-// Issue Cooliris header
-echo "  <link rel=\"alternate\" href=\"$BASE_URL/photos.rss.php?id=$m_folder_id\" type=\"application/rss+xml\" title=\"\" id=\"gallery_bis\" />\n";
 echo "</head>\n";
 echo "<body>\n";
 
