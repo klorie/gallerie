@@ -52,6 +52,7 @@ h3 {
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
 	margin:     0 15px 0 15px;
+    height:     95%;
 }
 
 #map_content {
@@ -66,6 +67,35 @@ h3 {
 
 #map_canvas {
     height: 85%;
+}
+
+#scroll-pane {
+    float: left;
+    height: 87%;
+    width: 95%;
+    overflow: auto;
+    position: relative;
+}
+/*#scroll-pane { float:left;overflow: auto; width: 420px; height:300px;position:relative;border:1px solid gray;margin-left:50px;margin-bottom:25px;display:inline}*/
+#scroll-content {position:absolute;top:0;left:0}
+#slider-wrap{
+    float:right;
+    background-color:lightgrey;
+    width:10px;
+    border:1px solid #313739;
+	-moz-border-radius:    10px;
+	-webkit-border-radius: 10px;
+}
+#slider-vertical{position:relative;height:85%}
+.ui-slider-handle{
+    width:10px;
+    height:10px;
+    margin:0 auto;
+    background-color: #9db2b9;
+    display:block;
+    position:absolute;
+	-moz-border-radius:    10px;
+	-webkit-border-radius: 10px;
 }
 
 #map_info {

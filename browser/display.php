@@ -17,28 +17,33 @@ function displayElementList($id, mediaDB &$db = NULL)
     $element_list = $m_db->getFolderElements($id);
 
     if (count($element_list) > 0) {
-        $tabcount = count($element_list) / $thumbs_per_page;
-        if (count($element_list) > $thumbs_per_page) {
-            echo "<ul class=\"tabs\">\n";
-            for ($t = 0; $t < $tabcount; $t++) {
-                echo "\t<li><a href=\"#\">".($t+1)."</a></li>\n";
-            }
-            echo "</ul>\n";
-            echo "<div class=\"clearfix\"></div>\n";
-        }
+        //$tabcount = count($element_list) / $thumbs_per_page;
+        //if (count($element_list) > $thumbs_per_page) {
+        //    echo "<ul class=\"tabs\">\n";
+        //    for ($t = 0; $t < $tabcount; $t++) {
+        //        echo "\t<li><a href=\"#tab".($t+1)."\">".($t+1)."</a></li>\n";
+        //    }
+        //    echo "</ul>\n";
+        //    echo "<div class=\"clearfix\"></div>\n";
+        //}
         echo "<ul class=\"gallery\">\n";
         $tabthumb = 0;
+        $tabid    = 1;
         $videoid  = 0;
         foreach($element_list as $current_id) {
             $element = new mediaObject();
             $m_db->loadMediaObject($element, $current_id);
             if ($element->type == 'movie') {
                 // Video
-                echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
+                echo "<li";
+                //if ($tabthumb == 0) echo " id=\"tab".$tabid."\"";
+                echo "><a href=\"#\" rel=\"#video".$videoid."\">";
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<li";
+                //if ($tabthumb == 0) echo " id=\"tab".$tabid."\"";
+                echo "><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
             echo "<div class=\"dynamic-thumbnail\" src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
@@ -57,15 +62,16 @@ function displayElementList($id, mediaDB &$db = NULL)
             $tabthumb++;
             if ($tabthumb >= $thumbs_per_page) {
                 $tabthumb = 0;
-                echo "</ul>\n<ul class=\"gallery\">\n";
+                $tabid++;
+                //echo "</ul>\n<ul class=\"gallery\">\n";
             }
         }
-        if (($tabthumb < $thumbs_per_page) && ($tabcount > 1)) {
-            while($tabthumb < $thumbs_per_page) {
-                echo "<li></li>\n";
-                $tabthumb++;
-            }
-        }
+        //if (($tabthumb < $thumbs_per_page) && ($tabcount > 1)) {
+        //    while($tabthumb < $thumbs_per_page) {
+        //        echo "<li></li>\n";
+        //        $tabthumb++;
+        //    }
+        //}
         echo "</ul>\n";
         // Videos overlay
         $videoid  = 0;

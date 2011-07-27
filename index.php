@@ -30,9 +30,11 @@ if ($m_folder_id == -1)
   <script src="js/jquery.tools-1.2.5.min.js" type="text/javascript"></script>
 <?php
     if ($m_folder_id == 1) {
-        echo "  <script src=\"js/jquery.mousewheel.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/jquery.mousewheel.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/cloud-carousel.1.0.4.min.js\" type=\"text/javascript\"></script>\n";
     } else {
+        echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/vertical.slider.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
     }
@@ -45,8 +47,8 @@ if ($m_folder_id == -1)
       $.tools.tooltip.conf.relative = true;
       $.tools.tooltip.conf.cancelDefault = false;
       $.tools.tooltip.conf.predelay = 1000;
+      $.tools.tooltip.conf.offset = [110, 0];
       $(".dynamic-thumbnail").tooltip();
-      $("ul.tabs").tabs("ul.gallery");
 <?php
     if ($m_folder_id == 1) {
         echo "    $(\"#carousel\").CloudCarousel({\n";
@@ -113,12 +115,14 @@ if ($m_folder_id == 1) {
     // Path dirs and link
     displayFolderHierarchy($m_folder_id, $m_db);
 
+    echo "<div id=\"scroll-pane\">\n";
+    echo "<div id=\"scroll-content\">\n";
     // Show list of subfolders
     displaySubFolderList($m_folder_id, $m_db);
 
     // Show list of pictures
     displayElementList($m_folder_id, $m_db);
-
+    echo "</div></div>\n";
 }
 ?>
 
