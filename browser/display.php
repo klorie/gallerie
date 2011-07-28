@@ -113,12 +113,10 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
         }
     }
     $path = $m_db->getFolderPath($id);
-    echo " <a href=\"$BASE_URL/browser/slideshow.php?path=$path\"><img src=\"$BASE_URL/images/slideshow.png\" title=\"Diaporama\" alt=\"Diaporama\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
-    if ($show_slide_map_link == true) {
-        if (getFolderGeolocalizedCount($id, $m_db) > 0) {
-            echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
-        }
-    }
+    if ($m_db->getFolderElementsCount($id) > 0)
+        echo " <a href=\"$BASE_URL/browser/slideshow.php?path=$path\"><img src=\"$BASE_URL/images/slideshow.png\" title=\"Diaporama\" alt=\"Diaporama\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
+    if (($show_slide_map_link == true) and (getFolderGeolocalizedCount($id, $m_db) > 0))
+        echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     echo "</h2>\n";
 
     if ($db == NULL)
