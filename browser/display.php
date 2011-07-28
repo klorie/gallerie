@@ -112,9 +112,10 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
             echo "/<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
         }
     }
+    $path = $m_db->getFolderPath($id);
+    echo " <a href=\"$BASE_URL/browser/slideshow.php?path=$path\"><img src=\"$BASE_URL/images/slideshow.png\" title=\"Diaporama\" alt=\"Diaporama\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     if ($show_slide_map_link == true) {
         if (getFolderGeolocalizedCount($id, $m_db) > 0) {
-            $path = $m_db->getFolderPath($id);
             echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
         }
     }
@@ -272,7 +273,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
 function displayFooter()
 {
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v2.2.0 - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v2.3.0 - H. Raffard &amp; C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }
