@@ -16,10 +16,10 @@ if ($m_folder_id == -1)
 <html> 
   <head> 
 <?php echo "<title>".$gal_title."</title>\n"; ?> 
-  <link rel="stylesheet" href="css/jquery.mobile-1.0a3.css" />
+  <link rel="stylesheet" href="css/jquery.mobile-1.0b1.min.css" />
   <link rel="stylesheet" href="css/mobile_layout.css" />
-  <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
-  <script type="text/javascript" src="js/jquery.mobile-1.0a3.min.js"></script>
+  <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="js/jquery.mobile-1.0b1.min.js"></script>
 </head> 
 <body> 
 <div data-role="page" data-theme="a" data-back-btn-text="Retour">
@@ -35,7 +35,7 @@ if ($m_folder_id == -1)
 	</div><!-- /content -->
 
 	<div data-role="footer">
-		<h1>Gallerie Mobile v2.2.0 - C. Laury</h1>
+		<h1>Gallerie Mobile v2.3.0 - C. Laury</h1>
 	</div><!-- /footer -->
 </div><!-- /page -->
 
