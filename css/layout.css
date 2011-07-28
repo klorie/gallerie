@@ -52,7 +52,6 @@ h3 {
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
 	margin:     0 15px 0 15px;
-    height:     95%;
 }
 
 #map_content {
@@ -67,35 +66,6 @@ h3 {
 
 #map_canvas {
     height: 85%;
-}
-
-#scroll-pane {
-    float: left;
-    height: 87%;
-    width: 95%;
-    overflow: auto;
-    position: relative;
-}
-/*#scroll-pane { float:left;overflow: auto; width: 420px; height:300px;position:relative;border:1px solid gray;margin-left:50px;margin-bottom:25px;display:inline}*/
-#scroll-content {position:absolute;top:0;left:0}
-#slider-wrap{
-    float:right;
-    background-color:lightgrey;
-    width:10px;
-    border:1px solid #313739;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
-}
-#slider-vertical{position:relative;height:85%}
-.ui-slider-handle{
-    width:10px;
-    height:10px;
-    margin:0 auto;
-    background-color: #9db2b9;
-    display:block;
-    position:absolute;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
 }
 
 #map_info {
@@ -225,57 +195,6 @@ ul.gallery li a:hover {
     width:      160px; 
     padding:    25px; 
     color:      #FFFFFF;     
-}
-
-/* -------- Tabs ----------------- */
-ul.tabs {
-    list-style:    none;
-    margin:        0 !important;
-    padding:       0;
-    height:        28px;
-    border-bottom: 1px solid #666;
-}
-
-ul.tabs li {
-    height:           45px;
-    width:            45px;
-    float:            left;
-    padding:          0;
-    margin:           0 !important;
-    list-style-image: none !important;
-}
-
-ul.tabs li a {
-    font-size:        1.3em;
-    display:          block;
-    text-align:       center;
-    padding:          5px;
-    text-decoration:  none;
-    border:           2px solid #313739;  
-    border-bottom:    0px;
-    background-color: #444444;
-    color:            #777777;
-    margin-right:     2px;
-    -moz-border-radius-topleft:      4px;
-    -moz-border-radius-topright:     4px;
-    -webkit-border-top-left-radius:  4px;
-    -webkit-border-top-right-radius: 4px;
-    position: relative;
-    top:      1px;    
-}
-
-ul.tabs a:hover {
-    background-color: #111111;
-    color:            #FFFFFF;
-}
-    
-/* selected tab */
-ul.tabs a.current {
-    background-color: #111111;
-    border-bottom:    2px solid #313739;   
-    color:            #FFFFFF; 
-    cursor:           default;
-    font-weight:      bold;
 }
 
 /*---------------------------------------------------

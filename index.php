@@ -34,7 +34,6 @@ if ($m_folder_id == -1)
         echo "  <script src=\"js/cloud-carousel.1.0.4.min.js\" type=\"text/javascript\"></script>\n";
     } else {
         echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/vertical.slider.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
     }
@@ -115,14 +114,11 @@ if ($m_folder_id == 1) {
     // Path dirs and link
     displayFolderHierarchy($m_folder_id, $m_db);
 
-    echo "<div id=\"scroll-pane\">\n";
-    echo "<div id=\"scroll-content\">\n";
     // Show list of subfolders
     displaySubFolderList($m_folder_id, $m_db);
 
     // Show list of pictures
     displayElementList($m_folder_id, $m_db);
-    echo "</div></div>\n";
 }
 ?>
 
