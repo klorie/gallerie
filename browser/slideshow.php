@@ -54,7 +54,7 @@ $elements_list = $m_db->getFolderElements($id);
             if ($element->type == 'video') continue; // No video in slideshow
             $thumbnail = "$BASE_URL/$thumb_folder/".getThumbnailPath($element_id);
             $element->title = htmlentities($element->title);
-            $element->title = str_replace("'", "&#39;", $element->title, "'");
+            $element->title = str_replace("'", "&#39;", $element->title);
             echo "{image: '$BASE_URL/browser/getresized.php?id=$element_id', title: '".$element->title." - <small>".$element->getSubTitle(true)."</small>', thumb: '$BASE_URL/browser/getthumb.php?id=$element_id', url: '$BASE_URL/index.php?path=$path' },\n";
           }
         ?>
