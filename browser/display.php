@@ -255,13 +255,6 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     }
     echo "  </div>\n";
     echo "  </li>\n"; 
-    // Top level googlemap
-    if ($id == 1) {
-        echo "  <li class=\"googlemaps\">\n";
-        echo "  <h3>Cartographie</h3>\n";
-        echo "  <a href=\"$BASE_URL/browser/getmap.php\">Voir les photos sur une carte</a>\n";
-        echo "  </li>\n";
-    }
     echo "</ul>\n"; 
 
     if ($db == NULL)
