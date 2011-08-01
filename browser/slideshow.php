@@ -53,7 +53,7 @@ $elements_list = $m_db->getFolderElements($id);
             $m_db->loadMediaObject($element, $element_id);
             if ($element->type == 'video') continue; // No video in slideshow
             $thumbnail = "$BASE_URL/$thumb_folder/".getThumbnailPath($element_id);
-            echo "{image: '$BASE_URL/browser/getresized.php?id=$element_id', title: '".$element->title." - <small>".$element->getSubTitle(true)."</small>', thumb: '$BASE_URL/browser/getthumb.php?id=$element_id', url: '$BASE_URL/index.php?path=$path' },\n";
+            echo "{image: '$BASE_URL/browser/getresized.php?id=$element_id', title: '".htmlentities($element->title)." - <small>".$element->getSubTitle(true)."</small>', thumb: '$BASE_URL/browser/getthumb.php?id=$element_id', url: '$BASE_URL/index.php?path=$path' },\n";
           }
         ?>
         ]});
