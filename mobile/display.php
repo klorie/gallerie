@@ -16,12 +16,11 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li>";
-            echo "<a href=\"$BASE_URL/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
             echo "<img src=\"$BASE_URL/$thumb_folder/".getFolderThumbnailPath($subfolder)."\" title=\"".$subfolder_title."\" />";
-            echo "<h3>$subfolder_title</h3>";
+            echo "<a href=\"$BASE_URL/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" ><h3>$subfolder_title</h3></a>";
             echo "<p>".$m_db->getFolderDate($subfolder)."</p>";
             echo "<div class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</div>";
-            echo "</a></li>\n";        
+            echo "</li>\n";        
         }
         // Separate Directory list and Pictures
         if ($m_db->getFolderElementsCount($id) > 0) {
@@ -61,12 +60,12 @@ function displayElementList($id, mediaDB &$db = NULL)
             $m_db->loadMediaObject($element, $current_id);
             if ($element->type == 'picture') {
                 echo "<li>";
-                echo "<a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
                 echo "<img src=\"$BASE_URL/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" />";
-                echo "<h3 class=\"element-title\">".htmlentities($element->title)."</h3>";
+                echo "<a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
+                echo "<h3 class=\"element-title\">".htmlentities($element->title)."</h3></a>";
                 echo "<p class=\"element-subtitle\">".htmlentities($element->getSubTitle(true))."</p>";
                 echo "<p class=\"element-subtitle\">".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate))."</p>";
-                echo "</a></li>\n";
+                echo "</li>\n";
             }
         }
         echo "</div>\n";

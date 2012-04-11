@@ -31,13 +31,6 @@ if ($m_folder_id == -1)
 
 	<div data-role="content">	
         <?php displaySubFolderList($m_folder_id, $m_db) ?>
-        <?php if (getFolderGeolocalizedCount($m_folder_id, $m_db) > 0) {
-                echo "<ul data-role=\"listview\" data-theme=\"a\">\n";        
-                echo "<li>";
-                echo "<a href=\"$BASE_URL/mobile/getmap.php?path=$path\" rel=\"external\" title=\"Carte\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" class=\"ui-li-icon\" />";
-                echo "Carte";
-                echo "</a></li></ul>\n";
-        }?>
         <?php displayElementList($m_folder_id, $m_db) ?>
 	</div><!-- /content -->
 

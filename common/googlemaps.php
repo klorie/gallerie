@@ -7,13 +7,14 @@ function getFolderGeolocalizedCount($id, mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
 
-    $result = $m_db->querySingle("SELECT COUNT(*) FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;");
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
+    $result = $m_db->query("SELECT COUNT(*) FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;");
+    if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_row();
+    $result->free();
 
     if ($db == NULL)
         $m_db->close();
 
-    return $result;
+    return $row[0];
 }
 
 function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
@@ -30,11 +31,11 @@ function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
     else
         $query = "SELECT id FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;";
     $results = $m_db->query($query);
-    if ($results === false) throw new Exception($m_db->lastErrorMsg());
-    while($row = $results->fetchArray()) {
+    if ($results === false) throw new Exception($m_db->error);
+    while($row = $results->fetch_assoc()) {
         $element_list[] = $row['id'];
     }
-    $results->finalize();
+    $results->free();
 
     if ($db == NULL)
         $m_db->close();
@@ -55,9 +56,9 @@ function getElementIcon($id, mediaDB &$db = NULL)
         $m_db = $db;
 
     $tags = $m_db->query("SELECT name FROM media_tags WHERE media_id=$id;");
-    if ($tags === false) throw new Exception($m_db->lastErrorMsg());
+    if ($tags === false) throw new Exception($m_db->error);
 
-    while($tag = $tags->fetchArray()) {
+    while($tag = $tags->fetch_assoc()) {
         if      (stristr($tag['name'], 'Paysage') != false) {
             // No break here as if there is another tag for this picture -> use it
             $result = "$BASE_URL/images/markers/paysage.png";
@@ -81,7 +82,7 @@ function getElementIcon($id, mediaDB &$db = NULL)
             $result = "$BASE_URL/images/markers/flore.png";
         }
     }
-    $tags->finalize();
+    $tags->free();
 
     if ($result == '')
         $result = "$BASE_URL/images/markers/picture.png";
@@ -109,14 +110,14 @@ function getFolderGeolocalizedBounds($id, mediaDB &$db = NULL)
     else
         $query = "SELECT latitude, longitude FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;";
     $results = $m_db->query($query);
-    if ($results === false) throw new Exception($m_db->lastErrorMsg());
-    while($row = $results->fetchArray()) {
+    if ($results === false) throw new Exception($m_db->error);
+    while($row = $results->fetch_assoc()) {
         if ($row['longitude'] < $longitude_min) $longitude_min = $row['longitude'];
         if ($row['longitude'] > $longitude_max) $longitude_max = $row['longitude'];
         if ($row['latitude']  < $latitude_min)  $latitude_min  = $row['latitude'];
         if ($row['latitude']  > $latitude_max)  $latitude_max  = $row['latitude'];
     }
-    $results->finalize();
+    $results->free();
 
     if ($db == NULL)
         $m_db->close();

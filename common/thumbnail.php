@@ -9,11 +9,11 @@ function getThumbnailPath($id, mediaDB &$db = NULL)
         $m_db = new mediaDB();
     else
         $m_db = $db;
-    $result = $m_db->querySingle("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;", true);
-
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $thumb  = $result['thumbnail'];
-    $p_id   = $result['folder_id'];
+    $result = $m_db->query("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;");
+    if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
+    $result->free();
+    $thumb  = $row['thumbnail'];
+    $p_id   = $row['folder_id'];
     $folder = $m_db->getFolderPath($p_id);
     if ($folder != "")
         $thumb = $folder.'/'.$thumb;
@@ -32,10 +32,11 @@ function getFolderThumbnailPath($id, mediaDB &$db = NULL)
     else
         $m_db = $db;
 
-    $result = $m_db->querySingle("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
-
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $thumb  = $result['thumbnail'];
+    $result = $m_db->query("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
+    if ($result === false) throw new Exception($m_db->error());
+    $row    = $result->fetch_row();
+    $result->free();
+    $thumb  = $row[0];
     $folder = $m_db->getFolderPath($id);
     if ($folder != "")
         $thumb = $folder.'/'.$thumb;
@@ -64,8 +65,10 @@ function updateThumbnail($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Object info
-    $result = $m_db->querySingle("SELECT folder_id, thumbnail, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
+    $row = $m_db->query("SELECT folder_id, thumbnail, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
+    if ($row === false) throw new Exception($m_db->error);
+    $result    = $row->fetch_assoc();
+    $row->free();
     if ($result['thumbnail'] == "") return false; // Should never happen
     $filename  = $result['filename'];
     $thumbnail = $result['thumbnail'];
@@ -129,12 +132,14 @@ function updateFolderThumbnail($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Folder info
-    $result = $m_db->querySingle("SELECT thumbnail, parent_id FROM media_folders WHERE id=$id;", true);
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    if ($result['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
-    if ($result['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
-    $filename  = $result['thumbnail'];
-    $thumbnail = $result['thumbnail'];
+    $result = $m_db->query("SELECT thumbnail, parent_id FROM media_folders WHERE id=$id;", true);
+    if ($result === false) throw new Exception($m_db->error());
+    $row = $result->fetch_assoc();
+    $result->free();
+    if ($row['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
+    if ($row['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
+    $filename  = $row['thumbnail'];
+    $thumbnail = $row['thumbnail'];
     $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
     $thumbnail = "$BASE_DIR/$thumb_folder/".$m_db->getFolderPath($id).'/'.$thumbnail;
 
@@ -175,8 +180,8 @@ function updateTopFolderMenuThumbnail()
     $m_db = new mediaDB();
 
     $results = $m_db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
-    if ($results === false) throw new Exception($m_db->lastErrorMsg());
-    while($row = $results->fetchArray()) {
+    if ($results === false) throw new Exception($m_db->error);
+    while($row = $results->fetch_assoc()) {
         $folder_thumb = "$BASE_DIR/$thumb_folder/".getFolderThumbnailPath($row['id'], $m_db);
         if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
         $img    = new Imagick();
@@ -200,7 +205,7 @@ function updateTopFolderMenuThumbnail()
         $img->clear();
         $img->destroy();
     }
-    $results->finalize();
+    $results->free();
 
     $m_db->close();
 }

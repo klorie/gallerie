@@ -39,7 +39,6 @@ if ($task == 'clear_thumb') {
 } else if ($task == 'update_db') {
     // Update DB according to folder/file structure
     // Remove database to ensure clean update
-    @unlink("$BASE_DIR/gallery.db");
     @session_start();
     $_SESSION['progress'] = 1;
     $_SESSION['status']   = "Parsing gallery folder";
@@ -53,9 +52,16 @@ if ($task == 'clear_thumb') {
     $_SESSION['status']   = "Storing information into database";
     session_commit();
     $gallery_db = new mediaDB();
+    $result     = $gallery_db->query('DROP TABLE IF EXISTS media_folders, media_objects, media_tags;');
+    if ($result === FALSE) throw new Exception($gallery_db->error); 
+    $gallery_db->init_database();
     $gallery_db->storeMediaFolder($gallery);
-    $element_count = $gallery_db->querySingle("SELECT COUNT(*) FROM media_objects;");
-    $folder_count  = $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
+    $result        = $gallery_db->query("SELECT COUNT(*) FROM media_objects;");
+    $row           = $result->fetch_row();
+    $element_count = $row[0];
+    $result        = $gallery_db->query("SELECT COUNT(*) FROM media_folders;");
+    $row           = $result->fetch_row();
+    $folder_count  = $row[0];
     @session_start();
     $_SESSION['progress'] = 100;
     $_SESSION['status']   = "Processed $element_count elements in $folder_count folders";
@@ -66,8 +72,12 @@ if ($task == 'clear_thumb') {
     // Ensure correct environment variable
     putenv("MAGICK_THREAD_LIMIT=1");
     $gallery_db = new mediaDB();
-    $process_count  = $gallery_db->querySingle("SELECT COUNT(*) FROM media_objects;");
-    $process_count += $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
+    $result         = $gallery_db->query("SELECT COUNT(*) FROM media_objects;");
+    $row            = $result->fetch_row();
+    $process_count  = $row[0];
+    $result         = $gallery_db->query("SELECT COUNT(*) FROM media_folders;");
+    $row            = $result->fetch_row();
+    $process_count += $row[0];
     @session_start();
     $_SESSION['progress'] = 0;
     $_SESSION['status']   = "Processing folders";
@@ -75,11 +85,11 @@ if ($task == 'clear_thumb') {
 
     $folder_list = array();
     $folder_list_db = $gallery_db->query("SELECT id FROM media_folders;");
-    if($folder_list_db === false) throw new Exception ($gallery_db->lastErrorMsg());
-    while($folder = $folder_list_db->fetchArray(SQLITE3_ASSOC)) {
+    if($folder_list_db === false) throw new Exception ($gallery_db->error);
+    while($folder = $folder_list_db->fetch_assoc()) {
         $folder_list[] = $folder['id'];
     }
-    $folder_list_db->finalize();
+    $folder_list_db->free();
     $folder_idx = 0;
     foreach($folder_list as $folder_id) {
         $progress = floor($folder_idx/$process_count*100);
@@ -100,8 +110,8 @@ if ($task == 'clear_thumb') {
     }
     $element_idx   = $folder_idx;
     $element_list  = $gallery_db->query("SELECT id FROM media_objects;");
-    if($element_list === false) throw new Exception ($gallery_db->lastErrorMsg());
-    while($element = $element_list->fetchArray()) {
+    if($element_list === false) throw new Exception ($gallery_db->error);
+    while($element = $element_list->fetch_assoc()) {
         $progress = floor($element_idx/$process_count*100);
         @session_start();
         $_SESSION['progress'] = $progress;
@@ -111,6 +121,7 @@ if ($task == 'clear_thumb') {
         updateResized($element['id']);
         $element_idx++;
     }
+    $element_list->free();
     @session_start();
     $_SESSION['progress'] = 100;
     $_SESSION['status']   = "Processing of thumbnails and resized done.";
@@ -119,7 +130,9 @@ if ($task == 'clear_thumb') {
 } else if ($task == 'clean_thumb') {
     // Clean thumbnails and resized
     $gallery_db = new mediaDB();
-    $process_count = $gallery_db->querySingle("SELECT COUNT(*) FROM media_folders;");
+    $result        = $gallery_db->query("SELECT COUNT(*) FROM media_folders;");
+    $row           = $result->fetch_row();
+    $process_count = $row[0];
     @session_start();
     $_SESSION['progress'] = 0;
     $_SESSION['status']   = "Starting cleaning thumbnails and resized";
@@ -127,11 +140,11 @@ if ($task == 'clear_thumb') {
 
     $folder_list = array();
     $folder_list_db = $gallery_db->query("SELECT id FROM media_folders;");
-    if($folder_list_db === false) throw new Exception ($gallery_db->lastErrorMsg());
-    while($folder = $folder_list_db->fetchArray(SQLITE3_ASSOC)) {
+    if($folder_list_db === false) throw new Exception ($gallery_db->error);
+    while($folder = $folder_list_db->fetch_assoc()) {
         $folder_list[] = $folder['id'];
     }
-    $folder_list_db->finalize();
+    $folder_list_db->free();
 
     $folder_idx = 0;
     foreach($folder_list as $folder_id) {
@@ -144,11 +157,11 @@ if ($task == 'clear_thumb') {
         // build folder thumbnail list
         $thumbnail_list = array();
         $thumbnail_list_db = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=$folder_id;");
-        if ($thumbnail_list_db === false) throw new Exception($gallery_db->lastErrorMsg());
-        while($thumbnail_db = $thumbnail_list_db->fetchArray(SQLITE3_ASSOC)) {
+        if ($thumbnail_list_db === false) throw new Exception($gallery_db->error);
+        while($thumbnail_db = $thumbnail_list_db->fetch_assoc()) {
             $thumbnail_list[] = getThumbnailPath($thumbnail_db['id']);
         }
-        $thumbnail_list_db->finalize();
+        $thumbnail_list_db->free();
 
         // open the thumbnail directory
         $dir = opendir("$BASE_DIR/$thumb_folder/$folder_path");
@@ -177,11 +190,11 @@ if ($task == 'clear_thumb') {
         // build folder resized list
         $resized_list = array();
         $resized_list_db = $gallery_db->query("SELECT id FROM media_objects WHERE folder_id=$folder_id;");
-        if ($resized_list_db === false) throw new Exception($gallery_db->lastErrorMsg());
-        while($resized_db = $resized_list_db->fetchArray(SQLITE3_ASSOC)) {
+        if ($resized_list_db === false) throw new Exception($gallery_db->error);
+        while($resized_db = $resized_list_db->fetch_assoc()) {
             $resized_list[] = getResizedPath($resized_db['id']);
         }
-        $resized_list_db->finalize();
+        $resized_list_db->free();
 
         // open the resized directory
         $dir = opendir("$BASE_DIR/$resized_folder/$folder_path");

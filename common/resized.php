@@ -9,18 +9,19 @@ function getResizedPath($id, mediaDB &$db = NULL)
         $m_db = new mediaDB();
     else
         $m_db = $db;
-    $result  = $m_db->querySingle("SELECT folder_id, resized FROM media_objects WHERE id=$id;", true);
-
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    $resized = $result['resized'];
-    $p_id    = $result['folder_id'];
+    $result  = $m_db->query("SELECT folder_id, resized FROM media_objects WHERE id=$id;");
+    if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
+    $result->free();
+    $resized = $row['resized'];
+    $p_id    = $row['folder_id'];
 
     while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "")
-            $resized = $result['foldername'].'/'.$resized;
-        $p_id  = $result['parent_id'];
+        $result = $m_db->query("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;");
+        if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
+        $result->free();
+        if ($row['foldername'] != "")
+            $resized = $row['foldername'].'/'.$resized;
+        $p_id  = $row['parent_id'];
     }
     if ($db == NULL)
         $m_db->close();
@@ -45,23 +46,25 @@ function updateResized($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Object info
-    $result = $m_db->querySingle("SELECT folder_id, resized, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
-    if ($result === false) throw new Exception($m_db->lastErrorMsg());
-    if ($result['resized'] == "") return false; // Should never happen
-    $filename = $result['filename'];
-    $resized  = $result['resized'];
-    $type     = $result['type'];
-    $lastmod  = $result['lastmod'];
-    $p_id     = $result['folder_id'];
+    $result = $m_db->query("SELECT folder_id, resized, filename, type, lastmod FROM media_objects WHERE id=$id;");
+    if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
+    $result->free();
+    if ($row['resized'] == "") return false; // Should never happen
+    $filename = $row['filename'];
+    $resized  = $row['resized'];
+    $type     = $row['type'];
+    $lastmod  = $row['lastmod'];
+    $p_id     = $row['folder_id'];
     // Retreive full path
     while($p_id != -1) {
-        $result = $m_db->querySingle("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;", true);
-        if ($result === false) throw new Exception($m_db->lastErrorMsg());
-        if ($result['foldername'] != "") {
-            $resized  = $result['foldername'].'/'.$resized;
-            $filename = $result['foldername'].'/'.$filename;
+        $result = $m_db->query("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;");
+        if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
+        $result->free();
+        if ($row['foldername'] != "") {
+            $resized  = $row['foldername'].'/'.$resized;
+            $filename = $row['foldername'].'/'.$filename;
         }
-        $p_id  = $result['parent_id'];
+        $p_id  = $row['parent_id'];
     }
     $filename = "$BASE_DIR/$image_folder/".$filename;
     $resized  = "$BASE_DIR/$resized_folder/".$resized;
