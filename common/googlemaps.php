@@ -1,5 +1,12 @@
 <?php
 
+function js_encode($str)
+{
+    $remove_chars = array("\r\n", "\n", "\r");
+    $output_str = str_replace($remove_chars, '', $str);
+    return addslashes(utf8_encode($str));
+}
+
 function getFolderGeolocalizedCount($id, mediaDB &$db = NULL)
 {    
     $m_db = NULL;
@@ -26,16 +33,30 @@ function getFolderGeolocalizedElements($id, mediaDB &$db = NULL)
     else             $m_db = $db;
 
     $query = "";
-    if ($id == 1)
-        $query = "SELECT id FROM media_objects WHERE longitude != 9999.0;";
-    else
+    if ($id == 1) {
+        $query = "SELECT id FROM media_folders WHERE parent_id != -1;";
+        $results = $m_db->query($query);
+        if ($results === FALSE) throw new Exception($m_db->error);
+        while($row = $results->fetch_row()) {
+            $folder_id = $row[0];
+            $subquery = "SELECT id FROM media_objects WHERE longitude != 9999.0 AND folder_id = ".$folder_id." LIMIT 1;";
+            $subresults = $m_db->query($subquery);
+            if ($subresults === FALSE) throw new Exception($m_db->error);
+            while($subrow = $subresults->fetch_row()) {
+                $element_list[] = $subrow[0];
+            }
+            $subresults->free();
+        }
+        $results->free();
+    } else {
         $query = "SELECT id FROM media_objects WHERE folder_id=$id AND longitude != 9999.0;";
-    $results = $m_db->query($query);
-    if ($results === false) throw new Exception($m_db->error);
-    while($row = $results->fetch_assoc()) {
-        $element_list[] = $row['id'];
+        $results = $m_db->query($query);
+        if ($results === false) throw new Exception($m_db->error);
+        while($row = $results->fetch_row()) {
+            $element_list[] = $row[0];
+        }
+        $results->free();
     }
-    $results->free();
 
     if ($db == NULL)
         $m_db->close();

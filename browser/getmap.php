@@ -57,12 +57,12 @@ foreach($elements_list as $element_id) {
     if ($element->type == 'video') continue; // Videos are not geotagged
     echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
     echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
-    echo "\t'<h2>".$element->title."</h2>'+\n";
+    echo "\t'<h2>".js_encode($element->title)."</h2>'+\n";
     echo "\t'<a href=\"$BASE_URL/browser/getresized.php?id=$element_id\">'+\n";
     echo "\t'<img src=\"$BASE_URL/browser/getthumb.php?id=$element_id\" alt=\"".$element->filename."\"/>'+\n";
     echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
     echo "\t'</a></div>';\n";
-    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".$element->title."', icon:'".getElementIcon($element_id, $m_db)."' });\n";
+    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element_id, $m_db)."' });\n";
     echo "var infooptions$infoid = { content: contentString$infoid, alignBottom: true, pixelOffset: new google.maps.Size(0, -35), boxClass: \"map_info\", closeBoxMargin: \"5px\" };\n";
     echo "var infobox$infoid = new InfoBox(infooptions$infoid);\n";
     echo "google.maps.event.addListener(marker$infoid, 'click', function() { infobox$infoid.open(map, marker$infoid); });\n";
