@@ -1,5 +1,92 @@
 <?php
 
+function displayTagSelector(mediaDB &$db = NULL)
+{
+    global $BASE_URL;
+
+    $m_db = NULL;
+
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+
+    $tag_list = $m_db->getAvailableTags();
+
+    if (count($tag_list) > 0) {
+        echo "<h2>S&eacute;lectionnez un ou plusieurs mots-clefs:</h2>\n";
+        echo "<form action=\"$BASE_URL/index.php\" method=\"get\">\n";
+        echo '<select name="param[]" class="chosen" multiple="multiple" style="width: 50%">'."\n";
+        foreach($tag_list as $current_tag) {
+            echo "\t<option value=\"$current_tag\">$current_tag</option>\n";
+        }
+        echo "</select>\n";
+        echo "<input type=\"hidden\" name=\"browse\" value=\"tags\" />\n";
+        echo "<button onclick=\"submit();\" style=\"padding: 0; border: 0; background: 0;\"><img style=\"height: 2em; align: middle;\" src=\"$BASE_URL/images/apply.jpg\"/></button>\n";
+        echo "</form>\n";
+    }
+}
+
+function displayTagElements($tag_array, mediaDB &$db = NULL)
+{
+    if (count($tag_array) == 0)
+        return false;
+
+    $m_db = NULL;
+
+    if ($db == NULL) $m_db = new mediaDB();
+    else             $m_db = $db;
+
+    $element_list = $m_db->getElementsByTags($tag_array, $m_db);
+
+    if (count($element_list) > 0) {
+        echo "<ul class=\"gallery\">\n";
+        $tabthumb = 0;
+        $tabid    = 1;
+        $videoid  = 0;
+        foreach($element_list as $current_id) {
+            $element = new mediaObject();
+            $m_db->loadMediaObject($element, $current_id);
+            if ($element->type == 'movie') {
+                // Video
+                echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
+                $videoid++;
+            } else {
+                // Images
+                echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+            }
+            echo "<div class=\"dynamic-thumbnail\" src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
+            echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
+            if (count($element->tags) > 0) {
+                echo "<br /><i>";
+                $tagline = "";
+                foreach($element->tags as $tag) {
+                    if ($tagline != "")
+                        $tagline .= ", ";
+                    $tagline .= htmlentities($tag);
+                }
+                echo "$tagline</i>";
+            } else if (($element->type == 'movie') && ($element->duration != ''))
+                echo "<br /><i>".$element->duration."</i>";
+            echo "</div></a></li>\n";
+        }
+        echo "</ul>\n";
+        // Videos overlay
+        $videoid  = 0;
+        foreach($element_list as $current_id) {
+            $element = new mediaObject();
+            $m_db->loadMediaObject($element, $current_id);
+            if($element->type == 'movie') {
+                echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
+                echo "<a class=\"player\" href=\"$BASE_URL/$resized_folder/".getResizedPath($current_id)."\"></a>";
+                echo "</div>\n";
+                $videoid++;
+            }
+        }
+        echo "<div class=\"clearfix\"></div>\n";
+    }
+    if ($db == NULL)
+        $m_db->close();
+}
+
 function displayElementList($id, mediaDB &$db = NULL)
 {
     global $BASE_URL;
@@ -221,7 +308,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     echo "<ul id=\"side_navigation\">\n"; 
     echo "  <li class=\"other_folders\">\n";
     // Side folder or Latest Folders
-    if ($id != 1) {
+    if ($id > 1) {
         // Side folders
         $neighborlist = $m_db->getNeighborFolders($id);
         if (count($neighborlist) > 0) {
@@ -235,7 +322,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     }
 
     // Sub folders (not for toplevel)
-    if ($id != 1) {
+    if ($id > 1) {
         $subfolder_list = $m_db->getSubFolders($id);
         if (count($subfolder_list) > 0) {
             echo "  <div><h3>Sous-Albums</h3>\n";        
@@ -254,7 +341,11 @@ function displaySideMenu($id, mediaDB &$db = NULL)
         echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
     }
     echo "  </div>\n";
-    echo "  </li>\n"; 
+    // Browse by...
+    echo "  <div><h3>Filtres</h3>\n";
+    echo "     <a href=\"$BASE_URL/index.php?browse=tags\" title=\"Mots-Clefs\">Mots-Clefs</a>\n";
+    echo "  </div>\n";
+    echo "  </li>\n";
     // Top level googlemap
     if ($id == 1) {
         echo "  <li class=\"googlemaps\">\n";
@@ -271,7 +362,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
 function displayFooter()
 {
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v2.4.1 - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v2.5.0 - H. Raffard &amp; C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }

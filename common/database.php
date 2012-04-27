@@ -157,7 +157,8 @@ class mediaDB extends mysqli
         $results = $this->query("SELECT name FROM media_tags WHERE media_id=$id;");
         if ($results === FALSE)
             throw new Exception($this->error);
-        while($row = $results->fetch_assoc) {
+        $media->tags = array();
+        while($row = $results->fetch_assoc()) {
             $media->tags[] = $row['name'];
         }
         $results->free();
@@ -426,6 +427,45 @@ class mediaDB extends mysqli
             }
         }
         return $count;
+    }
+
+    function getElementsByTags($tag_array)
+    {
+        $element_list = array();
+        // Returns array of id of elements which have the given tag(s) in their description
+        $query_str = "SELECT media_tags.media_id FROM media_tags ";
+        if (count($tag_array) == 1) {
+            $query_str .= "WHERE media_tags.name='".$tag_array[0]."'";
+        } else {
+            foreach (range(1, count($tag_array) - 1) as $tag_idx) {
+                $query_str .= "LEFT JOIN media_tags AS media".$tag_idx." ON media_tags.media_id = media".$tag_idx.".media_id ";
+            }
+            $query_str .= "WHERE media_tags.name='".$tag_array[0]."' ";
+            foreach (range(1, count($tag_array)- 1) as $tag_idx) {
+                $query_str .= "AND media".$tag_idx.".name='".$tag_array[$tag_idx]."' ";
+            }
+        }
+        $results = $this->query($query_str.";");
+        // print($query_str);
+        if ($results === false) throw new Exception($this->error);
+        while($row = $results->fetch_assoc()) {
+            $element_list[] = $row['media_id'];
+        }
+        $results->free();
+        return $element_list; 
+    }
+
+    function getAvailableTags()
+    {
+        $tag_list = array();
+
+        $results = $this->query("SELECT DISTINCT name FROM media_tags ORDER BY name;");
+        if ($results === false) throw new Exception($this->error);
+        while($row = $results->fetch_assoc()) {
+            $tag_list[] = $row['name'];
+        }
+        $results->free();
+        return $tag_list;
     }
 }
 
