@@ -17,7 +17,7 @@ function displayHeader($mode)
         echo "      });\n";
         echo "    });\n";
         echo "  </script>\n";
-    } else {
+    } else if (($mode == 'folder') || ($mode == 'tags')) {
         echo "  <link rel=\"stylesheet\" href=\"css/prettyPhoto.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <link rel=\"stylesheet\" href=\"css/toplevelmenu.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
