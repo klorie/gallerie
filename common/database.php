@@ -187,7 +187,7 @@ class mediaDB extends mysqli
     {
         @session_start();
         $_SESSION['nbfolders'] += 1;
-        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 90) + 9;
+        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 50) + 49;
         $_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
         session_commit();
         $store_id = -1;
