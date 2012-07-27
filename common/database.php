@@ -232,12 +232,14 @@ class mediaDB extends mysqli
         if ($result === FALSE) {
             throw new Exception($this->error);
         } else {
+            $row = $result->fetch_assoc();
+            $result->free();
             $media->db_id        = $id;
-            $media->title        = $result['title'];
-            $media->lastmod      = $result['lastmod'];
-            $media->originaldate = $result['originaldate'];
-            $media->name         = $result['foldername'];
-            $media->thumbnail    = $result['thumbnail'];
+            $media->title        = $row['title'];
+            $media->lastmod      = $row['lastmod'];
+            $media->originaldate = $row['originaldate'];
+            $media->name         = $row['foldername'];
+            $media->thumbnail    = $row['thumbnail'];
         }
         // Fetch subfolders if required
         if ($depth > 0) {
@@ -401,7 +403,7 @@ class mediaDB extends mysqli
         return $sub_array;
     }
 
-    function getFolderElements($id)
+    function getFolderElements($id, $recurse = false)
     {
         $element_list = array();
         // Returns array of id of folder elements
@@ -411,10 +413,17 @@ class mediaDB extends mysqli
             $element_list[] = $row['id'];
         }
         $results->free();
+        if ($recurse == true) {
+            $subfolders = $this->getSubFolders($id);
+            foreach($subfolders as $subfolder) {
+                $subelements = $this->getFolderElements($subfolder);
+                $element_list = array_merge($element_list, $subelements);
+            }
+        }
         return $element_list;
     }
 
-    function getFolderElementsCount($id, $recurse=false)
+    function getFolderElementsCount($id, $recurse = false)
     {
         // Returns number of elements inside this folder (recursively if wanted)
         $results = $this->query("SELECT COUNT(*) FROM media_objects WHERE folder_id=$id;");
@@ -466,6 +475,28 @@ class mediaDB extends mysqli
         }
         $results->free();
         return $tag_list;
+    }
+
+    function getTimedFolderList($top_id = 0)
+    {
+        $folder_list = array();
+
+        // Return array of folders which have an original date and have photos inside
+        $result = $this->query('SELECT * FROM media_folders WHERE originaldate <> "";');
+        if ($result === false) throw new Exception($this->error);
+        while($row = $result->fetch_assoc()) {
+            if ($this->getFolderElementsCount($row['id']) != 0) {
+                if ($top_id != 0) {
+                    // Folder has to be a subfolder of the given one
+                    $fhier = $this->getFolderHierarchy($row['id']);
+                    if (array_search($row['id'], $fhier) === FALSE)
+                        continue;
+                }
+                $folder_list[] = $row['id'];
+            }
+        }
+        $result->free();
+        return $folder_list;
     }
 }
 

@@ -112,4 +112,69 @@ function updateResized($id)
     return true;
 }
 
+function updateFolderResized($id)
+{
+    global $BASE_DIR;
+    global $resized_size;
+    global $resized_folder;
+    global $image_folder;
+    global $folder_thumbname;
+
+    $filename       = "";
+    $resized        = "";
+    $p_id           = -1;
+
+    $m_db = new mediaDB();
+
+    set_time_limit(30); // Set time limit to avoid timeout
+
+    // Get Folder info
+    $result = $m_db->query("SELECT thumbnail, parent_id FROM media_folders WHERE id=$id;", true);
+    if ($result === false) throw new Exception($m_db->error());
+    $row = $result->fetch_assoc();
+    $result->free();
+    if ($row['thumbnail'] != $folder_thumbname) return false; // Only generate resized for pure folder images
+    $filename  = $row['thumbnail'];
+    $resized   = $row['thumbnail'];
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
+    $resized   = "$BASE_DIR/$resized_folder/".$m_db->getFolderPath($id).'/'.$resized;
+
+    if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
+
+    // Create picture resized
+    // load image and get image size
+    if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
+    $img    = new Imagick();
+    $img->ReadImage($filename);
+    $width  = $img->GetImageWidth();
+    $height = $img->GetImageHeight();
+    // Compute resized size
+    if ($width >= $height) {
+        $orientation = 0;  
+        $ratio = $width / $height;
+    } else {
+        $orientation = 1;
+        $ratio = $height / $width;
+    }
+
+    $new_width = $resized_size;
+    if ($orientation == 0) {
+        $new_height = $new_width / $ratio;
+    } else {
+        $new_height = $new_width;
+        $new_width  = $new_height / $ratio;
+    }
+    $img->cropThumbnailImage($new_width, $new_height);
+    $img->setImageFormat("jpeg");
+    $img->setCompressionQuality(65);
+    $img->setImageFilename($resized);
+    $img->WriteImage();
+    $img->clear();
+    $img->destroy();
+
+    $m_db->close();
+    return true;
+}
+
+
 ?>

@@ -56,6 +56,9 @@ if ($task == 'clear_thumb') {
     if ($result === FALSE) throw new Exception($gallery_db->error); 
     $gallery_db->init_database();
     $gallery_db->storeMediaFolder($gallery);
+    unset($gallery);
+    // Generate timeline json file
+    genTimelineData($gallery_db);
     $result        = $gallery_db->query("SELECT COUNT(*) FROM media_objects;");
     $row           = $result->fetch_row();
     $element_count = $row[0];
@@ -106,6 +109,7 @@ if ($task == 'clear_thumb') {
             mkdir("$BASE_DIR/$resized_folder/$folder_path", 0777, true); 
         }
         updateFolderThumbnail($folder_id);
+        updateFolderResized($folder_id);
         $folder_idx++;
     }
     $element_idx   = $folder_idx;
