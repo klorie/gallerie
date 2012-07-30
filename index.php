@@ -37,6 +37,7 @@ if ($mode == 'folder') {
 <?php echo "  <title>".$gal_title."</title>"; ?> 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <link rel="stylesheet" href="css/layout.css" type="text/css" media="screen"  />
+  <link rel="stylesheet" href="css/tooltip.css" type="text/css" media="screen" />
   <link rel="stylesheet" href="css/sidemenu.css" type="text/css" media="screen" />
   <script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>		
   <script src="js/jquery.tools-1.2.5.min.js" type="text/javascript"></script>
