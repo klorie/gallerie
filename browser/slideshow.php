@@ -26,10 +26,10 @@ $elements_list = $m_db->getFolderElements($id);
     <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/supersized.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/supersized.shutter.css" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="<?php echo $BASE_URL?>/js/jquery.easing.min.js"></script>
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.3.2.4.min.js"></script>
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.shutter.js"></script>
+    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.3.2.7.min.js"></script>
+    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.shutter.min.js"></script>
     <script type="text/javascript">
     	
       jQuery(function($){
