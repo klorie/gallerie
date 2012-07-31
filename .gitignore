@@ -11,3 +11,4 @@ config.local.php
 *.swp
 # Ignore work in progress
 dev/
+tmp/

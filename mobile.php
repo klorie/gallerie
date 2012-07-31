@@ -16,10 +16,10 @@ if ($m_folder_id == -1)
 <html> 
   <head> 
 <?php echo "<title>".$gal_title."</title>"; ?> 
-  <link rel="stylesheet" href="css/jquery.mobile-1.1.0.min.css" />
+  <link rel="stylesheet" href="css/jquery.mobile-1.1.1.min.css" />
   <link rel="stylesheet" href="css/mobile_layout.css" />
-  <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-  <script type="text/javascript" src="js/jquery.mobile-1.1.0.min.js"></script>
+  <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="js/jquery.mobile-1.1.1.min.js"></script>
 </head> 
 <body> 
 <div data-role="page" data-theme="a" data-back-btn-text="Retour">
