@@ -104,7 +104,10 @@ function genTimelineData(mediaDB &$db = NULL, $top_id = 1)
             $json_data .= "\t\t\t\t".'"asset":'."\n";
             $json_data .= "\t\t\t\t\t{\n";
             $json_data .= "\t\t\t\t\t\t".'"media":"'."$BASE_URL/$resized_folder/".getResizedPath($itemid).'",'."\n";
-            $json_data .= "\t\t\t\t\t\t".'"credit":"",'."\n";
+            if ($element->altitude > -9999.0)
+                $json_data .= "\t\t\t\t\t\t".'"credit":"'.round($element->altitude).'m",'."\n";
+            else
+                $json_data .= "\t\t\t\t\t\t".'"credit":"",'."\n";
             $json_data .= "\t\t\t\t\t\t".'"thumbnail":"'."$BASE_URL/$thumb_folder/".getThumbnailPath($itemid).'",'."\n";
             $json_data .= "\t\t\t\t\t\t".'"caption":"'.utf8_encode($element->getSubTitle(true)).'"'."\n";
             $json_data .= "\t\t\t\t\t}\n";

@@ -54,6 +54,16 @@ h3 {
 	margin:     0 15px 0 15px;
 }
 
+#timeline_content {
+    clear:      left;
+    padding:    0 15px 30px 15px;
+    background: #000000;
+    border:     2px #313739 solid;
+    -moz-border-radius:    10px;
+    -webkit-border-radius: 10px;
+    height:     95%;
+}
+
 #map_content {
 	clear:      left; 
     padding:    0 15px 15px 15px;
