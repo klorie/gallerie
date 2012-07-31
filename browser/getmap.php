@@ -2,9 +2,6 @@
 require_once "../include.php";
 require_once "display.php";
 
-$starttime = explode(' ', microtime());
-$starttime = $starttime[1] + $starttime[0];
-
 if (isset($_GET['path']))
     $path = $_GET["path"];
 else {
@@ -26,10 +23,9 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/layout.css" type="text/css" media="screen" charset="utf-8" />
-  <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/toplevelmenu.css" type="text/css" media="screen" />
   <script src="http://maps.google.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
   <script src="<?php echo $BASE_URL?>/js/infobox_packed.js" type="text/javascript"></script>
-  <script src="<?php echo $BASE_URL?>/js/jquery-1.4.2.min.js" type="text/javascript"></script>		
+  <script src="<?php echo $BASE_URL?>/js/jquery-1.7.2.min.js" type="text/javascript"></script>		
   <script src="<?php echo $BASE_URL?>/js/navigation.js" type="text/javascript"></script>
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
