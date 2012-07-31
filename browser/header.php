@@ -4,9 +4,16 @@ function displayHeader($mode)
 {
     global $gal_theme;
 
+    echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
+    echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
+    echo "  <link rel=\"stylesheet\" href=\"css/tooltip.css\" type=\"text/css\" media=\"screen\" />\n";
+    echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
+    echo "  <script src=\"js/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n";
+    echo "  <script src=\"js/navigation.js\" type=\"text/javascript\"></script>\n";
+
     if ($mode == 'home') {
         echo "  <script src=\"js/jquery.mousewheel.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/cloud-carousel.1.0.4.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/cloud-carousel.1.0.5.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(document).ready(function(){\n";
         echo "      $(\"#carousel\").CloudCarousel({\n";
@@ -21,6 +28,7 @@ function displayHeader($mode)
         echo "  <link rel=\"stylesheet\" href=\"css/prettyPhoto.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <link rel=\"stylesheet\" href=\"css/toplevelmenu.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/jquery.tools-1.2.5.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.imageLoader.js\" type=\"text/javascript\"></script>\n";
@@ -38,11 +46,13 @@ function displayHeader($mode)
         echo "      $(\".dynamic-thumbnail\").tooltip();\n";
         echo "      $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
         echo "        animationSpeed: 'fast',\n";
-        echo "        padding: 30,\n";
-        echo "        opacity: 0.65,\n";
+        echo "        opacity: 0.9,\n";
         echo "        showTitle: true,\n";
         echo "        allowresize: true,\n";
         echo "        counter_separator_label: '/',\n";
+        echo "        social_tools: false,\n";
+        echo "        overlay_gallery: false,\n";
+        echo "        slideshow: false,\n";
         echo "        theme: '$gal_theme'\n";
         echo "      });\n";
         echo "    });\n";
