@@ -16,10 +16,18 @@ if ($m_folder_id == -1)
 <html> 
   <head> 
 <?php echo "<title>".$gal_title."</title>"; ?> 
-  <link rel="stylesheet" href="css/jquery.mobile-1.1.1.min.css" />
-  <link rel="stylesheet" href="css/mobile_layout.css" />
-  <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-  <script type="text/javascript" src="js/jquery.mobile-1.1.1.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+  <link rel="stylesheet" href="css/photoswipe.css" />
+  <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+  <script src="js/klass.min.js"></script>
+  <script src="js/photoswipe-3.0.5.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var myPhotoSwipe = $("#Gallery a").photoSwipe({ enableMouseWheel: false, enableKeyboard: false });
+    });
+  </script>
 </head> 
 <body> 
 <div data-role="page" data-theme="a" data-back-btn-text="Retour">

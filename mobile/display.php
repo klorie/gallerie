@@ -15,16 +15,16 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         echo "<ul data-role=\"listview\" data-theme=\"a\">\n";        
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
-            echo "<li>";
+            echo "<li><a href=\"$BASE_URL/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
             echo "<img src=\"$BASE_URL/$thumb_folder/".getFolderThumbnailPath($subfolder)."\" title=\"".$subfolder_title."\" />";
-            echo "<a href=\"$BASE_URL/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" ><h3>$subfolder_title</h3></a>";
+            echo "<h3>$subfolder_title</h3>";
             echo "<p>".$m_db->getFolderDate($subfolder)."</p>";
-            echo "<div class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</div>";
-            echo "</li>\n";        
+            echo "<span class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</span>";
+            echo "</a></li>\n";        
         }
         // Separate Directory list and Pictures
         if ($m_db->getFolderElementsCount($id) > 0) {
-            echo "<li data-role=\"list-divider\">Photos<span class=\"ui-li-count\">".$m_db->getFolderElementsCount($id)."</span></li>\n";
+            echo "<li data-role=\"list-divider\" role=\"heading\">Photos<span class=\"ui-li-count\">".$m_db->getFolderElementsCount($id)."</span></li>\n";
         } else {
           echo "</ul>\n";
         }
@@ -53,19 +53,19 @@ function displayElementList($id, mediaDB &$db = NULL)
 
     if (count($element_list) > 0) {
         if (count($subfolder_list) == 0) {
-            echo "<ul data-role=\"listview\" data-theme=\"a\">\n";
+            echo "<ul data-role=\"listview\" data-theme=\"a\" id=\"Gallery\">\n";
         }
         foreach($element_list as $current_id) {
             $element = new mediaObject();
             $m_db->loadMediaObject($element, $current_id);
             if ($element->type == 'picture') {
                 echo "<li>";
-                echo "<img src=\"$BASE_URL/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" />";
                 echo "<a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"external\" title=\"".htmlentities($element->title)."\">";
-                echo "<h3 class=\"element-title\">".htmlentities($element->title)."</h3></a>";
-                echo "<p class=\"element-subtitle\">".htmlentities($element->getSubTitle(true))."</p>";
-                echo "<p class=\"element-subtitle\">".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate))."</p>";
-                echo "</li>\n";
+                echo "<img src=\"$BASE_URL/$thumb_folder/".getThumbnailPath($current_id)."\" title=\"".htmlentities($element->title)."\" alt=\"".htmlentities($element->title)."\" />";
+                echo "<h3>".htmlentities($element->title)."</h3>";
+                echo "<p>".htmlentities($element->getSubTitle(true))."</p>";
+                echo "<p>".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate))."</p>";
+                echo "</a></li>\n";
             }
         }
         echo "</div>\n";
