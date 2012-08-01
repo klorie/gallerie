@@ -26,16 +26,13 @@ $elements_list = $m_db->getFolderElements($id);
     <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/supersized.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/supersized.shutter.css" type="text/css" media="screen" />
     
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/jquery.easing.min.js"></script>
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.3.2.7.min.js"></script>
-    <script type="text/javascript" src="<?php echo $BASE_URL?>/js/supersized.shutter.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <script src="<?php echo $BASE_URL?>/js/jquery.easing.min.js"></script>
+    <script src="<?php echo $BASE_URL?>/js/supersized.3.2.7.min.js"></script>
+    <script src="<?php echo $BASE_URL?>/js/supersized.shutter.min.js"></script>
     <script type="text/javascript">
-    	
       jQuery(function($){
-      	
       	$.supersized({
-      	
         // Functionality
         fit_always      :   1,  
         slide_interval  :   6000,		// Length between transitions
@@ -58,7 +55,6 @@ $elements_list = $m_db->getFolderElements($id);
         ?>
         ]});
       });
-      
     </script>	
   </head>
 <body>
@@ -103,6 +99,5 @@ $elements_list = $m_db->getFolderElements($id);
 			
 		</div>
 	</div>
-
 </body>
 </html>

@@ -25,8 +25,8 @@ if ((file_exists($json) === FALSE ) || (filemtime("$BASE_DIR/cache/timeline-1.js
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/toplevelmenu.css" type="text/css" media="screen" />
-  <script src="<?php echo $BASE_URL?>/js/jquery-1.7.2.min.js" type="text/javascript"></script>		
-  <script src="<?php echo $BASE_URL?>/js/navigation.js" type="text/javascript"></script>
+  <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>		
+  <script src="<?php echo $BASE_URL?>/js/navigation.js"></script>
 </head>
 <body>
 <div id="timeline_content">
