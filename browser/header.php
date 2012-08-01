@@ -7,8 +7,8 @@ function displayHeader($mode)
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
-    echo "  <script src=\"js/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n";
-    echo "  <script src=\"js/navigation.js\" type=\"text/javascript\"></script>\n";
+    echo "  <script src=\"http://code.jquery.com/jquery-1.7.2.min.js\"></script>\n";
+    echo "  <script src=\"js/navigation.js\"></script>\n";
 
     if ($mode == 'home') {
         echo "  <script src=\"js/jquery.mousewheel.js\" type=\"text/javascript\"></script>\n";
