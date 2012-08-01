@@ -6,7 +6,6 @@ function displayHeader($mode)
 
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
-    echo "  <link rel=\"stylesheet\" href=\"css/tooltip.css\" type=\"text/css\" media=\"screen\" />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
     echo "  <script src=\"js/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n";
     echo "  <script src=\"js/navigation.js\" type=\"text/javascript\"></script>\n";
@@ -26,6 +25,7 @@ function displayHeader($mode)
         echo "  </script>\n";
     } else if (($mode == 'folder') || ($mode == 'tags')) {
         echo "  <link rel=\"stylesheet\" href=\"css/prettyPhoto.css\" type=\"text/css\" media=\"screen\" />\n";
+        echo "  <link rel=\"stylesheet\" href=\"css/tooltip.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <link rel=\"stylesheet\" href=\"css/toplevelmenu.css\" type=\"text/css\" media=\"screen\" />\n";
         echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.tools-1.2.5.min.js\" type=\"text/javascript\"></script>\n";

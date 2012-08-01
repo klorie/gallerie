@@ -6,7 +6,7 @@ require_once "browser/display.php";
 echo "<html xmlns=\"http://www.w3.org/1999/xthml\" xml:lang=\"en\">\n";
 echo "<link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\" />\n";
 echo "<link type=\"text/css\" href=\"css/jquery-ui-1.8.11.custom.css\" rel=\"stylesheet\" />\n";	
-echo "<script src=\"js/jquery-1.5.1.min.js\" type=\"text/javascript\"></script>\n";
+echo "<script src=\"js/jquery-1.7.2.min.js\" type=\"text/javascript\"></script>\n";
 echo "<script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
 echo "<script src=\"js/update.js\" type=\"text/javascript\"></script>\n";
 echo "<head>\n";
