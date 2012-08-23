@@ -1,5 +1,8 @@
 <?php
 // Start PHP code
+if (file_exists('config.local.php') === FALSE) {
+    header("Location: http://".$_SERVER['SERVER_NAME']."/update.php");
+}
 require_once "include.php";
 require_once "browser/header.php";
 require_once "browser/display.php";

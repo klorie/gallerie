@@ -1,5 +1,14 @@
 <?php
 
+$NEW_BASE_DIR = dirname($_SERVER['SCRIPT_FILENAME']);
+$NEW_BASE_URL = "http://".$_SERVER['SERVER_NAME'].rtrim(dirname($_SERVER['PHP_SELF']), "/");
+$new_config  = '<?php'."\n";
+$new_config .= '// Generated File ! Do not edit !'."\n";
+$new_config .= '$BASE_DIR = "'.$NEW_BASE_DIR."\";\n";
+$new_config .= '$BASE_URL = "'.$NEW_BASE_URL."\";\n";
+$new_config .= '?>'."\n";
+file_put_contents('config.local.php', $new_config);
+
 require_once "include.php";
 require_once "browser/display.php";
 
@@ -42,15 +51,6 @@ echo "<div id=\"clear_thumb_progress\"></div>\n";
 echo "<div id=\"clear_thumb_status\"></div>\n";
 
 echo "<h3>Debug</h3>\n";
-$NEW_BASE_DIR = dirname($_SERVER['SCRIPT_FILENAME']);
-$NEW_BASE_URL = "http://".$_SERVER['SERVER_NAME'].rtrim(dirname($_SERVER['PHP_SELF']), "/");
-$new_config  = '<?php'."\n";
-$new_config .= '// Generated File ! Do not edit !'."\n";
-$new_config .= '$BASE_DIR = "'.$NEW_BASE_DIR."\";\n";
-$new_config .= '$BASE_URL = "'.$NEW_BASE_URL."\";\n";
-$new_config .= '?>'."\n";
-file_put_contents('config.local.php', $new_config);
-
 echo "BASE_DIR = $NEW_BASE_DIR <br />\n";
 echo "BASE_URL = $NEW_BASE_URL <br />\n";
 
