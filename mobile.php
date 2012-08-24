@@ -25,7 +25,9 @@ if ($m_folder_id == -1)
   <script src="js/photoswipe-3.0.5.min.js"></script>
   <script type="text/javascript">
     $(document).bind('pageinit', function(){
-      var myPhotoSwipe = $("#Gallery a").photoSwipe({ jQueryMobile: true, enableMouseWheel: false, enableKeyboard: false });
+      if ( $("#Gallery a").length > 0) {
+        var myPhotoSwipe = $("#Gallery a").photoSwipe({ jQueryMobile: true, enableMouseWheel: false, enableKeyboard: false });
+      }
     });
   </script>
 </head> 
