@@ -1,5 +1,6 @@
 <?php
 
+//! Retrieve float value from an EXIF field
 function exif_get_float($value)
 {
     $pos = strpos($value, '/');
@@ -9,6 +10,7 @@ function exif_get_float($value)
     return ($b == 0) ? ($a) : ($a / $b);
 }
 
+//! Convert EXIF ExposureTime field to a human-readable shutter value (in 1/x)
 function exif_get_shutter(&$exif) 
 {
     if (!isset($exif['ExposureTime'])) return false;
@@ -18,6 +20,7 @@ function exif_get_shutter(&$exif)
     return '1/' . round(1 / $shutter) . 's';
 }
 
+//! Convert EXIF FNumber field to human-readable focal notation (f/x)
 function exif_get_fstop(&$exif) 
 {
     if (!isset($exif['FNumber'])) return false;
@@ -26,6 +29,7 @@ function exif_get_fstop(&$exif)
     return 'f/' . round($fstop,1);
 } 
 
+//! Retrieve EXIF Focal length if available
 function exif_get_focal(&$exif)
 {
     if (!isset($exif['FocalLength'])) return false;
@@ -34,6 +38,7 @@ function exif_get_focal(&$exif)
     return round($focal,1);
 }
 
+//! Return Lens name with local modifications (for Tamron and Sigma Lenses)
 function exif_get_lens(&$exif)
 {
     if (!isset($exif['UndefinedTag:0x0095'])) return false;
@@ -48,6 +53,7 @@ function exif_get_lens(&$exif)
     return $lens;
 }
 
+//! Decode EXIF Zoom flag (at least for Canon)
 function exif_is_zoom(&$exif)
 {
     if (!isset($exif['UndefinedTag:0x0095']))
@@ -60,6 +66,7 @@ function exif_is_zoom(&$exif)
 
 }
 
+//! Return EXIF Latitude field in google-usable format
 function exif_get_latitude(&$exif)
 {
     if (!isset($exif['GPSLatitude'])) return false;
@@ -73,6 +80,7 @@ function exif_get_latitude(&$exif)
     return $lat_decimal;
 }
 
+//! Returns EXIF Longitutde in google-usable format
 function exif_get_longitude(&$exif)
 {
     if (!isset($exif['GPSLongitude'])) return false;
@@ -86,23 +94,29 @@ function exif_get_longitude(&$exif)
     return $lon_decimal;
 }
 
+/**
+ * mediaFolder class manages folders (e.g. albums) with subfolders and elements
+ */
 class mediaFolder
 {
-    public $parent       = NULL;
-    public $db_id        = -1;
-    public $title        = "";
-    public $originaldate = "";
-    public $lastmod      = "";
-    public $name         = "";
-    public $thumbnail    = "";
-    public $subfolder    = array();
-    public $element      = array();
+    public $parent       = NULL;    //!< Reference to parent folder if any
+    public $db_id        = -1;      //!< ID in corresponding database table
+    public $title        = "";      //!< Album Title
+    public $originaldate = "";      //!< Album Date (e.g. date of event)
+    public $lastmod      = "";      //!< Album Last modification (elements updated/added)
+    public $name         = "";      //!< Album Folder Name
+    public $thumbnail    = "";      //!< Thumbnail Name
+    public $subfolder    = array(); //!< List of subfolder(s)
+    public $element      = array(); //!< List of element(s)
 
+    //! mediaFolder constructor only registers reference to the parent album
     function __construct(mediaFolder $parent = NULL)
     {
         $this->parent = $parent;
     }
 
+    //! Return subfolders count
+    /*! \param recursive flag control if we include any further subfolder leverls in the count */
     function getSubFolderCount($recursive = true)
     {
         $subfoldercount = count($this->subfolder);
@@ -116,6 +130,7 @@ class mediaFolder
         return $subfoldercount;
     }
 
+    //! Return folder path from the top (starting right after $image_folder)
     function fullname()
     {
         $fullname = $this->name;
@@ -128,6 +143,7 @@ class mediaFolder
         return $fullname;
     }
 
+    //! Load all elements and subfolders available in the given path (relative to $image_folder)
     function loadFromPath($source_path = "")
     {
         global $BASE_DIR;
@@ -174,9 +190,11 @@ class mediaFolder
                 }
                 if (!empty($edate)) {
                     $edate = explode(':', str_replace(' ', ':', $edate));
-                    $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
-                    $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
-                    $this->originaldate = $edate;
+                    if (count($edate) > 5) {
+                        $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+                        $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
+                        $this->originaldate = $edate;
+                    }
                 }
                 if ($this->title == "")
                     $this->title = strtr($source_path, "_", " ");
@@ -210,40 +228,45 @@ class mediaFolder
     }
 }
 
+/**
+ * mediaObject class handles all properties of an element (photo or video)
+ */
 class mediaObject
 {
-    public $db_id         = -1;
-    public $folder_id     = -1;
-    public $folder        = NULL;
-    public $type          = "";
-    public $tags          = array();
-    public $title         = "";
-    public $filesize      = -1;
-    public $duration      = "";
-    public $lastmod       = "";
-    public $filename      = "";
-    public $download_path = "";
-    public $thumbnail     = "";
-    public $resized       = "";
-    public $camera        = "";
-    public $focal         = -1;
-    public $lens          = "";
-    public $fstop         = "";
-    public $shutter       = "";
-    public $iso           = -1;
-    public $originaldate  = "";
-    public $width         = -1;
-    public $height        = -1;
-    public $lens_is_zoom  = -1;
-    public $longitude     =  9999.0;
-    public $latitude      =  9999.0;
-    public $altitude      = -9999.0;
+    public $db_id         = -1;      //!< ID of element in database tablr
+    public $folder_id     = -1;      //!< ID of folder in which this element is located
+    public $folder        = NULL;    //!< Reference of the folder
+    public $type          = "";      //!< Element type (picture or video)
+    public $tags          = array(); //!< List of tags describing this element
+    public $title         = "";      //!< Element Title
+    public $filesize      = -1;      //!< Filesize
+    public $duration      = "";      //!< Movie only: video duration
+    public $lastmod       = "";      //!< Last modification date
+    public $filename      = "";      //!< Filename
+    public $download_path = "";      //!< Download path (relative to $image_folder)
+    public $thumbnail     = "";      //!< Thumbnail path
+    public $resized       = "";      //!< Resized path
+    public $camera        = "";      //!< Camera name
+    public $focal         = -1;      //!< Focal length
+    public $lens          = "";      //!< Lens model
+    public $fstop         = "";      //!< Aperture value
+    public $shutter       = "";      //!< Shutter value
+    public $iso           = -1;      //!< ISO value
+    public $originaldate  = "";      //!< Shot date
+    public $width         = -1;      //!< Image width
+    public $height        = -1;      //!< Image height
+    public $lens_is_zoom  = -1;      //!< Zoom flag
+    public $longitude     =  9999.0; //!< Longitude (in decimal format)
+    public $latitude      =  9999.0; //!< Latitude (in decimal format)
+    public $altitude      = -9999.0; //!< Altitude
 
+    //! Element constructor. Only takes the containing folder reference in argument
     function __construct(mediaFolder $folder = NULL)
     {
         $this->folder = $folder;
     }
 
+    //! Get properties from the original file
     function loadFromFile($source_filename)
     {
         global $BASE_DIR;
@@ -278,9 +301,11 @@ class mediaObject
             if (empty($edate) && isset($exif['DateTime'])) $edate = $exif['DateTime'];
             if (!empty($edate)) {
                 $edate = explode(':', str_replace(' ', ':', $edate));
-                $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
-                $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
-                $this->originaldate = $edate;
+		if (count($edate) > 5) {
+                    $edate = "{$edate[0]}-{$edate[1]}-{$edate[2]} {$edate[3]}:{$edate[4]}:{$edate[5]}";
+                    $edate = strftime('%Y/%m/%d %H:%M:%S', strtotime($edate));
+                    $this->originaldate = $edate;
+                }
             }
             if ($exif['COMPUTED']['Width'] && $exif['COMPUTED']['Height']) { 
                 $this->width  = $exif['COMPUTED']['Width'];
@@ -328,13 +353,14 @@ class mediaObject
         $this->filesize = filesize($source_fullname);
     }
 
+    //! Returns subtitle string: Camera - ISO, Lens (@ focal if zoom), exposure time, aperture, date, download link
+    //! @param rss: This flag disable the 2nd line containing date and download link
     function getSubTitle($rss=false)
     {
         global $BASE_URL;
         global $image_folder;
 
         $subtitle = "";
-        // Returns subtitle string: Camera - ISO, Lens (@ focal if zoom), exposure time, aperture <br/> date
         if ($this->camera != "") {
             $subtitle = $this->camera;
             if ($this->iso != -1)

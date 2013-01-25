@@ -300,6 +300,11 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
     file_put_contents("$BASE_DIR/css/toplevelmenu.css", $css);
 }
 
+/** Display a side menu containing folder-related elements
+    - Latest modified folders
+    - Neighbour folders (if any)
+    - Filters
+*/
 function displaySideMenu($id, mediaDB &$db = NULL)
 {
     global $BASE_URL;

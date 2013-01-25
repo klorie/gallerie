@@ -39,6 +39,8 @@ if ($mode == 'folder') {
     $m_folder_id = $m_db->getFolderID($path);
     if ($m_folder_id == -1)
         $mode = 'home'; // If path not found, go back to home page
+} else {
+    $m_folder_id = 0;
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
