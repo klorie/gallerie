@@ -27,6 +27,8 @@ function displayTagSelector(mediaDB &$db = NULL)
 
 function displayTagElements($tag_array, mediaDB &$db = NULL)
 {
+    global $BASE_URL;
+
     if (count($tag_array) == 0)
         return false;
 
