@@ -73,15 +73,15 @@ function displayHeader($mode)
         echo "        slideshow: false,\n";
         echo "        theme: '$gal_theme'\n";
         echo "      });\n";
+        echo "      $(\"a[rel^='#video']\").overlay({\n";
+        echo "         expose: '#111',\n";
+        echo "         effect: 'apple',\n";
+        echo "         onLoad: function(content) {\n";
+        echo "            this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
+        echo "         }\n";
+        echo "      });\n";
+        echo "      $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
         echo "    });\n";
-        echo "    $(\"a[rel^='#video']\").overlay({\n";
-        echo "       expose: '#111',\n";
-        echo "       effect: 'apple',\n";
-        echo "       onLoad: function(content) {\n";
-        echo "          this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
-        echo "       }\n";
-        echo "    });\n";
-        echo "    $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
         echo "  </script>\n";
     }
 }
