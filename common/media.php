@@ -3,7 +3,7 @@
 //! Retrieve float value from an EXIF field
 function exif_get_float($value)
 {
-    $pos = strpos($value, '/');
+    $pos   = strpos($value, '/');
     if ($pos === false) return (float) $value;
     $a = (float) substr($value, 0, $pos);
     $b = (float) substr($value, $pos+1);
@@ -26,7 +26,7 @@ function exif_get_fstop(&$exif)
     if (!isset($exif['FNumber'])) return false;
     $fstop = exif_get_float($exif['FNumber']);
     if ($fstop == 0) return false;
-    return 'f/' . round($fstop,1);
+    return 'f/' . number_format($fstop,1,'.','');
 } 
 
 //! Retrieve EXIF Focal length if available
@@ -35,7 +35,7 @@ function exif_get_focal(&$exif)
     if (!isset($exif['FocalLength'])) return false;
     $focal  = exif_get_float($exif['FocalLength']);
     if ($focal == 0) return false;
-    return round($focal,1);
+    return round($focal);
 }
 
 //! Return Lens name with local modifications (for Tamron and Sigma Lenses)
@@ -177,6 +177,9 @@ class mediaFolder
                 $subfolder = new mediaFolder($this);
                 $subfolder->loadFromPath($entry);
                 $this->subfolder[] = $subfolder;
+                // Update modification time according to most recent element in folder
+                if (strtotime($subfolder->lastmod) > strtotime($this->lastmod))
+                    $this->lastmod = $subfolder->lastmod;
             } else if ($entry == $folder_thumbname) {
                 // Found folder thumbnail
                 $this->thumbnail = $entry;
