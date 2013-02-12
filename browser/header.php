@@ -39,10 +39,28 @@ function displayHeader($mode)
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(document).ready(function(){\n";
         echo "      jQuery('img.lazy').lazy({ effect: 'fadeIn', effectTime: 1500 });\n";
+        if ($mode == 'tags') {
+            echo "\t\t\tjQuery(\".chosen\").chosen();\n";
+        }
         echo "      $.tools.tooltip.conf.relative = true;\n";
         echo "      $.tools.tooltip.conf.cancelDefault = false;\n";
         echo "      $.tools.tooltip.conf.predelay = 1000;\n";
         echo "      $.tools.tooltip.conf.offset = [110, 0];\n";
+        echo "      $(\"ul.gallery > li > a\").each(function(e) {\n";
+        echo "          var title = $(this).attr('title');\n";
+        echo "          $(this).mouseover(\n";
+        echo "              function() {\n";
+        echo "                  $(this).attr('title','');\n";
+        echo "              }).mouseout(\n";
+        echo "                  function() {\n";
+        echo "                  $(this).attr('title', title);\n";
+        echo "          });\n";
+        echo "          $(this).click(\n";
+        echo "          function() {\n";
+        echo "              $(this).attr('title', title);\n";
+        echo "              }\n";
+        echo "          );\n";
+        echo "      });\n";        
         echo "      $(\".lazy\").tooltip();\n";
         echo "      $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
         echo "        animationSpeed: 'fast',\n";
@@ -56,19 +74,14 @@ function displayHeader($mode)
         echo "        theme: '$gal_theme'\n";
         echo "      });\n";
         echo "    });\n";
-        echo "    $(function() {\n";
-        echo "      $(\"a[rel^='#video']\").overlay({\n";
-        echo "         expose: '#111',\n";
-        echo "         effect: 'apple',\n";
-        echo "         onLoad: function(content) {\n";
-        echo "            this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
-        echo "         }\n";
-        echo "      });\n";
-        echo "      $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
-        if ($mode == 'tags') {
-            echo "\t\t\tjQuery(\".chosen\").chosen();\n";
-        }
+        echo "    $(\"a[rel^='#video']\").overlay({\n";
+        echo "       expose: '#111',\n";
+        echo "       effect: 'apple',\n";
+        echo "       onLoad: function(content) {\n";
+        echo "          this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
+        echo "       }\n";
         echo "    });\n";
+        echo "    $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
         echo "  </script>\n";
     }
 }
