@@ -31,19 +31,19 @@ function displayHeader($mode)
         echo "  <script src=\"js/jquery.tools-1.2.5.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/jquery.imageLoader.js\" type=\"text/javascript\"></script>\n";
+        echo "  <script src=\"js/jquery.lazy.min.js\" type=\"text/javascript\"></script>\n";
         if ($mode == 'tags') {
             echo "  <link rel=\"stylesheet\" href=\"css/chosen.css\" type=\"text/css\" media=\"screen\" />\n";
             echo "  <script src=\"js/chosen.jquery.js\" type=\"text/javascript\"></script>\n";
         }
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(document).ready(function(){\n";
-        echo "      jQuery('.dynamic-thumbnail').loadImages();\n";
+        echo "      jQuery('img.lazy').lazy({ effect: 'fadeIn', effectTime: 1500 });\n";
         echo "      $.tools.tooltip.conf.relative = true;\n";
         echo "      $.tools.tooltip.conf.cancelDefault = false;\n";
         echo "      $.tools.tooltip.conf.predelay = 1000;\n";
         echo "      $.tools.tooltip.conf.offset = [110, 0];\n";
-        echo "      $(\".dynamic-thumbnail\").tooltip();\n";
+        echo "      $(\".lazy\").tooltip();\n";
         echo "      $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
         echo "        animationSpeed: 'fast',\n";
         echo "        opacity: 0.9,\n";

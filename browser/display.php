@@ -55,7 +55,7 @@ function displayTagElements($tag_array, mediaDB &$db = NULL)
                 // Images
                 echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<div class=\"dynamic-thumbnail\" src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
@@ -121,7 +121,7 @@ function displayElementList($id, mediaDB &$db = NULL)
                 // Images
                 echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<div class=\"dynamic-thumbnail\" src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" title=\"".htmlentities($element->title)."\"></div>";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
@@ -170,7 +170,7 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<div class=\"dynamic-thumbnail\" src=\"$BASE_URL/browser/getthumb.php?folder=$subfolder\" title=\"".$subfolder_title."\"></div>";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?folder=$subfolder\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
             echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderDate($subfolder)."<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "$subfolder_title</a></li>\n";        
         }
