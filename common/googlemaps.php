@@ -76,11 +76,11 @@ function getElementIcon($id, mediaDB &$db = NULL)
     else
         $m_db = $db;
 
-    $tags = $m_db->query("SELECT name FROM media_tags WHERE media_id=$id;");
+    $tags = $m_db->query("SELECT name FROM tags, media_tags WHERE media_id=$id AND tags.id=media_tags.tag_id;");
     if ($tags === false) throw new Exception($m_db->error);
 
     while($tag = $tags->fetch_assoc()) {
-        if      (stristr($tag['name'], 'Paysage') != false) {
+        if (stristr($tag['name'], 'Paysage') != false) {
             // No break here as if there is another tag for this picture -> use it
             $result = "$BASE_URL/images/markers/paysage.png";
         } else if (stristr($tag['name'], 'Flore')   != false) {
