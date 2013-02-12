@@ -6,13 +6,13 @@ class mediaDB extends mysqli
     {
         // Method which initialize the database with proper structure
         $query  = "CREATE TABLE IF NOT EXISTS media_objects (id INTEGER PRIMARY KEY AUTO_INCREMENT, folder_id INTEGER, type TEXT, ";
-        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, thumbnail TEXT, resized TEXT, ";
+        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, ";
         $query .= "camera TEXT, focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
         $query .= "width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);";
         if ($this->query($query) === FALSE)
             die('-E- Failed query - '.$query.':'.$this->error);
         $query  = "CREATE TABLE IF NOT EXISTS media_folders (id INTEGER PRIMARY KEY AUTO_INCREMENT, parent_id INTEGER, title TEXT, ";
-        $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail TEXT, foldername TEXT);";
+        $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail_source TEXT, foldername TEXT);";
         if ($this->query($query) === FALSE)
             die('-E- Failed query - '.$query.':'.$this->error);
         if ($this->query('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(127));') === FALSE)
@@ -92,9 +92,9 @@ class mediaDB extends mysqli
         if ($update == true)
             $store_id = $this->findMediaObjectID($media);
         if ($store_id != -1)
-            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, thumbnail, resized, ';
+            $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, ';
         else
-            $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, thumbnail, resized, ';
+            $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, ';
         $query .= 'download_path, focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
         $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
@@ -108,8 +108,6 @@ class mediaDB extends mysqli
         $query .= $media->filesize         . ', ';
         $query .= "'".$this->escape_string($media->lastmod)      . "', ";
         $query .= "'".$this->escape_string($media->filename)     . "', ";
-        $query .= "'".$this->escape_string($media->thumbnail)    . "', ";
-        $query .= "'".$this->escape_string($media->resized)      . "', ";
         $query .= "'".$this->escape_string($media->download_path). "', ";
         $query .= $media->focal            . ', ';
         $query .= "'".$this->escape_string($media->lens)         . "', ";
@@ -162,8 +160,6 @@ class mediaDB extends mysqli
             $media->filesize      = $row['filesize'];
             $media->lastmod       = $row['lastmod'];
             $media->filename      = $row['filename'];
-            $media->thumbnail     = $row['thumbnail'];
-            $media->resized       = $row['resized'];
             $media->download_path = $row['download_path'];
             $media->focal         = $row['focal'];
             $media->lens          = $row['lens'];
@@ -221,9 +217,9 @@ class mediaDB extends mysqli
             $store_id = $this->findMediaFolderID($media);
 
         if ($store_id != -1)
-            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, originaldate, foldername, thumbnail) VALUES (';
+            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
         else
-            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail) VALUES (';
+            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
         if ($store_id != -1)
             $query .= $store_id.', ';
         if ($media->parent == NULL)
@@ -265,7 +261,7 @@ class mediaDB extends mysqli
             $media->lastmod      = $row['lastmod'];
             $media->originaldate = $row['originaldate'];
             $media->name         = $row['foldername'];
-            $media->thumbnail    = $row['thumbnail'];
+            $media->thumbnail    = $row['thumbnail_source'];
         }
         // Fetch subfolders if required
         if ($depth > 0) {

@@ -100,16 +100,7 @@ if ($task == 'clear_thumb') {
         $_SESSION['progress'] = $progress;
         $_SESSION['status']   = "Processing folders ($progress%)...";
         session_commit();
-
-        $folder_path = $gallery_db->getFolderPath($folder_id);
-        if (!file_exists("$BASE_DIR/$thumb_folder/$folder_path")) { 
-            mkdir("$BASE_DIR/$thumb_folder/$folder_path", 0777, true);
-        }
-        if (!file_exists("$BASE_DIR/$resized_folder/$folder_path")) {
-            mkdir("$BASE_DIR/$resized_folder/$folder_path", 0777, true); 
-        }
         updateFolderThumbnail($folder_id);
-        updateFolderResized($folder_id);
         $folder_idx++;
     }
     $element_idx   = $folder_idx;

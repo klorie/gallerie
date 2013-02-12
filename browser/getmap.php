@@ -54,8 +54,8 @@ foreach($elements_list as $element_id) {
     echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
     echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
     echo "\t'<h2>".js_encode($element->title)."</h2>'+\n";
-    echo "\t'<a href=\"$BASE_URL/browser/getresized.php?id=$element_id\">'+\n";
-    echo "\t'<img src=\"$BASE_URL/browser/getthumb.php?id=$element_id\" alt=\"".$element->filename."\"/>'+\n";
+    echo "\t'<a href=\"$BASE_URL/".getResizedPath($element_id)."\">'+\n";
+    echo "\t'<img src=\"$BASE_URL/".getThumbnailPath($element_id)."\" alt=\"".$element->filename."\"/>'+\n";
     echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
     echo "\t'</a></div>';\n";
     echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element_id, $m_db)."' });\n";

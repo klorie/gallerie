@@ -1,57 +1,29 @@
 <?php
 
-function getThumbnailPath($id, mediaDB &$db = NULL)
+function getThumbnailPath($id)
 {
-    $thumb  = "";
-    $p_id   = -1;
-    $m_db   = NULL;
-    if ($db == NULL)
-        $m_db = new mediaDB();
-    else
-        $m_db = $db;
-    $result = $m_db->query("SELECT folder_id, thumbnail FROM media_objects WHERE id=$id;");
-    if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
-    $result->free();
-    $thumb  = $row['thumbnail'];
-    $p_id   = $row['folder_id'];
-    $folder = $m_db->getFolderPath($p_id);
-    if ($folder != "")
-        $thumb = $folder.'/'.$thumb;
-    if ($db == NULL)
-        $m_db->close();
-    return $thumb;
+    global $thumb_folder;
+
+    // Return thumbnail path in form of AA/BB.jpg with HEX formatting of $id
+    $hexid    = sprintf("%04X", $id);
+    $hexsplit = str_split($hexid, 2);
+    return "$thumb_folder/elements/$hexsplit[0]/$hexsplit[1].jpg";
 }
 
-function getFolderThumbnailPath($id, mediaDB &$db = NULL)
+function getFolderThumbnailPath($id)
 {
-    $thumb  = "";
-    $p_id   = -1;
-    $m_db   = NULL;
-    if ($db == NULL)
-        $m_db = new mediaDB();
-    else
-        $m_db = $db;
+    global $thumb_folder;
 
-    $result = $m_db->query("SELECT thumbnail FROM media_folders WHERE id=$id;", true);
-    if ($result === false) throw new Exception($m_db->error());
-    $row    = $result->fetch_row();
-    $result->free();
-    $thumb  = $row[0];
-    $folder = $m_db->getFolderPath($id);
-    if ($folder != "")
-        $thumb = $folder.'/'.$thumb;
-
-    if ($db == NULL)
-        $m_db->close();
-
-    return $thumb;
+    // Return thumbnail path in form of AA/BB.jpg with HEX formatting of $id
+    $hexid    = sprintf("%04X", $id);
+    $hexsplit = str_split($hexid, 2);
+    return "$thumb_folder/folders/$hexsplit[0]/$hexsplit[1].jpg";
 }
 
 function updateThumbnail($id)
 {
     global $BASE_DIR;
     global $thumb_size;
-    global $thumb_folder;
     global $image_folder;
 
     $filename  = "";
@@ -65,21 +37,23 @@ function updateThumbnail($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Object info
-    $row = $m_db->query("SELECT folder_id, thumbnail, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
+    $row = $m_db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
     if ($row === false) throw new Exception($m_db->error);
     $result    = $row->fetch_assoc();
     $row->free();
-    if ($result['thumbnail'] == "") return false; // Should never happen
     $filename  = $result['filename'];
-    $thumbnail = $result['thumbnail'];
     $type      = $result['type'];
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($p_id).'/'.$filename;
-    $thumbnail = "$BASE_DIR/$thumb_folder/".$m_db->getFolderPath($p_id).'/'.$thumbnail;
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($p_id)."/$filename";
+    $thumbnail = "$BASE_DIR/".getThumbnailPath($id);
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
+
+    // Create required thumbnail location if required
+    if (is_dir(dirname($thumbnail)) == false)
+        mkdir(dirname($thumbnail), 0777, true);
 
     if ($type == 'picture') {
         // Create picture thumbnail
@@ -118,7 +92,6 @@ function updateFolderThumbnail($id)
 {
     global $BASE_DIR;
     global $thumb_size;
-    global $thumb_folder;
     global $image_folder;
     global $folder_thumbname;
 
@@ -132,18 +105,20 @@ function updateFolderThumbnail($id)
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Folder info
-    $result = $m_db->query("SELECT thumbnail, parent_id FROM media_folders WHERE id=$id;", true);
+    $result = $m_db->query("SELECT thumbnail_source, parent_id FROM media_folders WHERE id=$id;", true);
     if ($result === false) throw new Exception($m_db->error());
     $row = $result->fetch_assoc();
     $result->free();
-    if ($row['thumbnail'] != $folder_thumbname) return false; // Only generate thumbnails for pure folder images
     if ($row['parent_id'] == 1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
-    $filename  = $row['thumbnail'];
-    $thumbnail = $row['thumbnail'];
-    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id).'/'.$filename;
-    $thumbnail = "$BASE_DIR/$thumb_folder/".$m_db->getFolderPath($id).'/'.$thumbnail;
+    $filename  = $row['thumbnail_source'];
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id)."/$filename";
+    $thumbnail = "$BASE_DIR/".getFolderThumbnailPath($id);
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
+
+    // Create required thumbnail location if required
+    if (is_dir(dirname($thumbnail)) == false)
+        mkdir(dirname($thumbnail), 0777, true);
 
     // Create picture thumbnail
     // load image and get image size
@@ -182,7 +157,7 @@ function updateTopFolderMenuThumbnail()
     $results = $m_db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
     if ($results === false) throw new Exception($m_db->error);
     while($row = $results->fetch_assoc()) {
-        $folder_thumb = "$BASE_DIR/$thumb_folder/".getFolderThumbnailPath($row['id'], $m_db);
+        $folder_thumb = "$BASE_DIR/".getFolderThumbnailPath($row['id']);
         if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
         $img    = new Imagick();
         $img->ReadImage($folder_thumb);

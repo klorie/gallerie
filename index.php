@@ -69,7 +69,7 @@ if ($mode == 'home') {
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
         echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
-        echo "<img class=\"cloudcarousel\" src=\"$BASE_URL/browser/getthumb.php?folder=$folder\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "<img class=\"cloudcarousel\" src=\"$BASE_URL/".getFolderThumbnailPath($folder)."\" title=\"$folder_title\"  style=\"border: none;\"/>";
         echo "</a>\n";
     }
     echo "</div>\n";

@@ -221,7 +221,7 @@ class mediaFolder
         if ($this->thumbnail == "") {
             $this->title = strtr($source_path, "_", " ");
             if (count($this->element) > 0) {
-                $this->thumbnail    = $this->element[0]->thumbnail;
+                $this->thumbnail    = $this->element[0]->filename;
                 $this->originaldate = $this->element[0]->originaldate;
             } else if (count($this->subfolder) > 0) {
                 $this->thumbnail    = $this->subfolder[0]->name.'/'.$this->subfolder[0]->thumbnail;
@@ -247,8 +247,6 @@ class mediaObject
     public $lastmod       = "";      //!< Last modification date
     public $filename      = "";      //!< Filename
     public $download_path = "";      //!< Download path (relative to $image_folder)
-    public $thumbnail     = "";      //!< Thumbnail path
-    public $resized       = "";      //!< Resized path
     public $camera        = "";      //!< Camera name
     public $focal         = -1;      //!< Focal length
     public $lens          = "";      //!< Lens model
@@ -284,13 +282,10 @@ class mediaObject
         $info            = pathinfo($source_fullname);
         $ext             = strtolower($info['extension']);
         $fname_noext     = $info['filename'];
-        $this->thumbnail = $fname_noext.'.jpg';
         if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp') {
             $this->type = 'picture';
-            $this->resized = $fname_noext.'.jpg';
         } else if ($ext == 'mov' || $ext == 'mpg' || $ext == 'avi') {
             $this->type = 'movie';
-            $this->resized = $fname_noext.'.flv';
         } else
             throw new Exception('Unsupported file type !');
 

@@ -53,9 +53,9 @@ function displayTagElements($tag_array, mediaDB &$db = NULL)
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<li><a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
@@ -78,7 +78,7 @@ function displayTagElements($tag_array, mediaDB &$db = NULL)
             $m_db->loadMediaObject($element, $current_id);
             if($element->type == 'movie') {
                 echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-                echo "<a class=\"player\" href=\"$BASE_URL/$resized_folder/".getResizedPath($current_id)."\"></a>";
+                echo "<a class=\"player\" href=\"$BASE_URL/".getResizedPath($current_id)."\"></a>";
                 echo "</div>\n";
                 $videoid++;
             }
@@ -119,9 +119,9 @@ function displayElementList($id, mediaDB &$db = NULL)
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"$BASE_URL/browser/getresized.php?id=$current_id\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<li><a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?id=$current_id\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
             if (count($element->tags) > 0) {
                 echo "<br /><i>";
@@ -144,7 +144,7 @@ function displayElementList($id, mediaDB &$db = NULL)
             $m_db->loadMediaObject($element, $current_id);
             if($element->type == 'movie') {
                 echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-                echo "<a class=\"player\" href=\"$BASE_URL/$resized_folder/".getResizedPath($current_id)."\"></a>";
+                echo "<a class=\"player\" href=\"$BASE_URL/".getResizedPath($current_id)."\"></a>";
                 echo "</div>\n";
                 $videoid++;
             }
@@ -170,7 +170,7 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/browser/getthumb.php?folder=$subfolder\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
+            echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getFolderThumbnailPath($subfolder)."\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
             echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderDate($subfolder)."<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "$subfolder_title</a></li>\n";        
         }
@@ -228,7 +228,7 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
     // Build menu with only top-level directories
     $topfolderlist = $m_db->getSubFolders(1);
     foreach($topfolderlist as $topfolder) {
-        echo "<li class=\"".$m_db->getFolderName($topfolder)."\"><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
+        echo "<li class=\"toplevel_".$m_db->getFolderName($topfolder)."\"><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
     }
     echo "</ul>\n"; 
 
@@ -292,7 +292,7 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
     $css .= "\tbackground-image: url(../images/toplevel/home.png);\n";
     $css .= "}\n\n";
     foreach($topfolderlist as $topfolder) {
-        $css .= "ul#toplevel_navigation .".$m_db->getFolderName($topfolder)." a {\n";
+        $css .= "ul#toplevel_navigation .toplevel_".$m_db->getFolderName($topfolder)." a {\n";
         $css .= "\tbackground-image: url(../images/toplevel/".$m_db->getFolderName($topfolder).".jpg);\n";
         $css .= "}\n\n";
     }     
@@ -374,7 +374,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
 function displayFooter()
 {
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v2.5.0 - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v2.6.0 - H. Raffard &amp; C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }
