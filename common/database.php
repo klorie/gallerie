@@ -15,10 +15,12 @@ class mediaDB extends mysqli
         $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail TEXT, foldername TEXT);";
         if ($this->query($query) === FALSE)
             die('-E- Failed query - '.$query.':'.$this->error);
-        if ($this->query('CREATE TABLE IF NOT EXISTS media_tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, name TEXT, media_id INTEGER);') === FALSE) 
+        if ($this->query('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(127));') === FALSE)
             die('-E- Failed query:'.$this->error);
-        if (($this->query('CREATE INDEX media_tag_name ON media_tags(name(255));') === FALSE) and ($this->errno != 1061))
-            die('-E- Failed query:'.$this->error.$this->errno);
+        if ($this->query('CREATE TABLE IF NOT EXISTS media_tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, tag_id INTEGER, media_id INTEGER);') === FALSE) 
+            die('-E- Failed query:'.$this->error);
+        if (($this->query('CREATE INDEX media_tag_id ON media_tags(tag_id);') === FALSE) and ($this->errno != 1061))
+            die('-E- Failed query:'.$this->error);
         if (($this->query('CREATE INDEX media_tag_media_id ON media_tags(media_id);') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
         if (($this->query('CREATE INDEX media_folders_parent_id ON media_folders(parent_id);') === FALSE) and ($this->errno != 1061))
@@ -61,6 +63,29 @@ class mediaDB extends mysqli
             return $result;
     }
 
+    //! Get Tag ID in DB. If tag is not found, add it to the table
+    function findTagID($tagname)
+    {
+        $result = $this->query("SELECT id FROM tags WHERE name = '".$this->escape_string($tagname)."'");
+        if ($result === FALSE) die("-E-  Failed query".$this->error); else $row = $result->fetch_assoc();
+
+        if ($result->num_rows == 0) {
+            $query = "INSERT INTO tags (name) VALUES ('".$tagname."')";
+            $this->query($query);
+            return $this->insert_id;
+        } else {
+            return $row['id'];
+        }
+    }
+
+    //! Return Tag Name associated to ID
+    function tagName($tag_id)
+    {
+        $result = $this->query("SELECT name FROM tags WHERE id = $tag_id");
+        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
+        return $row['name'];
+    }
+
     function storeMediaObject(mediaObject &$media, $update=false)
     {
         $store_id = -1;
@@ -97,9 +122,9 @@ class mediaDB extends mysqli
         $query .= $media->lens_is_zoom     . ', ';
         $query .= "'".$this->escape_string($media->camera)       . "', ";
         $query .= "'".$this->escape_string($media->duration)     . "', ";
-        $query .= $media->longitude        . ', ';
-        $query .= $media->latitude         . ', ';
-        $query .= $media->altitude         . ');';
+        $query .= number_format($media->longitude, 12, '.', '')  . ', ';
+        $query .= number_format($media->latitude,  12, '.', '')  . ', ';
+        $query .= number_format($media->altitude,   1, '.', '')  . ');';
         if ($this->query($query) === FALSE) {
             print("-E- Failed query: $query:".$this->error);
         } else {
@@ -112,9 +137,10 @@ class mediaDB extends mysqli
                 print $this->error;
         }
         foreach ($media->tags as $tag) {
-            $query = "REPLACE INTO media_tags (media_id, name) VALUES ($media->db_id, '".$this->escape_string($tag)."');";
+            $tag_id = $this->findTagID($tag);
+            $query = "REPLACE INTO media_tags (media_id, tag_id) VALUES ($media->db_id, $tag_id)";
             if ($this->query($query) === FALSE) {
-                print("-E-  Failed query was: $query:".$this->error);
+                die("-E-  Failed query was: $query:".$this->error);
             }
         }
     }
@@ -154,12 +180,12 @@ class mediaDB extends mysqli
             $media->altitude      = $row['altitude'];
         }
         // Load corresponding tags
-        $results = $this->query("SELECT name FROM media_tags WHERE media_id=$id;");
+        $results = $this->query("SELECT tag_id FROM media_tags WHERE media_id=$id;");
         if ($results === FALSE)
             throw new Exception($this->error);
         $media->tags = array();
         while($row = $results->fetch_assoc()) {
-            $media->tags[] = $row['name'];
+            $media->tags[] = $this->tagName($row['tag_id']);
         }
         $results->free();
     }
@@ -444,14 +470,17 @@ class mediaDB extends mysqli
         // Returns array of id of elements which have the given tag(s) in their description
         $query_str = "SELECT media_tags.media_id FROM media_tags ";
         if (count($tag_array) == 1) {
-            $query_str .= "WHERE media_tags.name='".$tag_array[0]."'";
+            $tag_id = $this->findTagID($tag_array[0]);
+            $query_str .= "WHERE media_tags.tag_id='".$tag_id."'";
         } else {
             foreach (range(1, count($tag_array) - 1) as $tag_idx) {
                 $query_str .= "LEFT JOIN media_tags AS media".$tag_idx." ON media_tags.media_id = media".$tag_idx.".media_id ";
             }
-            $query_str .= "WHERE media_tags.name='".$tag_array[0]."' ";
+            $tag_id     = $this->findTagID($tag_array[0]);
+            $query_str .= "WHERE media_tags.tag_id='".$tag_id."' ";
             foreach (range(1, count($tag_array)- 1) as $tag_idx) {
-                $query_str .= "AND media".$tag_idx.".name='".$tag_array[$tag_idx]."' ";
+                $tag_id     = $this->findTagID($tag_array[$tag_idx]);
+                $query_str .= "AND media".$tag_idx.".name='".$tag_id."' ";
             }
         }
         $results = $this->query($query_str.";");
@@ -468,7 +497,7 @@ class mediaDB extends mysqli
     {
         $tag_list = array();
 
-        $results = $this->query("SELECT DISTINCT name FROM media_tags ORDER BY name;");
+        $results = $this->query("SELECT name FROM tags ORDER BY name;");
         if ($results === false) throw new Exception($this->error);
         while($row = $results->fetch_assoc()) {
             $tag_list[] = $row['name'];
