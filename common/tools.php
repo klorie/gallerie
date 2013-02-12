@@ -43,6 +43,7 @@ function genTimelineData(mediaDB &$db = NULL, $top_id = 1)
     global $BASE_DIR;
     global $thumb_folder;
     global $resized_folder;
+    global $gal_title;
 
     $json_file = "$BASE_DIR/cache/timeline-$top_id.json";
     $json_data = "{\n";
@@ -56,7 +57,7 @@ function genTimelineData(mediaDB &$db = NULL, $top_id = 1)
 
     $json_data .= "\t".'"timeline":'."\n";
     $json_data .= "\t{\n";
-    $json_data .= "\t\t".'"headline":"Photos de Catherine &amp; Cyril",'."\n";
+    $json_data .= "\t\t".'"headline":"'.htmlentities($gal_title).'",'."\n";
     $json_data .= "\t\t".'"type":"default", "text":"Au fil du temps",'."\n";
     $json_data .= "\t\t".'"date": ['."\n";
     file_put_contents($json_file, $json_data);
