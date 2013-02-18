@@ -324,7 +324,7 @@ class mediaDB extends mysqli
 
     function getFolderID($path)
     {
-        // Top folder get db_id = 1 by construction
+        // Top folder get db_id = -1 by construction
         if ($path == "") return -1;
         // Find folder ID in DB according to the path given (relative to the gallery)
         $path_array = explode('/', $path);

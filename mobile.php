@@ -9,8 +9,6 @@ else
 $path = safeDirectory($path);
 $m_db        = new mediaDB();
 $m_folder_id = $m_db->getFolderID($path);
-if ($m_folder_id == -1)
-    $m_folder_id = 1; // If path not found, go back to home page
 ?>
 <!DOCTYPE html> 
 <html> 
@@ -44,7 +42,7 @@ if ($m_folder_id == -1)
 	</div><!-- /content -->
 
 	<div data-role="footer">
-		<h1>Gallerie Mobile v2.5.0 - C. Laury</h1>
+		<h1>Gallerie Mobile v2.6.0 - C. Laury</h1>
 	</div><!-- /footer -->
 </div><!-- /page -->
 

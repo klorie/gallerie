@@ -40,7 +40,7 @@ if ($mode == 'folder') {
     if ($m_folder_id == -1)
         $mode = 'home'; // If path not found, go back to home page
 } else {
-    $m_folder_id = 0;
+    $m_folder_id = -1;
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -64,7 +64,7 @@ if ($mode == 'home') echo "</div>\n";
 
 if ($mode == 'home') {
     // Display carousel
-    $folderlist = $m_db->getSubFolders(1);
+    $folderlist = $m_db->getSubFolders(-1);
     echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));

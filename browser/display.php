@@ -197,7 +197,7 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
         echo "<a href=\"$BASE_URL/index.php\">Accueil</a>";
         $folderhierarchy = $m_db->getFolderHierarchy($id);
         foreach($folderhierarchy as $fhier) {
-            if ($fhier == 1) continue; // Discard top-level
+            if ($fhier == -1) continue; // Discard top-level
             echo "/<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($fhier))."\">".htmlentities($m_db->getFolderTitle($fhier))."</a>";
         }
     }
@@ -206,7 +206,7 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
         echo " <a href=\"$BASE_URL/browser/download.php?id=$id\"><img src=\"$BASE_URL/images/save.png\" title=\"T&eacute;l&eacute;charger les images\" alt=\"T&eacute;l&eacute;charger les images\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
         echo " <a href=\"$BASE_URL/browser/slideshow.php?path=$path\"><img src=\"$BASE_URL/images/slideshow.png\" title=\"Diaporama\" alt=\"Diaporama\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     }
-    if (($m_db->getFolderElementsCount($id, true) > 0) && ($id != 1))
+    if (($m_db->getFolderElementsCount($id, true) > 0) && ($id != -1))
         echo " <a href=\"$BASE_URL/browser/gettimeline.php?id=$id\"><img src=\"$BASE_URL/images/date.png\" title=\"Au fil du temps\" alt=\"Au fil du temps\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     if (($show_slide_map_link == true) and (getFolderGeolocalizedCount($id, $m_db) > 0))
         echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
@@ -226,7 +226,7 @@ function displayTopFoldersMenu(mediaDB &$db = NULL)
     echo "<ul id=\"toplevel_navigation\">\n"; 
     echo "<li class=\"home\"><a href=\"$BASE_URL/index.php\"><span><b>Accueil</b></span></a></li>\n"; 
     // Build menu with only top-level directories
-    $topfolderlist = $m_db->getSubFolders(1);
+    $topfolderlist = $m_db->getSubFolders(-1);
     foreach($topfolderlist as $topfolder) {
         echo "<li class=\"toplevel_".$m_db->getFolderName($topfolder)."\"><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($topfolder))."\" ><span>".htmlentities($m_db->getFolderTitle($topfolder))."</span></a> </li>\n";
     }
@@ -319,7 +319,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     echo "<ul id=\"side_navigation\">\n"; 
     echo "  <li class=\"other_folders\">\n";
     // Side folder or Latest Folders
-    if ($id > 1) {
+    if ($id != -1) {
         // Side folders
         $neighborlist = $m_db->getNeighborFolders($id);
         if (count($neighborlist) > 0) {
@@ -333,7 +333,7 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     }
 
     // Sub folders (not for toplevel)
-    if ($id > 1) {
+    if ($id != -1) {
         $subfolder_list = $m_db->getSubFolders($id);
         if (count($subfolder_list) > 0) {
             echo "  <div><h3>Sous-Albums</h3>\n";        
