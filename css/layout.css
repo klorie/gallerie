@@ -181,6 +181,18 @@ ul.submenu li a:hover {
     float:    left;
 }
 
+.home_caption {
+    position:         absolute;
+    bottom:           0px;
+    left:             0px;
+    display:          none;
+    background-color: black;
+    font-size:        25px;
+    color:            white;
+    text-align:       center;
+    padding-bottom:   10px;
+}
+
 .element {
     text-align: center;
     width:   150px;

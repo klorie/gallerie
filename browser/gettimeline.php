@@ -5,7 +5,7 @@ require_once "display.php";
 if (isset($_GET['id']))
     $top_id = $_GET["id"];
 else {
-    $top_id = 1;
+    $top_id = -1;
 }
 
 global $BASE_DIR;

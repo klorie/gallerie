@@ -63,14 +63,16 @@ echo "<h1><a href=\"$BASE_URL/index.php\">".htmlentities($gal_title)."</a></h1>\
 if ($mode == 'home') echo "</div>\n";
 
 if ($mode == 'home') {
-    // Display carousel
+    // Display top folder grid
     $folderlist = $m_db->getSubFolders(-1);
     echo "<div id=\"container\">\n";
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
         echo "<div class=\"box\">\n";
-        echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
+        echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\">";
+        echo "<div class=\"home_caption_wrapper\">\n";
         echo "<img src=\"$BASE_URL/".getFolderThumbnailPath($folder)."\" />";
+        echo "<div class=\"home_caption\">$folder_title</div></div>";
         echo "</a>\n";
         echo "</div>\n";
     }

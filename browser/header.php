@@ -14,15 +14,28 @@ function displayHeader($mode)
 
     if ($mode == 'home') {
         echo "  <script type=\"text/javascript\">\n";
-        echo "    \$(document).ready(function() {\n";
+        echo "    $(function() {\n";
         echo "      var \$container = $('#container');\n";
         echo "      \$container.imagesLoaded( function() {\n";
         echo "        \$container.masonry({\n";
         echo "          itemSelector: '.box',\n";
         echo "          isFitWidth: true,\n";
         echo "          isAnimated: true,\n";
-        echo "          columnWidth: 305\n";
+        echo "          columnWidth: 302\n";
         echo "        });\n";
+        echo "      });\n";
+        echo "    });\n";
+        echo "    $(window).load(function(){\n";
+        echo "      $('div.home_caption').each(function(){\n";
+        echo "        $(this).css('opacity', 0);\n";
+        echo "        $(this).css('width', $(this).siblings('img').width());\n";
+        echo "        $(this).parent().css('width', $(this).siblings('img').width());\n";
+        echo "        $(this).css('display', 'block');\n";
+        echo "      });\n";
+        echo "      $('div.home_caption_wrapper').hover(function() {\n";
+        echo "        $(this).children('.home_caption').stop().fadeTo(500, 0.7);\n";
+        echo "      }, function() {\n";
+        echo "        $(this).children('.home_caption').stop().fadeTo(500, 0.0);\n";
         echo "      });\n";
         echo "    });\n";
         echo "  </script>\n";
@@ -83,7 +96,7 @@ function displayHeader($mode)
         echo "          );\n";
         echo "      });\n";        
         echo "      $(\".lazy\").tooltip();\n";
-        echo "      $(\"a[rel^='prettyPhoto']\").prettyPhoto({\n";
+        echo "      $(\"a[rel^='#gallery']\").prettyPhoto({\n";
         echo "        animationSpeed: 'fast',\n";
         echo "        opacity: 0.9,\n";
         echo "        showTitle: true,\n";

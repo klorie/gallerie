@@ -121,7 +121,7 @@ function displayElementList($id, mediaDB &$db = NULL)
                 $videoid++;
             } else {
                 // Images
-                echo "<a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"#gallery\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
             echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
