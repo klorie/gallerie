@@ -99,6 +99,7 @@ function exif_get_longitude(&$exif)
  */
 class mediaFolder
 {
+    public $lastupdate   = NULL;    //!< Database last update timestamp
     public $parent       = NULL;    //!< Reference to parent folder if any
     public $db_id        = -1;      //!< ID in corresponding database table
     public $title        = "";      //!< Album Title
@@ -113,6 +114,8 @@ class mediaFolder
     function __construct(mediaFolder $parent = NULL)
     {
         $this->parent = $parent;
+        if ($parent != NULL)
+            $this->lastupdate = $parent->lastupdate;
     }
 
     //! Return subfolders count
@@ -144,7 +147,7 @@ class mediaFolder
     }
 
     //! Load all elements and subfolders available in the given path (relative to $image_folder)
-    function loadFromPath($source_path = "")
+    function loadFromPath($source_path = "", $recursive = true)
     {
         global $BASE_DIR;
         global $image_folder;
@@ -159,9 +162,9 @@ class mediaFolder
             $source_fullpath = "$BASE_DIR/$image_folder";
         $source_fullpath = realpath($source_fullpath);
 
-        @session_start();
-        $_SESSION['status'] = "Loading $source_fullpath ...";
-        session_commit();
+        //@session_start();
+        //$_SESSION['status'] = "Loading $source_fullpath ...";
+        //session_commit();
 
         $current_dir_list = scandir($source_fullpath);
         if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
@@ -175,7 +178,9 @@ class mediaFolder
             if (is_dir("$source_fullpath/$entry")) {
                 // Subfolder
                 $subfolder = new mediaFolder($this);
-                $subfolder->loadFromPath($entry);
+                $subfolder->name = $entry;
+                if ($recursive == true)
+                    $subfolder->loadFromPath($entry, true);
                 $this->subfolder[] = $subfolder;
                 // Update modification time according to most recent element in folder
                 if (strtotime($subfolder->lastmod) > strtotime($this->lastmod))
@@ -210,6 +215,7 @@ class mediaFolder
                 else
                     $ext = strtolower($info['extension']);
                 if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') continue;
+                if (strtotime($this->lastupdate) > filemtime("$source_fullpath/$entry")) continue;
                 $element = new mediaObject($this);
                 $element->loadFromFile($entry);
                 $this->element[] = $element;
