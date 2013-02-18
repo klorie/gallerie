@@ -140,60 +140,61 @@ ul.submenu li a:hover {
 	background:      #333333;
 }
 
-ul.galleryfolder {
-    list-style: none;
-    margin:     0;
-    padding:    0;
-}
-
-ul.galleryfolder li {
-    display:    table;
-    float:      left;
-    margin:     0 5px 5px 0;
-    height:     184px;
-    width:      160px;
-    text-align: center;
-}
-
-ul.galleryfolder li a {
-	display:         table-cell;
-	vertical-align:  middle;
+#galleryfolder a {
+    display:         block;
 	text-align:      center;
 	text-decoration: none;
     border:          1px solid #111111;
 }
 
-ul.galleryfolder li a:hover { 
+#galleryfolder a:hover { 
     background: #333333; 
     color:      #FFFFFF; 
     border:     1px solid #FFFFFF;
 }
 	
-ul.gallery {
-	list-style: none;
-    padding:    0;
-    margin:     0px;
-    margin-top: 2px;
-}
-	
-ul.gallery li {
-    display:    table; 
-    overflow:   hidden;
-	float:      left;
-	height:     156px;
-	width:      156px;
-	text-align: center;
-    border:     1px solid #111111;
-}
-		
-ul.gallery li a {
-    display:        table-cell;
+#gallery a {
+    display:        block;
     vertical-align: middle;
-    width:          154px;
 }
 
-ul.gallery li a:hover {
+#gallery a:hover {
     background: #111111;
+}
+
+#container {
+    margin: 0 auto;
+}
+
+#gallery {
+    margin:  0 auto;
+}
+
+#galleryfolder {
+    margin:  0 auto;
+}
+
+.box {
+    width:   300px;
+    margin:    0px;
+    padding:   0px;
+    float:    left;
+}
+
+.element {
+    text-align: center;
+    width:   150px;
+    height:  155px;
+    margin: 0 auto;
+    float:    left;
+}
+
+.folder {
+    text-align: center;
+    width:   160px;
+    height:  185px;
+    margin: 0 auto;
+    float:    left;
 }
 
 /*---------------------------------------------------

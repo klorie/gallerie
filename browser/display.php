@@ -40,20 +40,21 @@ function displayTagElements($tag_array, mediaDB &$db = NULL)
     $element_list = $m_db->getElementsByTags($tag_array, $m_db);
 
     if (count($element_list) > 0) {
-        echo "<ul class=\"gallery\">\n";
+        echo "<div class=\"gallery\">\n";
         $tabthumb = 0;
         $tabid    = 1;
         $videoid  = 0;
         foreach($element_list as $current_id) {
             $element = new mediaObject();
             $m_db->loadMediaObject($element, $current_id);
+            echo "<div class=\"element\">";
             if ($element->type == 'movie') {
                 // Video
-                echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
+                echo "<a href=\"#\" rel=\"#video".$videoid."\">";
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
             echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
@@ -68,9 +69,9 @@ function displayTagElements($tag_array, mediaDB &$db = NULL)
                 echo "$tagline</i>";
             } else if (($element->type == 'movie') && ($element->duration != ''))
                 echo "<br /><i>".$element->duration."</i>";
-            echo "</div></a></li>\n";
+            echo "</div></a></div>\n";
         }
-        echo "</ul>\n";
+        echo "</div>\n";
         // Videos overlay
         $videoid  = 0;
         foreach($element_list as $current_id) {
@@ -106,20 +107,21 @@ function displayElementList($id, mediaDB &$db = NULL)
     $element_list = $m_db->getFolderElements($id);
 
     if (count($element_list) > 0) {
-        echo "<ul class=\"gallery\">\n";
+        echo "<div id=\"gallery\">\n";
         $tabthumb = 0;
         $tabid    = 1;
         $videoid  = 0;
         foreach($element_list as $current_id) {
             $element = new mediaObject();
             $m_db->loadMediaObject($element, $current_id);
+            echo "<div class=\"element\">";
             if ($element->type == 'movie') {
                 // Video
-                echo "<li><a href=\"#\" rel=\"#video".$videoid."\">";
+                echo "<a href=\"#\" rel=\"#video".$videoid."\">";
                 $videoid++;
             } else {
                 // Images
-                echo "<li><a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
+                echo "<a href=\"$BASE_URL/".getResizedPath($current_id)."\" rel=\"prettyPhoto[gallery]\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
             echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
             echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
@@ -134,9 +136,9 @@ function displayElementList($id, mediaDB &$db = NULL)
                 echo "$tagline</i>";
             } else if (($element->type == 'movie') && ($element->duration != ''))
                 echo "<br /><i>".$element->duration."</i>";
-            echo "</div></a></li>\n";
+            echo "</div></a></div>\n";
         }
-        echo "</ul>\n";
+        echo "</div>\n";
         // Videos overlay
         $videoid  = 0;
         foreach($element_list as $current_id) {
@@ -166,15 +168,16 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
     $subfolder_list = $m_db->getSubFolders($id);
 
     if (count($subfolder_list) > 0) {
-        echo "<ul class=\"galleryfolder\">\n";        
+        echo "<div id=\"galleryfolder\">\n";        
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
-            echo "<li><a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
+            echo "<div class=\"folder\">";
+            echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
             echo "<img class=\"lazy\" src=\"$BASE_URL/images/nothumb.jpg\" data-src=\"$BASE_URL/".getFolderThumbnailPath($subfolder)."\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
             echo "<div class=\"tooltip\">$subfolder_title<br />".$m_db->getFolderDate($subfolder)."<br />".$m_db->getFolderElementsCount($subfolder, true)." images</div>";
-            echo "$subfolder_title</a></li>\n";        
+            echo "<p>$subfolder_title</p></a></div>\n";        
         }
-        echo "</ul>\n";
+        echo "</div>\n";
         // Separate Directory list and Pictures
         if ($m_db->getFolderElementsCount($id) > 0) {
             echo "<div class=\"clearfix\"></div>\n";
@@ -192,8 +195,8 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
     $m_db = NULL;
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
-    echo "<h2 id=\"gallery\">\n";
-    if ($id != 1) {
+    echo "<h2>\n";
+    if ($id != -1) {
         echo "<a href=\"$BASE_URL/index.php\">Accueil</a>";
         $folderhierarchy = $m_db->getFolderHierarchy($id);
         foreach($folderhierarchy as $fhier) {
@@ -243,7 +246,7 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
 
-    $topfolderlist = $m_db->getSubFolders(1);
+    $topfolderlist = $m_db->getSubFolders(-1);
 
     $css  = "/* Top-level menu CSS File generated by generateTopFolderStylesheet() - Do not edit */\n";
     $css .= "ul#toplevel_navigation {\n";

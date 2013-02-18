@@ -65,16 +65,16 @@ if ($mode == 'home') echo "</div>\n";
 if ($mode == 'home') {
     // Display carousel
     $folderlist = $m_db->getSubFolders(-1);
-    echo "<div id=\"carousel\" style=\"width:480px; height:380px; margin-left:auto; margin-right:auto;\">\n";
+    echo "<div id=\"container\">\n";
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
+        echo "<div class=\"box\">\n";
         echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\" title=\"$folder_title\">";
-        echo "<img class=\"cloudcarousel\" src=\"$BASE_URL/".getFolderThumbnailPath($folder)."\" title=\"$folder_title\"  style=\"border: none;\"/>";
+        echo "<img src=\"$BASE_URL/".getFolderThumbnailPath($folder)."\" />";
         echo "</a>\n";
+        echo "</div>\n";
     }
     echo "</div>\n";
-    echo "<input type=\"image\" src=\"$BASE_URL/images/carousel_left.png\" id=\"left-button\" style=\"float: left; margin-top: -200px;\" />";
-    echo "<input type=\"image\" src=\"$BASE_URL/images/carousel_right.png\" id=\"right-button\" style=\"float: right; margin-top: -200px;\" />";
     echo "<div style=\"text-align: center;\"><h1 id=\"title-text\"></h1></div>\n";
 } else if ($mode == 'folder') {
     // Path dirs and link

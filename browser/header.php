@@ -3,23 +3,26 @@
 function displayHeader($mode)
 {
     global $gal_theme;
+    global $BASE_URL;
 
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
     echo "  <script src=\"http://code.jquery.com/jquery-1.7.2.min.js\"></script>\n";
     echo "  <script src=\"js/navigation.js\"></script>\n";
+    echo "  <script src=\"js/jquery.masonry.min.js\" type=\"text/javascript\"></script>\n";
 
     if ($mode == 'home') {
-        echo "  <script src=\"js/jquery.mousewheel.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/cloud-carousel.1.0.5.min.js\" type=\"text/javascript\"></script>\n";
         echo "  <script type=\"text/javascript\">\n";
-        echo "    $(document).ready(function(){\n";
-        echo "      $(\"#carousel\").CloudCarousel({\n";
-        echo "        xPos: 240, yPos: 30, mouseWheel: true,\n";
-        echo "        buttonLeft: $(\"#left-button\"), buttonRight: $(\"#right-button\"),\n";
-        echo "        titleBox: $(\"#title-text\"),\n";
-        echo "        reflHeight: 50, minScale: 0.3\n";
+        echo "    \$(document).ready(function() {\n";
+        echo "      var \$container = $('#container');\n";
+        echo "      \$container.imagesLoaded( function() {\n";
+        echo "        \$container.masonry({\n";
+        echo "          itemSelector: '.box',\n";
+        echo "          isFitWidth: true,\n";
+        echo "          isAnimated: true,\n";
+        echo "          columnWidth: 305\n";
+        echo "        });\n";
         echo "      });\n";
         echo "    });\n";
         echo "  </script>\n";
@@ -37,8 +40,26 @@ function displayHeader($mode)
             echo "  <script src=\"js/chosen.jquery.js\" type=\"text/javascript\"></script>\n";
         }
         echo "  <script type=\"text/javascript\">\n";
-        echo "    $(document).ready(function(){\n";
+        echo "    $(function(){\n";
         echo "      jQuery('img.lazy').lazy({ effect: 'fadeIn', effectTime: 1500 });\n";
+        echo "      var \$container = $('#gallery');\n";
+        echo "      \$container.imagesLoaded( function() {\n";
+        echo "        \$container.masonry({\n";
+        echo "          itemSelector: '.element',\n";
+        echo "          isFitWidth: true,\n";
+        echo "          isAnimated: true,\n";
+        echo "          columnWidth: 155\n";
+        echo "        });\n";
+        echo "      });\n";
+        echo "      var \$foldercontainer = $('#galleryfolder');\n";
+        echo "      \$foldercontainer.imagesLoaded( function() {\n";
+        echo "        \$foldercontainer.masonry({\n";
+        echo "          itemSelector: '.folder',\n";
+        echo "          isFitWidth: true,\n";
+        echo "          isAnimated: true,\n";
+        echo "          columnWidth: 165\n";
+        echo "        });\n";
+        echo "      });\n";
         if ($mode == 'tags') {
             echo "\t\t\tjQuery(\".chosen\").chosen();\n";
         }
@@ -46,7 +67,7 @@ function displayHeader($mode)
         echo "      $.tools.tooltip.conf.cancelDefault = false;\n";
         echo "      $.tools.tooltip.conf.predelay = 1000;\n";
         echo "      $.tools.tooltip.conf.offset = [110, 0];\n";
-        echo "      $(\"ul.gallery > li > a\").each(function(e) {\n";
+        echo "      $(\"div.element > a\").each(function(e) {\n";
         echo "          var title = $(this).attr('title');\n";
         echo "          $(this).mouseover(\n";
         echo "              function() {\n";
