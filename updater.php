@@ -12,6 +12,7 @@ print "-I-    Step 1. Updating DB\n";
 update_database($gallery_db);
 print "-I-    Step 2. Cleaning DB\n";
 clean_database($gallery_db);
+clean_tags($gallery_db);
 print "-I-    Step 3. Updating Thumbnails\n";
 update_thumbnails($gallery_db);
 print "-I-    Step 4. Cleaning Thumbnails\n";

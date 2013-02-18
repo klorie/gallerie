@@ -80,6 +80,25 @@ function clean_database(mediaDB &$db = NULL, $folder_id = -1)
     return $db;
 }
 
+function clean_tags(mediaDB &$db)
+{
+
+    // Get elements from DB
+    $element_db_list = $db->getFolderElements(-1, true);
+
+    // Check tag table
+    $results = $db->query('SELECT DISTINCT media_id FROM media_tags;');
+    if ($results === FALSE) throw new Exception($this->error);
+    while($row = $results->fetch_assoc()) {
+        if (in_array($row['media_id'], $element_db_list) == false) {
+            print "-I-    Element ".$row['media_id']." not found in elements, removing from tags table\n";
+            $result = $db->query('DELETE FROM media_tags WHERE media_id='.$row['media_id'].';');
+            if ($results === FALSE) throw new Exception($this->error);
+        }
+    }
+    
+}
+
 function update_thumbnails(mediaDB &$db = NULL, $folder_id = -1)
 {
     // Update folder and element thumbnails
