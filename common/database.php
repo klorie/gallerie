@@ -2,6 +2,8 @@
 
 class mediaDB extends mysqli
 {
+    public $lastupdate = '1970/01/01 00:00:00';
+    
     function init_database()
     {
         // Method which initialize the database with proper structure
@@ -31,6 +33,10 @@ class mediaDB extends mysqli
             die('-E- Failed query:'.$this->error);
         if (($this->query('CREATE INDEX media_objects_filename ON media_objects(filename(255));') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
+        if (($this->query('CREATE TABLE IF NOT EXISTS gallery_config (id INTEGER PRIMARY KEY AUTO_INCREMENT, name TEXT, value TEXT);')) === FALSE)
+            die('-E- Failed query:'.$this->error);
+        if (($this->query('INSERT INTO gallery_config (name, value) VALUES ("lastupdate", "1970/01/01 00:00:00");')) === FALSE)
+            die('-E- Failed query:'.$this->error);
     }
 
     function __construct()
@@ -39,9 +45,30 @@ class mediaDB extends mysqli
     
         parent::__construct($database_host, $database_user, $database_pwd, $database_name);
         if (mysqli_connect_error()) {
-            print $database_host.'/'.$database_user.'/'.$database_pwd.'/'.$database_name;
-            die("-E-   Failed to open database : ".mysqli_connect_error());
+            if (mysqli_connect_errno() != 1049) {
+                print $database_host.'/'.$database_user.'/'.$database_pwd.'/'.$database_name;
+                die("-E-   Failed to open database : ".mysqli_connect_errno());
+            } else {
+                // Create DB
+                parent::__construct($database_host, $database_user, $database_pwd);
+                if ($this->query('CREATE DATABASE gallery;') === FALSE)
+                    die('-E-    Failed to create database'.$this->error);
+                else
+                    $this->select_db("gallery");
+                $this->init_database();
+            }
         }
+
+        // Get last database update
+        $result = $this->query('SELECT value FROM gallery_config WHERE name = "lastupdate";');
+        if ($result === FALSE) die("-E- Failed query: ".$this->error); else $row = $result->fetch_assoc();
+        $this->lastupdate = $row['value'];
+    }
+
+    function updateTimeStamp()
+    {
+        $result = $this->query('REPLACE INTO gallery_config (id, name, value) VALUES (1, "lastupdate", "'.date("Y-m-d H:i:s").'");');
+        if ($result === FALSE) die("-E- Failed query: ".$this->error);
     }
 
     function findMediaObjectID(mediaObject &$media)
@@ -56,11 +83,12 @@ class mediaDB extends mysqli
         $query .= " AND filename = '".$this->escape_string($media->filename)."'";
 
         $result = $this->query($query);
+        if ($result === FALSE) die("-E- Failed query: $query".$this->error); else $row = $result->fetch_assoc();
 
-        if ($result == NULL)
+        if ($result->num_rows == 0)
             return -1;
         else
-            return $result;
+            return $row['id'];  
     }
 
     //! Get Tag ID in DB. If tag is not found, add it to the table
@@ -186,42 +214,29 @@ class mediaDB extends mysqli
         $results->free();
     }
 
-    function findMediaFolderID(mediaFolder &$media)
+    function getElementPath($id)
     {
-        // Return ID in database if the same object is already present (same name, same parent)
-        // return -1 on failure
-        $query = "SELECT id FROM media_folders WHERE parent_id = ";
-        if ($media->parent != NULL)
-            $query .= $media->parent->db_id;
-        else
-            $query .= "-1";
-        $query .= " AND foldername = '".$this->escape_string($media->name)."'";
+        // Return element download path (which id is given in arg) 
+        $result = $this->query("SELECT download_path FROM media_objects WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
+        return $row['download_path'];
+    }
 
-        $result = $this->query($query);
-
-        if ($result == NULL)
-            return -1;
-        else
-            return $result;        
+    function removeElement($id)
+    {
+        // Remove element from DB
+        $result = $this->query("DELETE FROM media_objects WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->error);    
     }
 
     function storeMediaFolder(mediaFolder &$media, $update=false)
     {
-        @session_start();
-        $_SESSION['nbfolders'] += 1;
-        $_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 50) + 49;
-        $_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
-        session_commit();
-        $store_id = -1;
-        if ($update == true)
-            $store_id = $this->findMediaFolderID($media);
-
-        if ($store_id != -1)
-            $query = 'REPLACE INTO media_folders (id, parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
-        else
-            $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
-        if ($store_id != -1)
-            $query .= $store_id.', ';
+        //@session_start();
+        //$_SESSION['nbfolders'] += 1;
+        //$_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 50) + 49;
+        //$_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
+        //session_commit();
+        $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
         if ($media->parent == NULL)
             $query .= "-1, ";
         else
@@ -291,14 +306,30 @@ class mediaDB extends mysqli
         $results->free();
     }
 
+    function removeFolder($id, $recurse = true)
+    {
+        // Remove folder from DB with associated element
+        $element_list = $this->getFolderElements($id);
+        foreach ($element_list as $element)
+            $this->removeElement($element);
+        if ($recurse == true) {
+            $subfolder_list = $this->getSubFolder($id);
+            foreach($subfolder_list as $subfolder) {
+                $this->removeFolder($subfolder, true);
+            }
+        }
+        $result = $this->query("DELETE FROM media_folders WHERE id=$id;");
+        if ($result === FALSE) throw new Exception($this->error);    
+    }
+
     function getFolderID($path)
     {
         // Top folder get db_id = 1 by construction
-        if ($path == "") return 1;
+        if ($path == "") return -1;
         // Find folder ID in DB according to the path given (relative to the gallery)
         $path_array = explode('/', $path);
-        $parent_id  = 1;
-        $folder_id  = 1;
+        $parent_id  = -1;
+        $folder_id  = -1;
 
         foreach($path_array as $current_path_level) {
             $parent_id = $folder_id;
@@ -316,6 +347,8 @@ class mediaDB extends mysqli
     function getFolderPath($id)
     {
         // Return folder (which id is given in arg) full path
+        // Sanity check
+        if ($id == -1) return '.';
         $parent_id   = -1;
         $folder_path = "";
         $result = $this->query("SELECT parent_id, foldername FROM media_folders WHERE id=$id;");
@@ -336,10 +369,10 @@ class mediaDB extends mysqli
     function getNeighborFolders($id)
     {
         $neighbor_array = array();
-        $result         = $this->query("SELECT parent_id FROM media_folders WHERE id=$id;");
-        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_row();
-        $result->free();
-        $parent_id = $row[0];
+        $results        = $this->query("SELECT parent_id FROM media_folders WHERE id=$id;");
+        if ($results === FALSE) throw new Exception($this->error); else $row = $results->fetch_assoc();
+        $parent_id = $row['parent_id'];
+        $results->free();
         // Returns array of id of neighbor folders
         $results = $this->query("SELECT id FROM media_folders WHERE parent_id=$parent_id;");
         if ($results === FALSE) throw new Exception($this->error);
@@ -406,14 +439,14 @@ class mediaDB extends mysqli
         return $folder_array;
     }
 
-    function getSubFolders($id)
+    function getSubFolders($id, $recurse = false)
     {
         global $reverse_subalbum_sort;
 
         $sub_array = array();
-        // Returns array of id of neighbor folders
+        // Returns array of id of child folders
         $query = "SELECT id FROM media_folders WHERE parent_id=$id";
-        if ($id == 1)                         $query .= " ORDER BY foldername ASC;";
+        if ($id == -1)                        $query .= " ORDER BY foldername ASC;";
         else if ($reverse_subalbum_sort != 0) $query .= " ORDER BY foldername DESC;";
         else                                  $query .= " ORDER BY foldername ASC;";
         $results = $this->query($query);
@@ -422,6 +455,12 @@ class mediaDB extends mysqli
             $sub_array[] = $row['id'];
         }
         $results->free();
+        if (($recurse == true) and (count($sub_array) > 0)) {
+            foreach($sub_array as $subfolder) {
+                $subfolders = $this->getSubFolders($subfolder, true);
+                $sub_array  = array_merge($sub_array, $subfolders);
+            }
+        }
         return $sub_array;
     }
 
@@ -438,7 +477,7 @@ class mediaDB extends mysqli
         if ($recurse == true) {
             $subfolders = $this->getSubFolders($id);
             foreach($subfolders as $subfolder) {
-                $subelements = $this->getFolderElements($subfolder);
+                $subelements = $this->getFolderElements($subfolder, true);
                 $element_list = array_merge($element_list, $subelements);
             }
         }
