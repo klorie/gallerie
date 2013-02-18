@@ -22,7 +22,7 @@ function getResizedPath($id, mediaDB &$db = NULL)
         return "$resized_folder/$hexsplit[0]/$hexsplit[1].flv";
 }
 
-function updateResized($id)
+function updateResized(mediaDB &$db = NULL, $id)
 {
     global $BASE_DIR;
     global $resized_size;
@@ -34,12 +34,10 @@ function updateResized($id)
     $lastmod   = "";
     $p_id      = -1;
 
-    $m_db = new mediaDB();
-
     set_time_limit(30); // Set time limit to avoid timeout
 
     // Get Object info
-    $result = $m_db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;");
+    $result = $db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;");
     if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
     $result->free();
     $filename = $row['filename'];
@@ -48,7 +46,7 @@ function updateResized($id)
     $p_id     = $row['folder_id'];
     // Retreive full path
     while($p_id != -1) {
-        $result = $m_db->query("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;");
+        $result = $db->query("SELECT parent_id, foldername FROM media_folders WHERE id=$p_id;");
         if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
         $result->free();
         if ($row['foldername'] != "") {
@@ -58,7 +56,7 @@ function updateResized($id)
         $p_id  = $row['parent_id'];
     }
     $filename = "$BASE_DIR/$image_folder/".$filename;
-    $resized  = "$BASE_DIR/".getResizedPath($id);
+    $resized  = "$BASE_DIR/".getResizedPath($id, $db);
 
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 
@@ -103,7 +101,6 @@ function updateResized($id)
         exec("mencoder \"$filename\" -o \"$resized\" -quiet -of lavf -oac mp3lame -lameopts abr:br=64:mode=3 -ovc lavc -lavcopts vcodec=flv:vbitrate=1600:mbd=2:mv0:trell:v4mv:cbp:last_pred=4 -ofps 15 -srate 44100");
     }
 
-    $m_db->close();
     return true;
 }
 
