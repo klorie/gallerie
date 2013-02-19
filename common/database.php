@@ -7,16 +7,20 @@ class mediaDB extends mysqli
     function init_database()
     {
         // Method which initialize the database with proper structure
-        $query  = "CREATE TABLE IF NOT EXISTS media_objects (id INTEGER PRIMARY KEY AUTO_INCREMENT, folder_id INTEGER, type TEXT, ";
-        $query .= "title TEXT, filesize INTEGER, duration TEXT, lastmod DATETIME, filename TEXT, download_path TEXT, ";
-        $query .= "camera TEXT, focal INTEGER, lens TEXT, fstop TEXT, shutter TEXT, iso INTEGER, originaldate DATETIME, ";
-        $query .= "width INTEGER, height INTEGER, lens_is_zoom INTEGER, longitude REAL, latitude REAL, altitude REAL);";
+        $query  = "CREATE TABLE IF NOT EXISTS media_objects (id INTEGER PRIMARY KEY AUTO_INCREMENT, folder_id INTEGER, type ENUM('movie','picture') NOT NULL, ";
+        $query .= "title VARCHAR(127), filesize INTEGER, duration VARCHAR(16), lastmod DATETIME, filename VARCHAR(127), download_path TEXT, ";
+        $query .= "camera_id SMALLINT(5), focal INTEGER, lens_id SMALLINT(5), fstop VARCHAR(16), shutter VARCHAR(16), iso SMALLINT(6), originaldate DATETIME, ";
+        $query .= "width SMALLINT(5) NOT NULL, height SMALLINT(5) NOT NULL, lens_is_zoom ENUM('-1','0','1') NOT NULL, longitude FLOAT, latitude FLOAT, altitude SMALLINT(5));";
         if ($this->query($query) === FALSE)
             die('-E- Failed query - '.$query.':'.$this->error);
-        $query  = "CREATE TABLE IF NOT EXISTS media_folders (id INTEGER PRIMARY KEY AUTO_INCREMENT, parent_id INTEGER, title TEXT, ";
-        $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail_source TEXT, foldername TEXT);";
+        $query  = "CREATE TABLE IF NOT EXISTS media_folders (id INTEGER PRIMARY KEY AUTO_INCREMENT, parent_id INTEGER, title VARCHAR(127), ";
+        $query .= "lastmod DATETIME, originaldate DATETIME, thumbnail_source VARCHAR(127), foldername VARCHAR(127));";
         if ($this->query($query) === FALSE)
             die('-E- Failed query - '.$query.':'.$this->error);
+        if ($this->query('CREATE TABLE IF NOT EXISTS cameras (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(127));') === FALSE)
+            die('-E- Failed query:'.$this->error);
+        if ($this->query('CREATE TABLE IF NOT EXISTS lenses (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(127));') === FALSE)
+            die('-E- Failed query:'.$this->error);
         if ($this->query('CREATE TABLE IF NOT EXISTS tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(127));') === FALSE)
             die('-E- Failed query:'.$this->error);
         if ($this->query('CREATE TABLE IF NOT EXISTS media_tags (id INTEGER PRIMARY KEY AUTO_INCREMENT, tag_id INTEGER, media_id INTEGER);') === FALSE) 
@@ -27,13 +31,15 @@ class mediaDB extends mysqli
             die('-E- Failed query:'.$this->error);
         if (($this->query('CREATE INDEX media_folders_parent_id ON media_folders(parent_id);') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
-        if (($this->query('CREATE INDEX media_folders_foldername ON media_folders(foldername(255));') === FALSE) and ($this->errno != 1061))
+        if (($this->query('CREATE INDEX media_folders_foldername ON media_folders(foldername(127));') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
         if (($this->query('CREATE INDEX media_objects_folder_id ON media_objects(folder_id);') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
-        if (($this->query('CREATE INDEX media_objects_filename ON media_objects(filename(255));') === FALSE) and ($this->errno != 1061))
+        if (($this->query('CREATE INDEX media_objects_camera_id ON media_objects(camera_id);') === FALSE) and ($this->errno != 1061))
             die('-E- Failed query:'.$this->error);
-        if (($this->query('CREATE TABLE IF NOT EXISTS gallery_config (id INTEGER PRIMARY KEY AUTO_INCREMENT, name TEXT, value TEXT);')) === FALSE)
+        if (($this->query('CREATE INDEX media_objects_lens_id ON media_objects(lens_id);') === FALSE) and ($this->errno != 1061))
+            die('-E- Failed query:'.$this->error);
+        if (($this->query('CREATE TABLE IF NOT EXISTS gallery_config (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(64), value VARCHAR(127));')) === FALSE)
             die('-E- Failed query:'.$this->error);
         if (($this->query('INSERT INTO gallery_config (name, value) VALUES ("lastupdate", "1970/01/01 00:00:00");')) === FALSE)
             die('-E- Failed query:'.$this->error);
@@ -91,31 +97,19 @@ class mediaDB extends mysqli
             return $row['id'];  
     }
 
-    //! Get Tag ID in DB. If tag is not found, add it to the table
-    function findTagID($tagname)
-    {
-        $result = $this->query("SELECT id FROM tags WHERE name = '".$this->escape_string($tagname)."'");
-        if ($result === FALSE) die("-E-  Failed query".$this->error); else $row = $result->fetch_assoc();
-
-        if ($result->num_rows == 0) {
-            $query = "INSERT INTO tags (name) VALUES ('".$tagname."')";
-            $this->query($query);
-            return $this->insert_id;
-        } else {
-            return $row['id'];
-        }
-    }
-
-    //! Return Tag Name associated to ID
-    function tagName($tag_id)
-    {
-        $result = $this->query("SELECT name FROM tags WHERE id = $tag_id");
-        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
-        return $row['name'];
-    }
-
     function storeMediaObject(mediaObject &$media, $update=false)
     {
+        // Get Camera ID
+        $camera_id = -1;
+        if ($media->camera != '')
+            $camera_id = $this->findCameraID($media->camera);
+
+        // Get Lens ID
+        $lens_id = -1;
+        if ($media->lens != '')
+            $lens_id = $this->findLensID($media->lens);
+
+        // Store element in DB
         $store_id = -1;
         if ($update == true)
             $store_id = $this->findMediaObjectID($media);
@@ -123,8 +117,8 @@ class mediaDB extends mysqli
             $query = 'REPLACE INTO media_objects (id, folder_id, type, title, filesize, lastmod, filename, ';
         else
             $query = 'INSERT INTO media_objects (folder_id, type, title, filesize, lastmod, filename, ';
-        $query .= 'download_path, focal, lens, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
-        $query .= 'camera, duration, longitude, latitude, altitude) VALUES (';
+        $query .= 'download_path, focal, lens_id, fstop, shutter, iso, originaldate, width, height, lens_is_zoom, ';
+        $query .= 'camera_id, duration, longitude, latitude, altitude) VALUES (';
         if ($store_id != -1)
             $query .= $store_id. ', ';
         if ($media->folder != NULL) {
@@ -138,7 +132,7 @@ class mediaDB extends mysqli
         $query .= "'".$this->escape_string($media->filename)     . "', ";
         $query .= "'".$this->escape_string($media->download_path). "', ";
         $query .= $media->focal            . ', ';
-        $query .= "'".$this->escape_string($media->lens)         . "', ";
+        $query .= $lens_id                 . ', ';
         $query .= "'".$this->escape_string($media->fstop)        . "', ";
         $query .= "'".$this->escape_string($media->shutter)      . "', ";
         $query .= $media->iso              . ', ';
@@ -146,7 +140,7 @@ class mediaDB extends mysqli
         $query .= $media->width            . ', ';
         $query .= $media->height           . ', ';
         $query .= $media->lens_is_zoom     . ', ';
-        $query .= "'".$this->escape_string($media->camera)       . "', ";
+        $query .= $camera_id               . ', ';
         $query .= "'".$this->escape_string($media->duration)     . "', ";
         $query .= number_format($media->longitude, 12, '.', '')  . ', ';
         $query .= number_format($media->latitude,  12, '.', '')  . ', ';
@@ -184,13 +178,13 @@ class mediaDB extends mysqli
             $media->folder_id     = $row['folder_id'];
             $media->title         = $row['title'];
             $media->type          = $row['type'];
-            $media->camera        = $row['camera'];
+            $media->camera        = $this->cameraName($row['camera_id']);
             $media->filesize      = $row['filesize'];
             $media->lastmod       = $row['lastmod'];
             $media->filename      = $row['filename'];
             $media->download_path = $row['download_path'];
             $media->focal         = $row['focal'];
-            $media->lens          = $row['lens'];
+            $media->lens          = $this->lensName($row['lens_id']);
             $media->fstop         = $row['fstop'];
             $media->shutter       = $row['shutter'];
             $media->iso           = $row['iso'];
@@ -231,11 +225,6 @@ class mediaDB extends mysqli
 
     function storeMediaFolder(mediaFolder &$media, $update=false)
     {
-        //@session_start();
-        //$_SESSION['nbfolders'] += 1;
-        //$_SESSION['progress'] = floor(($_SESSION['nbfolders'] / $_SESSION['totalfolders']) * 50) + 49;
-        //$_SESSION['status'] = "Storing ".$media->name." (".$_SESSION['progress']."%) ...";
-        //session_commit();
         $query = 'INSERT INTO media_folders (parent_id, title, lastmod, originaldate, foldername, thumbnail_source) VALUES (';
         if ($media->parent == NULL)
             $query .= "-1, ";
@@ -499,6 +488,30 @@ class mediaDB extends mysqli
         return $count;
     }
 
+    ///////////////////////// TAG MANAGEMENT /////////////////////////////////
+    //! Get Tag ID in DB. If tag is not found, add it to the table
+    function findTagID($tagname)
+    {
+        $result = $this->query("SELECT id FROM tags WHERE name = '".$this->escape_string($tagname)."'");
+        if ($result === FALSE) die("-E-  Failed query".$this->error); else $row = $result->fetch_assoc();
+
+        if ($result->num_rows == 0) {
+            $query = "INSERT INTO tags (name) VALUES ('".$this->escape_string($tagname)."')";
+            $this->query($query);
+            return $this->insert_id;
+        } else {
+            return $row['id'];
+        }
+    }
+
+    //! Return Tag Name associated to ID
+    function tagName($tag_id)
+    {
+        $result = $this->query("SELECT name FROM tags WHERE id = $tag_id");
+        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
+        return $row['name'];
+    }
+
     function getElementsByTags($tag_array)
     {
         $element_list = array();
@@ -539,6 +552,58 @@ class mediaDB extends mysqli
         }
         $results->free();
         return $tag_list;
+    }
+
+    /////////////////////// CAMERA MANAGEMENT ////////////////////////////////
+    //! Get Camera ID in DB. If camera is not found, add it to the table
+    function findCameraID($camera_name)
+    {
+        $result = $this->query("SELECT id FROM cameras WHERE name = '".$this->escape_string($camera_name)."'");
+        if ($result === FALSE) die("-E-  Failed query".$this->error); else $row = $result->fetch_assoc();
+
+        if ($result->num_rows == 0) {
+            $query = "INSERT INTO cameras (name) VALUES ('".$this->escape_string($camera_name)."')";
+            $this->query($query);
+            return $this->insert_id;
+        } else {
+            return $row['id'];
+        }
+    }
+
+    //! Return Camera Name associated to ID
+    function cameraName($camera_id)
+    {
+        if ($camera_id == -1) return '';
+
+        $result = $this->query("SELECT name FROM cameras WHERE id = $camera_id");
+        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
+        return $row['name'];
+    }
+
+    /////////////////////// LENS MANAGEMENT ////////////////////////////////
+    //! Get Lens ID in DB. If lens is not found, add it to the table
+    function findLensID($lens_name)
+    {
+        $result = $this->query("SELECT id FROM lenses WHERE name = '".$this->escape_string($lens_name)."'");
+        if ($result === FALSE) die("-E-  Failed query".$this->error); else $row = $result->fetch_assoc();
+
+        if ($result->num_rows == 0) {
+            $query = "INSERT INTO lenses (name) VALUES ('".$this->escape_string($lens_name)."')";
+            $this->query($query);
+            return $this->insert_id;
+        } else {
+            return $row['id'];
+        }
+    }
+
+    //! Return Lens Name associated to ID
+    function lensName($lens_id)
+    {
+        if ($lens_id == -1) return '';
+
+        $result = $this->query("SELECT name FROM lenses WHERE id = $lens_id");
+        if ($result === FALSE) throw new Exception($this->error); else $row = $result->fetch_assoc();
+        return $row['name'];
     }
 
     function getTimedFolderList($top_id = 0)
