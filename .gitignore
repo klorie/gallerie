@@ -4,6 +4,7 @@ gallery/
 thumbnails/
 resized/
 images/toplevel/
+export/
 # Ignore Generated files
 gallery.db
 css/toplevelmenu.css
