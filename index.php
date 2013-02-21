@@ -1,8 +1,5 @@
 <?php
 // Start PHP code
-if (file_exists('config.local.php') === FALSE) {
-    header("Location: http://".$_SERVER['SERVER_NAME']."/update.php");
-}
 require_once "include.php";
 require_once "browser/header.php";
 require_once "browser/display.php";
@@ -59,7 +56,7 @@ displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
 if ($mode == 'home') echo "<div style=\"text-align: center;\">\n";
-echo "<h1><a href=\"$BASE_URL/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+echo "<h1><a href=\"index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 if ($mode == 'home') echo "</div>\n";
 
 if ($mode == 'home') {
@@ -69,9 +66,9 @@ if ($mode == 'home') {
     foreach($folderlist as $folder) {
         $folder_title = htmlentities($m_db->getFolderTitle($folder));
         echo "<div class=\"box\">\n";
-        echo "<a href=\"$BASE_URL/index.php?path=".urlencode($m_db->getFolderPath($folder))."\">";
+        echo "<a href=\"index.php?path=".urlencode($m_db->getFolderPath($folder))."\">";
         echo "<div class=\"home_caption_wrapper\">\n";
-        echo "<img src=\"$BASE_URL/".getFolderThumbnailPath($folder)."\" />";
+        echo "<img src=\"".getFolderThumbnailPath($folder)."\" />";
         echo "<div class=\"home_caption\">$folder_title</div></div>";
         echo "</a>\n";
         echo "</div>\n";
