@@ -363,6 +363,7 @@ class mediaObject
     {
         global $BASE_URL;
         global $image_folder;
+        global $image_url;
 
         $subtitle = "";
         if ($this->camera != "") {
@@ -381,7 +382,10 @@ class mediaObject
             return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
         $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
-        $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$BASE_URL/$image_folder/$this->download_path\">$this->filename</a> ";
+        if ($image_url == NULL)
+            $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
+        else
+            $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_url/$this->download_path\">$this->filename</a> ";
         $esize  = "";
         if ($this->type == 'movie')
             $esize = $this->duration;
