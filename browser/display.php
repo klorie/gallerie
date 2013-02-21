@@ -192,6 +192,8 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
 function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link = true)
 {
     global $BASE_URL;
+    global $disable_dynamic;
+
     $m_db = NULL;
     if ($db == NULL) $m_db = new mediaDB();
     else             $m_db = $db;
@@ -206,10 +208,11 @@ function displayFolderHierarchy($id, mediaDB &$db = NULL, $show_slide_map_link =
     }
     $path = $m_db->getFolderPath($id);
     if ($m_db->getFolderElementsCount($id) > 0) {
-        echo " <a href=\"$BASE_URL/browser/download.php?id=$id\"><img src=\"$BASE_URL/images/save.png\" title=\"T&eacute;l&eacute;charger les images\" alt=\"T&eacute;l&eacute;charger les images\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
+        if ($disable_dynamic == false)
+            echo " <a href=\"$BASE_URL/browser/download.php?id=$id\"><img src=\"$BASE_URL/images/save.png\" title=\"T&eacute;l&eacute;charger les images\" alt=\"T&eacute;l&eacute;charger les images\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
         echo " <a href=\"$BASE_URL/browser/slideshow.php?path=$path\"><img src=\"$BASE_URL/images/slideshow.png\" title=\"Diaporama\" alt=\"Diaporama\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     }
-    if (($m_db->getFolderElementsCount($id, true) > 0) && ($id != -1))
+    if (($m_db->getFolderElementsCount($id, true) > 0) && ($id != -1) && ($disable_dynamic == false))
         echo " <a href=\"$BASE_URL/browser/gettimeline.php?id=$id\"><img src=\"$BASE_URL/images/date.png\" title=\"Au fil du temps\" alt=\"Au fil du temps\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
     if (($show_slide_map_link == true) and (getFolderGeolocalizedCount($id, $m_db) > 0))
         echo " <a href=\"$BASE_URL/browser/getmap.php?path=$path\"><img src=\"$BASE_URL/images/googlemaps.png\" title=\"Carte\" alt=\"Carte\" height=\"32\" align=\"middle\" border=\"0\" /></a>\n";
@@ -313,6 +316,7 @@ function generateTopFolderStylesheet(mediaDB &$db = NULL)
 function displaySideMenu($id, mediaDB &$db = NULL)
 {
     global $BASE_URL;
+    global $disable_dynamic;
     global $latest_album_count;
 
     $m_db = NULL;
@@ -356,13 +360,15 @@ function displaySideMenu($id, mediaDB &$db = NULL)
     }
     echo "  </div>\n";
     // Browse by...
-    echo "  <div><h3>Filtres</h3>\n";
-    echo "     <a href=\"$BASE_URL/index.php?browse=tags\" title=\"Mots-Clefs\">Mots-Clefs</a>\n";
-    echo "     <a href=\"$BASE_URL/browser/gettimeline.php\" title=\"Au fil du temps\">Date</a>\n";
-    echo "  </div>\n";
-    echo "  </li>\n";
+    if ($disable_dynamic == false) {
+        echo "  <div><h3>Filtres</h3>\n";
+        echo "     <a href=\"$BASE_URL/index.php?browse=tags\" title=\"Mots-Clefs\">Mots-Clefs</a>\n";
+        echo "     <a href=\"$BASE_URL/browser/gettimeline.php\" title=\"Au fil du temps\">Date</a>\n";
+        echo "  </div>\n";
+        echo "  </li>\n";
+    }
     // Top level googlemap
-    if ($id == 1) {
+    if ($id == -1) {
         echo "  <li class=\"googlemaps\">\n";
         echo "  <h3>Cartographie</h3>\n";
         echo "  <a href=\"$BASE_URL/browser/getmap.php\">Voir les photos sur une carte</a>\n";

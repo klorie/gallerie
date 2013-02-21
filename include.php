@@ -1,6 +1,6 @@
 <?php
 require_once "config.php";
-require_once "config.local.php";
+@include     "export.php";
 require_once "common/tools.php";
 require_once "common/media.php";
 require_once "common/database.php";

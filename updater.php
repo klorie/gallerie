@@ -1,4 +1,6 @@
+#!/usr/bin/php
 <?php
+
 // Start PHP code
 require_once "include.php";
 require_once "common/indexer.php";
@@ -27,5 +29,21 @@ generateTopFolderStylesheet($gallery_db);
 print "-I-    Step 8. Finishing\n";
 $gallery_db->updateTimeStamp();
 $gallery_db->close();
-exit("-I-    Gallery update complete\n");
+print "-I-    Gallery update complete\n";
+
+// Export a static version into the export folder
+if (($argc == 2) && ($argv[1] == '--export')) {
+    print "-I-    Exporting static version of the gallery in ./export\n";
+    if (is_dir('export') == false)
+        mkdir('export');
+    // Activate $disable_dynamic
+    // Export with wget
+    // wget -k -K  -E -r -l 10 -p -N -F -nH -X $image_folder http://website.com/
+    file_put_contents('export.php', '<?php $disable_dynamic = true; ?>');
+    // run export
+    exec("wget -q -P export -k -E -r -l 10 -p -N -F -nH -X */$image_folder $BASE_URL");
+    unlink('export.php');
+    print "-I-    Export complete\n";
+}
+exit(0);
 ?>
