@@ -1,0 +1,43 @@
+<?php
+//
+// Gallery Options
+//
+
+// Gallery title
+$gal_title = "Gallery Title" ;
+
+// Gallery theme
+$gal_theme = "dark_rounded";
+
+// *** Gallery structure ***
+$BASE_DIR         = "/var/www/gallery"; // Folder where the gallery is installed
+$cache_folder     = "cache";            // Folder for storing some misc generated files
+$image_folder     = "gallery";          // Folder where original images/video are stored
+$thumb_folder     = "thumbnails";       // Folder for storing thumbnails
+$resized_folder   = "resized";          // Folder for storing resizeds elements
+$folder_thumbname = "folder.jpg";       // Images with this name will be considered for generating folder title & thumbnails and will not be shown
+$BASE_URL         = "http://www.photo.com/gallery"; // Gallery URL
+// Alternate image_folder location for external hosting - set to "http://www.bla.com" or NULL to disable
+// Use also to set proper image url location when exporting site
+$image_url        = NULL;               // "http://www.photo.com/gallery/$image_folder";
+
+// Gallery Database access
+$database_host = "localhost";
+$database_name = "gallery";
+$database_user = "gallery";
+$database_pwd  = "Gallery";
+
+// Number of latest albums to print
+$latest_album_count = 6;
+
+// Reverse sort subalbums ?
+$reverse_subalbum_sort = 1;
+
+// Thumbnail size (be careful to update the CSS as well..)
+$thumb_size = 150;
+// Define resized max size
+$resized_size = 1024;
+// Disable some dynamic features of the site
+$disable_dynamic = false;
+
+?>
