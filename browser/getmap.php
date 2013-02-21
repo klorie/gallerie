@@ -13,7 +13,7 @@ $m_db          = new mediaDB();
 if ($path != "")
     $id        = $m_db->getFolderID($path);
 else
-    $id        = 1;
+    $id        = -1;
 $elements_list = getFolderGeolocalizedElements($id, $m_db);
 ?>
 <!DOCTYPE html>
@@ -58,7 +58,7 @@ foreach($elements_list as $element_id) {
     echo "\t'<img src=\"$BASE_URL/".getThumbnailPath($element_id)."\" alt=\"".$element->filename."\"/>'+\n";
     echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
     echo "\t'</a></div>';\n";
-    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element_id, $m_db)."' });\n";
+    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element->tags)."' });\n";
     echo "var infooptions$infoid = { content: contentString$infoid, alignBottom: true, pixelOffset: new google.maps.Size(0, -35), boxClass: \"map_info\", closeBoxMargin: \"5px\" };\n";
     echo "var infobox$infoid = new InfoBox(infooptions$infoid);\n";
     echo "google.maps.event.addListener(marker$infoid, 'click', function() { infobox$infoid.open(map, marker$infoid); });\n";

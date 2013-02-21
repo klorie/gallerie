@@ -198,14 +198,7 @@ class mediaDB extends mysqli
             $media->altitude      = $row['altitude'];
         }
         // Load corresponding tags
-        $results = $this->query("SELECT tag_id FROM media_tags WHERE media_id=$id;");
-        if ($results === FALSE)
-            throw new Exception($this->error);
-        $media->tags = array();
-        while($row = $results->fetch_assoc()) {
-            $media->tags[] = $this->tagName($row['tag_id']);
-        }
-        $results->free();
+        $media->tags = $this->getElementTags($id);
     }
 
     function getElementPath($id)
@@ -512,10 +505,10 @@ class mediaDB extends mysqli
         return $row['name'];
     }
 
+    //! Return array of id of elements which have the given tag(s) in their description
     function getElementsByTags($tag_array)
     {
         $element_list = array();
-        // Returns array of id of elements which have the given tag(s) in their description
         $query_str = "SELECT media_tags.media_id FROM media_tags ";
         if (count($tag_array) == 1) {
             $tag_id = $this->findTagID($tag_array[0]);
@@ -541,6 +534,21 @@ class mediaDB extends mysqli
         return $element_list; 
     }
 
+    //! Returns tags associated with the given element
+    function getElementTags($element_id)
+    {
+        $results = $this->query("SELECT name FROM tags, media_tags WHERE media_id=$element_id AND tags.id=media_tags.tag_id;");
+        if ($results === false) throw new Exception($this->error);
+
+        $tag_list = array();
+        while($tag = $results->fetch_assoc())
+            $tag_list[] = $tag['name'];
+
+        $results->free();
+        return $tag_list;
+    }
+
+    //! Return list of all defined tags in database
     function getAvailableTags()
     {
         $tag_list = array();
