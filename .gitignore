@@ -8,7 +8,7 @@ export/
 # Ignore Generated files
 gallery.db
 css/toplevelmenu.css
-config.local.php
+config.php
 *.swp
 # Ignore work in progress
 dev/
