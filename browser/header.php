@@ -21,7 +21,8 @@ function displayHeader($mode)
         echo "          itemSelector: '.box',\n";
         echo "          isFitWidth: true,\n";
         echo "          isAnimated: true,\n";
-        echo "          columnWidth: 302\n";
+        echo "          gutterWidth: 2,\n";
+        echo "          columnWidth: 300\n";
         echo "        });\n";
         echo "      });\n";
         echo "    });\n";
@@ -61,7 +62,8 @@ function displayHeader($mode)
         echo "          itemSelector: '.element',\n";
         echo "          isFitWidth: true,\n";
         echo "          isAnimated: true,\n";
-        echo "          columnWidth: 155\n";
+        echo "          gutterWidth: 2,\n";
+        echo "          columnWidth: 150\n";
         echo "        });\n";
         echo "      });\n";
         echo "      var \$foldercontainer = $('#galleryfolder');\n";
@@ -70,7 +72,8 @@ function displayHeader($mode)
         echo "          itemSelector: '.folder',\n";
         echo "          isFitWidth: true,\n";
         echo "          isAnimated: true,\n";
-        echo "          columnWidth: 165\n";
+        echo "          gutterWidth: 2,\n";
+        echo "          columnWidth: 160\n";
         echo "        });\n";
         echo "      });\n";
         if ($mode == 'tags') {
