@@ -55,6 +55,9 @@ function displayHeader($mode)
         }
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(function(){\n";
+        if ($mode == 'tags') {
+            echo "      jQuery(\".chosen\").chosen();\n";
+        }
         echo "      jQuery('img.lazy').lazy({ effect: 'fadeIn', effectTime: 1500 });\n";
         echo "      var \$container = $('#gallery');\n";
         echo "      \$container.imagesLoaded( function() {\n";
@@ -76,9 +79,6 @@ function displayHeader($mode)
         echo "          columnWidth: 160\n";
         echo "        });\n";
         echo "      });\n";
-        if ($mode == 'tags') {
-            echo "\t\t\tjQuery(\".chosen\").chosen();\n";
-        }
         echo "      $.tools.tooltip.conf.relative = true;\n";
         echo "      $.tools.tooltip.conf.cancelDefault = false;\n";
         echo "      $.tools.tooltip.conf.predelay = 1000;\n";

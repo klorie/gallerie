@@ -44,7 +44,7 @@ function displayTagElements($tag_array, mediaDB &$db)
     $element_list = $db->getElementsByTags($tag_array);
 
     if (count($element_list) > 0) {
-        echo "<div class=\"gallery\">\n";
+        echo "<div id=\"gallery\">\n";
         $tabthumb = 0;
         $tabid    = 1;
         $videoid  = 0;
@@ -135,7 +135,9 @@ function displaySubFolderList($id, mediaDB &$db)
             $subfolder_title = htmlentities($db->getFolderTitle($subfolder));
             echo "<div class=\"folder\">";
             echo "<a href=\"index.php?path=".urlencode($db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getFolderThumbnailPath($subfolder)."\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
+            echo "<div class=\"folderimg\">";
+            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getThumbnailPath($subfolder, true)."\" border=\"0\" alt=\"".htmlentities($subfolder_title)."\"/>\n";
+            echo "</div>";
             echo "<div class=\"tooltip\">$subfolder_title<br />".$db->getFolderDate($subfolder)."<br />".$db->getFolderElementsCount($subfolder, true)." images</div>";
             echo "<p>$subfolder_title</p></a></div>\n";        
         }
@@ -155,7 +157,7 @@ function displayFolderHierarchy($id, mediaDB &$db, $show_slide_map_link = true)
 
     echo "<h2>\n";
     if ($id != -1) {
-        echo "<a href=\"index.php\">Accueil</a>";
+        echo "<a href=\"$BASE_URL/index.php\">Accueil</a>";
         $folderhierarchy = $db->getFolderHierarchy($id);
         foreach($folderhierarchy as $fhier) {
             if ($fhier == -1) continue; // Discard top-level
