@@ -16,7 +16,7 @@ function displaySubFolderList($id, mediaDB &$db = NULL)
         foreach($subfolder_list as $subfolder) {
             $subfolder_title = htmlentities($m_db->getFolderTitle($subfolder));
             echo "<li><a href=\"$BASE_URL/mobile.php?path=".urlencode($m_db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >";
-            echo "<img src=\"$BASE_URL/".getFolderThumbnailPath($subfolder)."\" title=\"".$subfolder_title."\" />";
+            echo "<img src=\"$BASE_URL/".getThumbnailPath($subfolder, true)."\" title=\"".$subfolder_title."\" />";
             echo "<h3>$subfolder_title</h3>";
             echo "<p>".$m_db->getFolderDate($subfolder)."</p>";
             echo "<span class=\"ui-li-count\">".$m_db->getFolderElementsCount($subfolder, true)."</span>";

@@ -68,7 +68,7 @@ if ($mode == 'home') {
         echo "<div class=\"box\">\n";
         echo "<a href=\"index.php?path=".urlencode($m_db->getFolderPath($folder))."\">";
         echo "<div class=\"home_caption_wrapper\">\n";
-        echo "<img src=\"".getFolderThumbnailPath($folder)."\" />";
+        echo "<img src=\"".getThumbnailPath($folder, true)."\" />";
         echo "<div class=\"home_caption\">$folder_title</div></div>";
         echo "</a>\n";
         echo "</div>\n";

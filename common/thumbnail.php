@@ -1,23 +1,18 @@
 <?php
 
-function getThumbnailPath($id)
+//! Return thumbnail path in form of AA/BB.jpg with HEX formatting of $id. 
+//! $folder selects between element and folder thumbnail
+function getThumbnailPath($id, $folder=false)
 {
     global $thumb_folder;
 
     // Return thumbnail path in form of AA/BB.jpg with HEX formatting of $id
     $hexid    = sprintf("%04X", $id);
     $hexsplit = str_split($hexid, 2);
-    return "$thumb_folder/elements/$hexsplit[0]/$hexsplit[1].jpg";
-}
-
-function getFolderThumbnailPath($id)
-{
-    global $thumb_folder;
-
-    // Return thumbnail path in form of AA/BB.jpg with HEX formatting of $id
-    $hexid    = sprintf("%04X", $id);
-    $hexsplit = str_split($hexid, 2);
-    return "$thumb_folder/folders/$hexsplit[0]/$hexsplit[1].jpg";
+    if ($folder == true)
+        return "$thumb_folder/folders/$hexsplit[0]/$hexsplit[1].jpg";
+    else
+        return "$thumb_folder/elements/$hexsplit[0]/$hexsplit[1].jpg";
 }
 
 function updateThumbnail(mediaDB &$db = NULL, $id)
@@ -112,7 +107,7 @@ function updateFolderThumbnail(mediaDB &$db, $id)
     if ($row['parent_id'] == -1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
     $filename  = $row['thumbnail_source'];
     $filename  = "$BASE_DIR/$image_folder/".$db->getFolderPath($id)."/$filename";
-    $thumbnail = "$BASE_DIR/".getFolderThumbnailPath($id);
+    $thumbnail = "$BASE_DIR/".getThumbnailPath($id, true);
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
@@ -164,7 +159,7 @@ function updateTopFolderMenuThumbnail(mediaDB &$db = NULL)
     $results = $db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
     if ($results === false) throw new Exception($m_db->error);
     while($row = $results->fetch_assoc()) {
-        $folder_thumb = "$BASE_DIR/".getFolderThumbnailPath($row['id']);
+        $folder_thumb = "$BASE_DIR/".getThumbnailPath($row['id'], true);
         if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
         $img    = new Imagick();
         $img->ReadImage($folder_thumb);

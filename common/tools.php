@@ -37,7 +37,7 @@ function getProcessingTime($starttime)
     }
 }
 
-function genTimelineData(mediaDB &$db = NULL, $top_id = 1)
+function genTimelineData(mediaDB &$db = NULL, $top_id = -1)
 {
     global $BASE_URL;
     global $BASE_DIR;
@@ -79,9 +79,9 @@ function genTimelineData(mediaDB &$db = NULL, $top_id = 1)
             $json_data .= "\t\t\t\t".'"tag":"'.utf8_encode($m_db->getFolderTitle($hierarchy[1])).'",'."\n";
             $json_data .= "\t\t\t\t".'"asset":'."\n";
             $json_data .= "\t\t\t\t\t{\n";
-            $json_data .= "\t\t\t\t\t\t".'"media":"'."$BASE_URL/".getFolderThumbnailPath($itemid).'",'."\n";
+            $json_data .= "\t\t\t\t\t\t".'"media":"'."$BASE_URL/".getThumbnailPath($itemid, true).'",'."\n";
             $json_data .= "\t\t\t\t\t\t".'"credit":"",'."\n";
-            $json_data .= "\t\t\t\t\t\t".'"thumbnail":"'."$BASE_URL/".getFolderThumbnailPath($itemid).'",'."\n";
+            $json_data .= "\t\t\t\t\t\t".'"thumbnail":"'."$BASE_URL/".getThumbnailPath($itemid, true).'",'."\n";
             $json_data .= "\t\t\t\t\t\t".'"caption":""'."\n";
             $json_data .= "\t\t\t\t\t}\n";
             $json_data .= "\t\t\t}";
