@@ -1,5 +1,23 @@
 <?php
 
+function getElementTooltip(mediaObject &$element)
+{
+    $tooltip = htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
+    if (count($element->tags) > 0) {
+        $tooltip .= "<br /><i>";
+        $tagline = "";
+        foreach($element->tags as $tag) {
+            if ($tagline != "")
+                $tagline .= ", ";
+            $tagline .= htmlentities($tag);
+        }
+        $tooltip .= $tagline."</i>";
+    } else if (($element->type == 'movie') && ($element->duration != ''))
+        $tooltip .= "<br /><i>".$element->duration."</i>";
+
+    return $tooltip;
+}
+
 function displayTagSelector(mediaDB &$db)
 {
     $tag_list = $db->getAvailableTags();
@@ -42,20 +60,9 @@ function displayTagElements($tag_array, mediaDB &$db)
                 // Images
                 echo "<a href=\"".getResizedPath($current_id)."\" rel=\"#gallery\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
-            echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
-            if (count($element->tags) > 0) {
-                echo "<br /><i>";
-                $tagline = "";
-                foreach($element->tags as $tag) {
-                    if ($tagline != "")
-                        $tagline .= ", ";
-                    $tagline .= htmlentities($tag);
-                }
-                echo "$tagline</i>";
-            } else if (($element->type == 'movie') && ($element->duration != ''))
-                echo "<br /><i>".$element->duration."</i>";
-            echo "</div></a></div>\n";
+            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>";
+            echo "<div class=\"tooltip\">".getElementTooltip($element)."</div>";
+            echo "</a></div>\n";
         }
         echo "</div>\n";
         // Videos overlay
@@ -98,20 +105,9 @@ function displayElementList($id, mediaDB &$db)
                 // Images
                 echo "<a href=\"".getResizedPath($current_id)."\" rel=\"#gallery\" title=\"".htmlentities($element->getSubTitle())."\">";
             }
-            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>\n";
-            echo "<div class=\"tooltip\">".htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
-            if (count($element->tags) > 0) {
-                echo "<br /><i>";
-                $tagline = "";
-                foreach($element->tags as $tag) {
-                    if ($tagline != "")
-                        $tagline .= ", ";
-                    $tagline .= htmlentities($tag);
-                }
-                echo "$tagline</i>";
-            } else if (($element->type == 'movie') && ($element->duration != ''))
-                echo "<br /><i>".$element->duration."</i>";
-            echo "</div></a></div>\n";
+            echo "<img class=\"lazy\" src=\"images/nothumb.jpg\" data-src=\"".getThumbnailPath($current_id)."\" border=\"0\" alt=\"".htmlentities($element->title)."\"/>";
+            echo "<div class=\"tooltip\">".getElementTooltip($element)."</div>";
+            echo "</a></div>\n";
         }
         echo "</div>\n";
         // Videos overlay
