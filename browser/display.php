@@ -318,8 +318,9 @@ function displaySideMenu($id, mediaDB &$db)
 
 function displayFooter()
 {
+    global $gallery_release_tag;
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v2.6.0 - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v$gallery_release_tag - H. Raffard &amp; C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }

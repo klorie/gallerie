@@ -4,7 +4,6 @@ require_once "include.php";
 require_once "browser/header.php";
 require_once "browser/display.php";
 
-global $BASE_DIR;
 global $BASE_URL;
 
 // Move to mobile version if required
