@@ -132,7 +132,10 @@ function updateFolderThumbnail(mediaDB &$db, $id)
         $new_height = $thumbnail_size;
         $new_width  = $thumbnail_size * 0.75;
     }
-    $img->cropThumbnailImage($new_width, $new_height);
+    if ($row['parent_id'] == -1)
+        $img->cropThumbnailImage($thumbnail_size, $thumbnail_size * 0.75);
+    else
+        $img->cropThumbnailImage($new_width, $new_height);
     $img->setImageFormat("jpeg");
     $img->setCompressionQuality(65);
     $img->setImageFilename($thumbnail);
@@ -156,7 +159,7 @@ function updateTopFolderMenuThumbnail(mediaDB &$db = NULL)
         $db_local = false;
     }
 
-    $results = $db->query("SELECT id, foldername FROM media_folders WHERE parent_id=1;");
+    $results = $db->query("SELECT id, foldername FROM media_folders WHERE parent_id=-1;");
     if ($results === false) throw new Exception($m_db->error);
     while($row = $results->fetch_assoc()) {
         $folder_thumb = "$BASE_DIR/".getThumbnailPath($row['id'], true);

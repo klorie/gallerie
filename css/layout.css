@@ -223,6 +223,19 @@ ul.submenu li a:hover {
     vertical-align: bottom;
 }
 
+.tooltip {
+    display:     none;
+    z-index:     999;
+    background:  transparent url(../images/black_arrow.png) no-repeat;
+    font-size:   10px;
+    height:      70px;
+    line-height: 1.5em;
+    width:       160px;
+    padding:     25px;
+    color:       #FFFFFF;
+    text-align:  center;
+}
+
 /*---------------------------------------------------
  * Videos
  * --------------------------------------------------*/
