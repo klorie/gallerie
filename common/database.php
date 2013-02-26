@@ -43,11 +43,13 @@ class mediaDB extends mysqli
             die('-E- Failed query:'.$this->error);
         if (($this->query('INSERT INTO gallery_config (name, value) VALUES ("lastupdate", "1970/01/01 00:00:00");')) === FALSE)
             die('-E- Failed query:'.$this->error);
+        if (($this->query('INSERT INTO gallery_config (name, value) VALUES ("db_schema_version", "1.0");')) === FALSE)
+            die('-E- Failed query:'.$this->error);
     }
 
     function __construct()
     {   
-        global $database_host, $database_name, $database_user, $database_pwd;
+        global $database_host, $database_name, $database_user, $database_pwd, $db_schema_version;
     
         parent::__construct($database_host, $database_user, $database_pwd, $database_name);
         if (mysqli_connect_error()) {
@@ -59,9 +61,30 @@ class mediaDB extends mysqli
                 parent::__construct($database_host, $database_user, $database_pwd);
                 if ($this->query('CREATE DATABASE gallery;') === FALSE)
                     die('-E-    Failed to create database'.$this->error);
-                else
-                    $this->select_db("gallery");
+                $this->select_db("gallery");
+                print "-I-    Creating gallery database\n";
                 $this->init_database();
+            }
+        } else {
+            // Check DB schema
+            $result = $this->query('SELECT value FROM gallery_config WHERE name = "db_schema_version";');
+            if ($result === FALSE) {
+                // No schema at all neither config table - we are on historical version
+                print "-I-    Recreating database as we have changed schema\n";
+                if ($this->query('DROP DATABASE gallery;') === FALSE) die('-E- Failed to delete database'.$this->error);
+                if ($this->query('CREATE DATABASE gallery;') === FALSE) die('-E- Failed to create database'.$this->error);
+                $this->select_db("gallery");
+                $this->init_database();
+            } else {
+                $row = $result->fetch_assoc();
+                if ($row['value'] != $db_schema_version) {
+                    // Schema found, but is too old
+                    print "-I-    Recreating database as we have changed schema\n";
+                    if ($this->query('DROP DATABASE gallery') === FALSE) die('-E- Failed to delete database'.$this->error);
+                    if ($this->query('CREATE DATABASE gallery') === FALSE) die('-E- Failed to create database'.$this->error);
+                    $this->select_db("gallery");
+                    $this->init_database();
+                }
             }
         }
 

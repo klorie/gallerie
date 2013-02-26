@@ -1,4 +1,6 @@
 <?php
+// Global variables static in project
+$db_schema_version   = '1.0';
 require_once "config.php";
 @include     "export.php";
 require_once "common/tools.php";

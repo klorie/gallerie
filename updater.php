@@ -37,8 +37,6 @@ if (($argc == 2) && ($argv[1] == '--export')) {
     if (is_dir('export') == false)
         mkdir('export');
     // Activate $disable_dynamic
-    // Export with wget
-    // wget -k -K  -E -r -l 10 -p -N -F -nH -X $image_folder http://website.com/
     file_put_contents('export.php', '<?php $disable_dynamic = true; ?>');
     // run export
     exec("wget -q -P export -k -E -r -l 10 -p -N -F -nH -X */$image_folder $BASE_URL");
