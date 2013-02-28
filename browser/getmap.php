@@ -28,7 +28,7 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
   <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>		
   <script src="<?php echo $BASE_URL?>/js/navigation.js"></script>
   <script type="text/javascript" charset="utf-8">
-    $(document).ready(function(){
+    $(function() {
 <?php
 $element = new mediaObject();
 echo "    var latlng = new google.maps.LatLng(0,0);\n";
