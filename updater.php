@@ -15,6 +15,7 @@ update_database($gallery_db);
 print "-I-    Step 2. Cleaning DB\n";
 clean_database($gallery_db);
 clean_tags($gallery_db);
+$gallery_db->updateTimeStamp();
 print "-I-    Step 3. Updating Thumbnails\n";
 update_thumbnails($gallery_db);
 print "-I-    Step 4. Cleaning Thumbnails\n";
@@ -27,7 +28,6 @@ print "-I-    Step 7. Updating Theme files\n";
 updateTopFolderMenuThumbnail($gallery_db);
 generateTopFolderStylesheet($gallery_db);
 print "-I-    Step 8. Finishing\n";
-$gallery_db->updateTimeStamp();
 $gallery_db->close();
 print "-I-    Gallery update complete\n";
 
