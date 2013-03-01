@@ -111,37 +111,49 @@ function updateFolderThumbnail(mediaDB &$db, $id)
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
+    $info = pathinfo($thumbnail);
+    $ext  = strtolower($info['extension']);
+    if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp')
+        $type = 'picture';
+    else
+        $type = 'movie';
+    
     // Create required thumbnail location if required
     if (is_dir(dirname($thumbnail)) == false) {
         print "-I-    ".dirname($thumbnail)." not found, creating.\n";
         mkdir(dirname($thumbnail), 0777, true);
     }
 
-    // Create picture thumbnail
-    // load image and get image size
-    if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
-    $img    = new Imagick();
-    $img->ReadImage($filename);
-    $width  = $img->GetImageWidth();
-    $height = $img->GetImageHeight();
-    // calculate thumbnail size
-    if ($width >= $height) {
-        $new_width  = $thumbnail_size;
-        $new_height = $thumbnail_size * 0.75;
+    if ($type == 'picture') {
+        // Create picture thumbnail
+        // load image and get image size
+        if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
+        $img    = new Imagick();
+        $img->ReadImage($filename);
+        $width  = $img->GetImageWidth();
+        $height = $img->GetImageHeight();
+        // calculate thumbnail size
+        if ($width >= $height) {
+            $new_width  = $thumbnail_size;
+            $new_height = $thumbnail_size * 0.75;
+        } else {
+            $new_height = $thumbnail_size;
+            $new_width  = $thumbnail_size * 0.75;
+        }
+        if ($row['parent_id'] == -1)
+            $img->cropThumbnailImage($thumbnail_size, $thumbnail_size * 0.75);
+        else
+            $img->cropThumbnailImage($new_width, $new_height);
+        $img->setImageFormat("jpeg");
+        $img->setCompressionQuality(65);
+        $img->setImageFilename($thumbnail);
+        $img->WriteImage();
+        $img->clear();
+        $img->destroy();
     } else {
-        $new_height = $thumbnail_size;
-        $new_width  = $thumbnail_size * 0.75;
+        // Create video thumbnail
+        exec("ffmpegthumbnailer -i \"$filename\" -o \"$thumbnail\" -t 1 -s $thumb_size -f");        
     }
-    if ($row['parent_id'] == -1)
-        $img->cropThumbnailImage($thumbnail_size, $thumbnail_size * 0.75);
-    else
-        $img->cropThumbnailImage($new_width, $new_height);
-    $img->setImageFormat("jpeg");
-    $img->setCompressionQuality(65);
-    $img->setImageFilename($thumbnail);
-    $img->WriteImage();
-    $img->clear();
-    $img->destroy();
 
     return true;
 }
