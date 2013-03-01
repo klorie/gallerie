@@ -80,7 +80,7 @@ class mediaDB extends mysqli
                 if ($row['value'] != $db_schema_version) {
                     // Schema found, but is too old
                     print "-I-    Recreating database as we have changed schema\n";
-                    if ($this->query("DROP DATABAS $database_name") === FALSE) die('-E- Failed to delete database'.$this->error);
+                    if ($this->query("DROP DATABASE $database_name") === FALSE) die('-E- Failed to delete database'.$this->error);
                     if ($this->query("CREATE DATABASE $database_name") === FALSE) die('-E- Failed to create database'.$this->error);
                     $this->select_db("$database_name");
                     $this->init_database();
