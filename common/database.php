@@ -59,10 +59,10 @@ class mediaDB extends mysqli
             } else {
                 // Create DB
                 parent::__construct($database_host, $database_user, $database_pwd);
-                if ($this->query('CREATE DATABASE gallery;') === FALSE)
+                if ($this->query("CREATE DATABASE $database_name;") === FALSE)
                     die('-E-    Failed to create database'.$this->error);
-                $this->select_db("gallery");
-                print "-I-    Creating gallery database\n";
+                $this->select_db("$database_name");
+                print "-I-    Creating gallerie database\n";
                 $this->init_database();
             }
         } else {
@@ -71,18 +71,18 @@ class mediaDB extends mysqli
             if ($result === FALSE) {
                 // No schema at all neither config table - we are on historical version
                 print "-I-    Recreating database as we have changed schema\n";
-                if ($this->query('DROP DATABASE gallery;') === FALSE) die('-E- Failed to delete database'.$this->error);
-                if ($this->query('CREATE DATABASE gallery;') === FALSE) die('-E- Failed to create database'.$this->error);
-                $this->select_db("gallery");
+                if ($this->query("DROP DATABASE $database_name;") === FALSE) die('-E- Failed to delete database'.$this->error);
+                if ($this->query("CREATE DATABASE $database_name;") === FALSE) die('-E- Failed to create database'.$this->error);
+                $this->select_db("$database_name");
                 $this->init_database();
             } else {
                 $row = $result->fetch_assoc();
                 if ($row['value'] != $db_schema_version) {
                     // Schema found, but is too old
                     print "-I-    Recreating database as we have changed schema\n";
-                    if ($this->query('DROP DATABASE gallery') === FALSE) die('-E- Failed to delete database'.$this->error);
-                    if ($this->query('CREATE DATABASE gallery') === FALSE) die('-E- Failed to create database'.$this->error);
-                    $this->select_db("gallery");
+                    if ($this->query("DROP DATABAS $database_name") === FALSE) die('-E- Failed to delete database'.$this->error);
+                    if ($this->query("CREATE DATABASE $database_name") === FALSE) die('-E- Failed to create database'.$this->error);
+                    $this->select_db("$database_name");
                     $this->init_database();
                 }
             }
