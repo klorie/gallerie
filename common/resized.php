@@ -34,7 +34,7 @@ function updateResized(mediaDB &$db = NULL, $id)
     $lastmod   = "";
     $p_id      = -1;
 
-    set_time_limit(30); // Set time limit to avoid timeout
+    set_time_limit(300); // Set time limit to avoid timeout
 
     // Get Object info
     $result = $db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;");

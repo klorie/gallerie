@@ -6,8 +6,6 @@ require_once "include.php";
 require_once "common/indexer.php";
 require_once "browser/display.php";
 
-set_time_limit(9999);
-
 $gallery_db = new mediaDB();
 
 print "-I-    Step 1. Updating DB\n";
