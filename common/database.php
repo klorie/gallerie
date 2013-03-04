@@ -333,7 +333,7 @@ class mediaDB extends mysqli
         foreach ($element_list as $element)
             $this->removeElement($element);
         if ($recurse == true) {
-            $subfolder_list = $this->getSubFolder($id);
+            $subfolder_list = $this->getSubFolders($id);
             foreach($subfolder_list as $subfolder) {
                 $this->removeFolder($subfolder, true);
             }
