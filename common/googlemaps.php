@@ -51,25 +51,25 @@ function getElementIcon($tags)
     $result = '';
 
     foreach($tags as $tag) {
-        if (stristr($tag['name'], 'Paysage') != false) {
+        if (stristr($tag, 'Paysage') != false) {
             // No break here as if there is another tag for this picture -> use it
             $result = "$BASE_URL/images/markers/paysage.png";
-        } else if (stristr($tag['name'], 'Flore')   != false) {
+        } else if (stristr($tag, 'Flore')   != false) {
             $result = "$BASE_URL/images/markers/flore.png";
             break;
-        } else if (stristr($tag['name'], 'Faune')   != false) {
+        } else if (stristr($tag, 'Faune')   != false) {
             $result = "$BASE_URL/images/markers/faune.png";
             break;
-        } else if (stristr($tag['name'], 'Eglise')  != false) {
+        } else if (stristr($tag, 'Eglise')  != false) {
             $result = "$BASE_URL/images/markers/eglise.png";
             break;
-        } else if (stristr($tag['name'], 'Pano')    != false) {
+        } else if (stristr($tag, 'Pano')    != false) {
             $result = "$BASE_URL/images/markers/panorama.png";
             break;
-        } else if (stristr($tag['name'], 'Portrait') != false) {
+        } else if (stristr($tag, 'Portrait') != false) {
             $result = "$BASE_URL/images/markers/portrait.png";
             break;
-        } else if (stristr($tag['name'], 'Macro') != false) {
+        } else if (stristr($tag, 'Macro') != false) {
             // No break here as if there is another tag for this picture -> use it
             $result = "$BASE_URL/images/markers/flore.png";
         }
