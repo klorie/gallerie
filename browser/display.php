@@ -117,7 +117,7 @@ function displayElementList($id, mediaDB &$db)
             $db->loadMediaObject($element, $current_id);
             if($element->type == 'movie') {
                 echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-                echo "<a class=\"player\" href=\"$BASE_URL/".getResizedPath($current_id)."\"></a>";
+                echo "<a class=\"player\" href=\"".getResizedPath($current_id)."\"></a>";
                 echo "</div>\n";
                 $videoid++;
             }
