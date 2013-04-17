@@ -208,13 +208,10 @@ class mediaFolder
                     $this->title = strtr($source_path, "_", " ");
             } else {
                 // Plain file
-                $info = pathinfo("$source_fullpath/$entry");
-                $ext  = "";
-                if (!isset($info['extension']))
+                $ext = strtolower(pathinfo("$source_fullpath/$entry", PATHINFO_EXTENSION));
+                if (($ext == "") || ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg')) {
                     continue;
-                else
-                    $ext = strtolower($info['extension']);
-                if ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg') continue;
+                }
                 if (strtotime($this->lastupdate) > filemtime("$source_fullpath/$entry")) continue;
                 $element = new mediaObject($this);
                 $element->loadFromFile($entry);
@@ -285,9 +282,7 @@ class mediaObject
         $this->filename  = $source_filename;
         $source_fullname = "$BASE_DIR/$image_folder/".$this->download_path;
         $this->lastmod   = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
-        $info            = pathinfo($source_fullname);
-        $ext             = strtolower($info['extension']);
-        $fname_noext     = $info['filename'];
+        $ext             = strtolower(pathinfo($source_fullname, PATHINFO_EXTENSION));
         if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp') {
             $this->type = 'picture';
         } else if ($ext == 'mov' || $ext == 'mpg' || $ext == 'avi') {
@@ -330,7 +325,7 @@ class mediaObject
             if (isset($exif['GPSAltitude'])) $this->altitude = exif_get_float($exif['GPSAltitude']);
         }
         if ($this->originaldate == "") $this->originaldate = strftime('%Y/%m/%d %H:%M:%S', filemtime($source_fullname));
-        $this->title = $info['filename'];
+        $this->title = pathinfo($source_fullname, PATHINFO_FILENAME);
         $this->title = strtr($this->title, "_", " ");
         if ($this->type == 'picture') {
             $size = getimagesize($source_fullname, $imginfo);

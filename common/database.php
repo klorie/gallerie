@@ -297,6 +297,7 @@ class mediaDB extends mysqli
             $media->originaldate = $row['originaldate'];
             $media->name         = $row['foldername'];
             $media->thumbnail    = $row['thumbnail_source'];
+            $media->lastupdate   = $lastupdate;
         }
         // Fetch subfolders if required
         if ($depth > 0) {

@@ -111,8 +111,8 @@ function updateFolderThumbnail(mediaDB &$db, $id)
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
 
-    $info = pathinfo($filename);
-    $ext  = strtolower($info['extension']);
+    $ext  = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    if ($ext == '') print "-D- $filename\n";
     if ($ext == 'jpg' || $ext == 'png' || $ext == 'gif' || $ext == 'bmp')
         $type = 'picture';
     else
