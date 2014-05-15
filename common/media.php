@@ -162,10 +162,6 @@ class mediaFolder
             $source_fullpath = "$BASE_DIR/$image_folder";
         $source_fullpath = realpath($source_fullpath);
 
-        //@session_start();
-        //$_SESSION['status'] = "Loading $source_fullpath ...";
-        //session_commit();
-
         $current_dir_list = scandir($source_fullpath);
         if ($current_dir_list === false) throw new Exception("-E- Failed to open $source_fullpath for reading");
 
