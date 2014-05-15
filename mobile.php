@@ -26,28 +26,17 @@ global $gallery_release_tag;
   <head> 
 <?php echo "<title>".$gal_title."</title>"; ?> 
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
-  <link rel="stylesheet" href="css/photoswipe.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
+  <link rel="stylesheet" href="css/jquery.mobile.custom.css" />
   <script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
-  <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-  <script src="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
   <script src="js/jquery.ui.map.full.min.js" type="text/javascript"></script>
-  <script src="js/klass.min.js"></script>
-  <script src="js/photoswipe-3.0.5.min.js"></script>
   <script type="text/javascript">
-  <?php if ($mode == 'folder') {
-    echo "$(document).bind('pageinit', function(){\n";
-    echo "  if ( $(\"#gallery a\").length > 0) {\n";
-    echo "    var myPhotoSwipe = $(\"#gallery a\").photoSwipe({ jQueryMobile: true, enableMouseWheel: false, enableKeyboard: false });\n";
-    echo "  }\n";
-    echo "});\n";
-  } else {
-    displayMapHeader($map, $m_db);
-  } ?>
   </script>
 </head> 
 <body> 
-<div data-role="page" data-theme="a">
+<div data-role="page">
     <?php if ($mode == 'folder') displaySideMenu($m_folder_id, $m_db); ?>
 	<div data-role="header" data-position="fixed">
         <?php if ($mode == 'folder') 
@@ -59,7 +48,7 @@ global $gallery_release_tag;
         <a href="mobile.php" data-icon="home" data-iconpos="notext" title="Accueil">Accueil</a>
 	</div><!-- /header -->
 
-	<div data-role="content" id="page-content">
+	<div data-role="content">
         <?php if ($mode == 'folder') {    
                 displaySubFolderList($m_folder_id, $m_db);
                 displayElementList($m_folder_id, $m_db);
