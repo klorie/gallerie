@@ -320,7 +320,7 @@ function displayFooter()
 {
     global $gallery_release_tag;
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v$gallery_release_tag - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v$gallery_release_tag - C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }

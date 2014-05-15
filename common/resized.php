@@ -36,8 +36,14 @@ function updateResized(mediaDB &$db = NULL, $id)
 
     set_time_limit(300); // Set time limit to avoid timeout
 
+    $m_db    = NULL;
+    if ($db == NULL)
+        $m_db = new mediaDB();
+    else
+        $m_db = $db;
+
     // Get Object info
-    $result = $db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;");
+    $result = $m_db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;");
     if ($result === false) throw new Exception($m_db->error); else $row = $result->fetch_assoc();
     $result->free();
     $filename = $row['filename'];
@@ -56,7 +62,7 @@ function updateResized(mediaDB &$db = NULL, $id)
         $p_id  = $row['parent_id'];
     }
     $filename = "$BASE_DIR/$image_folder/".$filename;
-    $resized  = "$BASE_DIR/".getResizedPath($id, $db);
+    $resized  = "$BASE_DIR/".getResizedPath($id, $m_db);
 
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 
