@@ -560,7 +560,7 @@ class mediaDB extends mysqli
             $query_str .= "WHERE media_tags.tag_id='".$tag_id."' ";
             foreach (range(1, count($tag_array)- 1) as $tag_idx) {
                 $tag_id     = $this->findTagID($tag_array[$tag_idx]);
-                $query_str .= "AND media".$tag_idx.".name='".$tag_id."' ";
+                $query_str .= "AND media".$tag_idx.".tag_id='".$tag_id."' ";
             }
         }
         $results = $this->query($query_str.";");
