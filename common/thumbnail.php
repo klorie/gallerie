@@ -27,7 +27,7 @@ function updateThumbnail(mediaDB &$db = NULL, $id)
     $lastmod   = "";
     $p_id      = -1;
 
-    set_time_limit(30); // Set time limit to avoid timeout
+    set_time_limit(300); // Set time limit to avoid timeout
 
     // Get Object info
     $row = $db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
@@ -124,31 +124,36 @@ function updateFolderThumbnail(mediaDB &$db, $id)
         mkdir(dirname($thumbnail), 0777, true);
     }
 
-    // Create picture thumbnail
-    // load image and get image size
-    if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
-    $img    = new Imagick();
-    $img->ReadImage($filename);
-    $width  = $img->GetImageWidth();
-    $height = $img->GetImageHeight();
-    // calculate thumbnail size
-    if ($width >= $height) {
-        $new_width  = $thumbnail_size;
-        $new_height = $thumbnail_size * 0.75;
+    if ($type == 'picture') {
+        // Create picture thumbnail
+        // load image and get image size
+        if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
+        $img    = new Imagick();
+        $img->ReadImage($filename);
+        $width  = $img->GetImageWidth();
+        $height = $img->GetImageHeight();
+        // calculate thumbnail size
+        if ($width >= $height) {
+            $new_width  = $thumbnail_size;
+            $new_height = $thumbnail_size * 0.75;
+        } else {
+            $new_height = $thumbnail_size;
+            $new_width  = $thumbnail_size * 0.75;
+        }
+        if ($row['parent_id'] == -1)
+            $img->cropThumbnailImage($thumbnail_size, $thumbnail_size * 0.75);
+        else
+            $img->cropThumbnailImage($new_width, $new_height);
+        $img->setImageFormat("jpeg");
+        $img->setCompressionQuality(65);
+        $img->setImageFilename($thumbnail);
+        $img->WriteImage();
+        $img->clear();
+        $img->destroy();
     } else {
-        $new_height = $thumbnail_size;
-        $new_width  = $thumbnail_size * 0.75;
+        // Create video thumbnail
+        exec("ffmpegthumbnailer -i \"$filename\" -o \"$thumbnail\" -t 1 -s $thumb_size -f");        
     }
-    if ($row['parent_id'] == -1)
-        $img->cropThumbnailImage($thumbnail_size, $thumbnail_size * 0.75);
-    else
-        $img->cropThumbnailImage($new_width, $new_height);
-    $img->setImageFormat("jpeg");
-    $img->setCompressionQuality(65);
-    $img->setImageFilename($thumbnail);
-    $img->WriteImage();
-    $img->clear();
-    $img->destroy();
 
     return true;
 }

@@ -72,8 +72,8 @@ function clean_database(mediaDB &$db = NULL, $folder_id = -1)
         }
     } else {
         // No folder anymore. Remove corresponding elements and subfolders, and folder
-        print "-D-    Cleaning Folder $current_folder\n";
-        $db->removeFolder($current_folder);
+        print "-D-    Cleaning Folder $current_path\n";
+        $db->removeFolder($folder_id);
     }
 
     // Return DB object to let the caller close it

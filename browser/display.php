@@ -117,7 +117,7 @@ function displayElementList($id, mediaDB &$db)
             $db->loadMediaObject($element, $current_id);
             if($element->type == 'movie') {
                 echo "<div class=\"videoverlay\" id=\"video".$videoid."\">";
-                echo "<a class=\"player\" href=\"$BASE_URL/".getResizedPath($current_id)."\"></a>";
+                echo "<a class=\"player\" href=\"".getResizedPath($current_id)."\"></a>";
                 echo "</div>\n";
                 $videoid++;
             }
@@ -320,7 +320,7 @@ function displayFooter()
 {
     global $gallery_release_tag;
     echo "<ul class=\"submenu\">\n";
-    echo "<li>Gallerie v$gallery_release_tag - H. Raffard &amp; C. Laury</li>\n";
+    echo "<li>Gallerie v$gallery_release_tag - C. Laury</li>\n";
     echo "</ul>\n";
     echo "<br clear=\"all\" />\n";
 }

@@ -80,7 +80,7 @@ class mediaDB extends mysqli
                 if ($row['value'] != $db_schema_version) {
                     // Schema found, but is too old
                     print "-I-    Recreating database as we have changed schema\n";
-                    if ($this->query("DROP DATABAS $database_name") === FALSE) die('-E- Failed to delete database'.$this->error);
+                    if ($this->query("DROP DATABASE $database_name") === FALSE) die('-E- Failed to delete database'.$this->error);
                     if ($this->query("CREATE DATABASE $database_name") === FALSE) die('-E- Failed to create database'.$this->error);
                     $this->select_db("$database_name");
                     $this->init_database();
@@ -122,6 +122,10 @@ class mediaDB extends mysqli
 
     function storeMediaObject(mediaObject &$media, $update=false)
     {
+        // Check pertinence of updating
+        if (($update == true) && ($media->folder->lastupdate > $media->lastmod))
+            return true;
+
         // Get Camera ID
         $camera_id = -1;
         if ($media->camera != '')
@@ -175,9 +179,20 @@ class mediaDB extends mysqli
         }
         // Process tags
         if ($store_id != -1) {
-            // Clean old tags
-            if ($this->query("DELETE FROM media_tags WHERE media_id=$store_id;") === FALSE)
-                print $this->error;
+            // Get currently stored tags
+            $db_tags = $this->getElementTags($store_id);
+            foreach ($db_tags as $db_tag) {
+                // Check DB tag against current tag
+                if (in_array($db_tag, $media->tags) == true) {
+                    // Tag already there, removing from list
+                    $media->tags = array_diff($media->tags, array($db_tag));
+                } else {
+                    // Tag not there anymore, removing from DB
+                    $tag_id = $this->findTagID($db_tag);
+                    if ($this->query("DELETE FROM media_tags WHERE media_id=$store_id AND tag_id=$tag_id;") === FALSE)
+                        die("-E-  Failed query: ".$this->error);
+                }
+            }
         }
         foreach ($media->tags as $tag) {
             $tag_id = $this->findTagID($tag);
@@ -319,7 +334,7 @@ class mediaDB extends mysqli
         foreach ($element_list as $element)
             $this->removeElement($element);
         if ($recurse == true) {
-            $subfolder_list = $this->getSubFolder($id);
+            $subfolder_list = $this->getSubFolders($id);
             foreach($subfolder_list as $subfolder) {
                 $this->removeFolder($subfolder, true);
             }
