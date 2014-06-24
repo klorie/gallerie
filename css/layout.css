@@ -49,19 +49,10 @@ h3 {
     padding:    0 15px 15px 15px;
 	background: #000000;
 	border:     2px #313739 solid;
+	border-radius:         10px;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
 	margin:     0 15px 0 15px;
-}
-
-#timeline_content {
-    clear:      left;
-    padding:    0 15px 30px 15px;
-    background: #000000;
-    border:     2px #313739 solid;
-    -moz-border-radius:    10px;
-    -webkit-border-radius: 10px;
-    height:     95%;
 }
 
 #map_content {
@@ -69,6 +60,7 @@ h3 {
     padding:    0 15px 15px 15px;
 	background: #000000;
 	border:     2px #313739 solid;
+	border-radius:         10px;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
     height:     95%;
@@ -80,13 +72,10 @@ h3 {
 
 #map_info {
     text-align: center;
-    width:      160px;
-    background: #000000;
-    padding:    15px  15px  15px  15px;
-	margin:     0;
-	border:     2px #313739 solid;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
+    width:   160px;
+    color:   #000000;
+    padding: 0;
+	margin:  0;
 }
 	
 ul.menu {
@@ -118,6 +107,7 @@ ul.submenu {
 	padding:    15px 30px 15px 20px;
 	margin:     0 0 10px 15px; 
 	border:     2px #313739 solid;
+	border-radius:         10px;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
 }
@@ -140,38 +130,8 @@ ul.submenu li a:hover {
 	background:      #333333;
 }
 
-#galleryfolder a {
-    display:         block;
-	text-align:      center;
-	text-decoration: none;
-    border:          1px solid #222222;
-}
-
-#galleryfolder a:hover { 
-    background: #333333; 
-    color:      #FFFFFF; 
-    border:     1px solid #FFFFFF;
-}
-	
-#gallery a {
-    display:        block;
-    vertical-align: middle;
-}
-
-#gallery a:hover {
-    background: #333333;
-}
-
 #container {
     margin: 0 auto;
-}
-
-#gallery {
-    margin:  0 auto;
-}
-
-#galleryfolder {
-    margin:  0 auto;
 }
 
 .box {
@@ -192,78 +152,6 @@ ul.submenu li a:hover {
     text-align:       center;
     padding-bottom:   10px;
 }
-
-.element {
-    text-align: center;
-    width:       150px;
-    height:      155px;
-    line-height: 155px;
-    margin:     0 auto;
-    float:        left;
-}
-
-.element img {
-    vertical-align: middle;
-}
-
-.folder {
-    text-align: center;
-    width:       160px;
-    height:      185px;
-    margin:     0 auto;
-    float:        left;
-}
-
-.folderimg {
-    height:      150px;
-    line-height: 150px;
-}
-
-.folderimg img {
-    vertical-align: bottom;
-}
-
-.tooltip {
-    display:     none;
-    z-index:     999;
-    background:  transparent url(../images/black_arrow.png) no-repeat;
-    font-size:   10px;
-    height:      70px;
-    line-height: 1.5em;
-    width:       160px;
-    padding:     25px;
-    color:       #FFFFFF;
-    text-align:  center;
-}
-
-/*---------------------------------------------------
- * Videos
- * --------------------------------------------------*/
-.videoverlay {
-    /* initially overlay is hidden */
-    display:          none;
-    background-image: url(../images/transparent_overlay.png);
-    color:            #FFFFFF;
-    width:            640px;        
-    padding:          35px;
-    font-size:        11px;
-}
-
-.videoverlay .close {
-    background-image: url(../images/close_overlay.png);
-    position:         absolute;
-    right:            5px; 
-    top:              5px;
-    cursor:           pointer;
-    height:           35px;
-    width:            35px;
-}
-
-a.player {      
-    display:          block;
-    height:           480px;           
-}
-
 
 /* ------------------------------------------------------------------------
 	Miscellaneous

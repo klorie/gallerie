@@ -1,30 +1,37 @@
 ul#side_navigation {
-    position:   fixed;
-    margin:      0px;
-    padding:     0px;
-    top:        10px;
-    left:        0px;
-    list-style: none;
-    z-index:    10;
+    margin:          0px;
+    width:         215px;
+    margin-left:  -180px;
+    opacity:         0.7;
+    position:      fixed;
+    display:       block;
+    padding:         0px;
+    top:            10px;
+    left:            0px;
+    list-style:     none;
+    z-index:          10;
+}
+
+ul#side_navigation.expand {
+    margin-left:                        0px;
+    opacity:                            1.0;
 }
 
 ul#side_navigation li {
-    width:                              200px;
-    margin-left:                       -180px;
     padding-bottom:                     10px;
     padding-left:                       10px;
     display:                            block;
     background-color:                   #000000;
     background-repeat:                  no-repeat;
-    background-position:                178px 10px;
+    background-position:                180px 10px;
     border:                             1px solid #313739;
     -moz-border-radius:                 0px 10px 10px 0px;
+    border-radius:                      0px 10px 10px 0px;
     -webkit-border-top-right-radius:    10px;
     -webkit-border-bottom-right-radius: 10px;
     -khtml-border-top-right-radius:     10px;
     -khtml-border-bottom-right-radius:  10px;
-    opacity:                            0.7;
-    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+/*    opacity:                            0.7;*/
 }
 
 ul#side_navigation li.other_folders {
@@ -36,6 +43,7 @@ ul#side_navigation li.googlemaps {
 }
 
 #side_navigation a {
+    width:           160px;
     font-size:       1.1em;
 	display:         block;
     margin:          0 10px 0 0;

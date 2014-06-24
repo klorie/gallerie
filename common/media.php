@@ -372,7 +372,7 @@ class mediaObject
         if ($rss == true) 
             return $subtitle;
         if ($subtitle != "")          $subtitle .= "<br />";
-        $subtitle .= strftime('%d/%m/%Y %Hh%M', strtotime($this->originaldate))."<br />";
+        $subtitle .= strftime('%d/%m/%Y - %Hh%M', strtotime($this->originaldate))."<br />";
         if ($image_url == NULL)
             $subtitle .= "T&eacute;l&eacute;charger: <a href=\"$image_folder/$this->download_path\">$this->filename</a> ";
         else

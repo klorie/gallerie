@@ -24,8 +24,7 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/layout.css" type="text/css" media="screen" charset="utf-8" />
   <script src="http://maps.google.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
-  <script src="<?php echo $BASE_URL?>/js/infobox_packed.js"></script>
-  <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>		
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="<?php echo $BASE_URL?>/js/navigation.js"></script>
   <script type="text/javascript" charset="utf-8">
     $(function() {
@@ -54,18 +53,17 @@ foreach($elements_list as $element_id) {
     echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
     echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
     echo "\t'<h2>".js_encode($element->title)."</h2>'+\n";
-    echo "\t'<a href=\"$BASE_URL/".getResizedPath($element_id)."\">'+\n";
+    // echo "\t'<a href=\"$BASE_URL/".getResizedPath($element_id)."\">'+\n";
     echo "\t'<img src=\"$BASE_URL/".getThumbnailPath($element_id)."\" alt=\"".$element->filename."\"/>'+\n";
-    echo "\t'<p>Alt: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
-    echo "\t'</a></div>';\n";
+    echo "\t'<p>Altitude: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
+    echo "\t'</div>';\n";
     echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element->tags)."' });\n";
-    echo "var infooptions$infoid = { content: contentString$infoid, alignBottom: true, pixelOffset: new google.maps.Size(0, -35), boxClass: \"map_info\", closeBoxMargin: \"5px\" };\n";
-    echo "var infobox$infoid = new InfoBox(infooptions$infoid);\n";
-    echo "google.maps.event.addListener(marker$infoid, 'click', function() { infobox$infoid.open(map, marker$infoid); });\n";
+    echo "var infowindow$infoid = new google.maps.InfoWindow({ content: contentString$infoid });\n";
+    echo "google.maps.event.addListener(marker$infoid, 'click', function() { infowindow$infoid.open(map, marker$infoid); });\n";
     $infoid++;
 }
 ?>
-    });
+});
 </script>
 </head>
 <body>

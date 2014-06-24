@@ -20,6 +20,9 @@ function getResizedPath($id, mediaDB &$db = NULL)
         return "$resized_folder/$hexsplit[0]/$hexsplit[1].jpg";
     else
         return "$resized_folder/$hexsplit[0]/$hexsplit[1].flv";
+
+    if ($db == NULL)
+        $m_db->close();
 }
 
 function updateResized(mediaDB &$db = NULL, $id)
@@ -67,8 +70,10 @@ function updateResized(mediaDB &$db = NULL, $id)
     if (file_exists($resized) && (filemtime($resized) > filemtime($filename))) return false; // No need to update
 
     // Create required thumbnail location if required
-    if (is_dir(dirname($resized)) == false)
-        mkdir(dirname($resized), 0777, true);
+    if (is_dir(dirname($resized)) == false) {
+        print "-I-    Resized folder ".dirname($resized)." not found, creating.\n";
+        mkdir(dirname($resized), 0755, true);
+    }
 
     if ($type == 'picture') {
         // Create picture resized
@@ -102,10 +107,14 @@ function updateResized(mediaDB &$db = NULL, $id)
         $img->WriteImage();
         $img->clear();
         $img->destroy();
-    } else {
-        // Create video thumbnail
-        exec("mencoder \"$filename\" -o \"$resized\" -quiet -of lavf -oac mp3lame -lameopts abr:br=64:mode=3 -ovc lavc -lavcopts vcodec=flv:vbitrate=1600:mbd=2:mv0:trell:v4mv:cbp:last_pred=4 -ofps 15 -srate 44100");
-    }
+    } 
+    // else {
+    //    // Create video thumbnail
+    //    exec("mencoder \"$filename\" -o \"$resized\" -quiet -of lavf -oac mp3lame -lameopts abr:br=64:mode=3 -ovc lavc -lavcopts vcodec=flv:vbitrate=1600:mbd=2:mv0:trell:v4mv:cbp:last_pred=4 -ofps 15 -srate 44100");
+    //}
+
+    if ($db == NULL)
+        $m_db->close();
 
     return true;
 }

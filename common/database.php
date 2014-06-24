@@ -444,6 +444,51 @@ class mediaDB extends mysqli
         return $latest_array;
     }
 
+    function getFolderYears()
+    {
+        // Return an array of available years
+        $years_array = array();
+        $results = $this->query("SELECT DISTINCT YEAR(originaldate) FROM media_folders;");
+        if ($results === FALSE) throw new Exception($this->error);
+        while($row = $results->fetch_row())
+            $years_array[] = $row[0];
+        $results->free();
+        arsort($years_array);
+        return $years_array;
+    }
+
+    function getYearElementsCount($year)
+    {
+        // Returns number of elements which have been shot in $year
+        $results = $this->query("SELECT COUNT(*) FROM media_objects WHERE YEAR(originaldate) = $year;");
+        if ($results === false) throw new Exception($this->error); else $row = $results->fetch_row();
+        return $row[0];
+    }
+
+    function getFoldersForYear($year)
+    {
+        // Return an array of folders for a given year
+        $folder_array = array();
+        $results = $this->query("SELECT id FROM media_folders WHERE YEAR(originaldate) = $year;");
+        if ($results === FALSE) throw new Exception($this->error);
+        while($row = $results->fetch_row())
+            $folder_array[] = $row[0];
+        $results->free();
+        // Don't filter if only one element
+        if (count($folder_array) == 1)
+            return $folder_array;
+
+        // Filter results - remove top folders
+        $topfolders = $this->getSubFolders(-1);
+        $folder_array = array_diff($folder_array, $topfolders);
+        // Filter results - remove subfolders
+        foreach($folder_array as $folder) {
+            $subfolders = $this->getSubFolders($folder, true);
+            $folder_array = array_diff($folder_array, $subfolders);
+        }
+        return $folder_array;
+    }
+
     function getFolderHierarchy($id)
     {
         $folder_array[] = $id;

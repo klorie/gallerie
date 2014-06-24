@@ -29,9 +29,15 @@ function updateThumbnail(mediaDB &$db = NULL, $id)
 
     set_time_limit(300); // Set time limit to avoid timeout
 
+    $m_db    = NULL;
+    if ($db == NULL)
+        $m_db = new mediaDB();
+    else
+        $m_db = $db;
+
     // Get Object info
-    $row = $db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
-    if ($row === false) throw new Exception($db->error);
+    $row = $m_db->query("SELECT folder_id, filename, type, lastmod FROM media_objects WHERE id=$id;", true);
+    if ($row === false) throw new Exception($m_db->error);
     $result    = $row->fetch_assoc();
     $row->free();
     $filename  = $result['filename'];
@@ -39,7 +45,7 @@ function updateThumbnail(mediaDB &$db = NULL, $id)
     $lastmod   = $result['lastmod'];
     $p_id      = $result['folder_id'];
     // Retreive full path
-    $filename  = "$BASE_DIR/$image_folder/".$db->getFolderPath($p_id)."/$filename";
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($p_id)."/$filename";
     $thumbnail = "$BASE_DIR/".getThumbnailPath($id);
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > strftime($lastmod))) return false; // No need to update
@@ -74,10 +80,14 @@ function updateThumbnail(mediaDB &$db = NULL, $id)
         $img->WriteImage();
         $img->clear();
         $img->destroy();
-    } else {
-        // Create video thumbnail
-        exec("ffmpegthumbnailer -i \"$filename\" -o \"$thumbnail\" -t 1 -s $thumb_size -f");        
-    }
+    } 
+    // else {
+    //    // Create video thumbnail
+    //    exec("ffmpegthumbnailer -i \"$filename\" -o \"$thumbnail\" -t 1 -s $thumb_size -f");        
+    //}
+
+    if ($db == NULL)
+        $m_db->close();
 
     return true;
 }
@@ -94,19 +104,25 @@ function updateFolderThumbnail(mediaDB &$db, $id)
     $p_id           = -1;
     $thumbnail_size = $thumb_size;
 
+    $m_db    = NULL;
+    if ($db == NULL)
+        $m_db = new mediaDB();
+    else
+        $m_db = $db;
+
     // Sanity check - no thumbnail for root folder
     if ($id == -1) return false;
 
-    set_time_limit(30); // Set time limit to avoid timeout
+    set_time_limit(300); // Set time limit to avoid timeout
 
     // Get Folder info
-    $result = $db->query("SELECT thumbnail_source, parent_id FROM media_folders WHERE id=$id;", true);
-    if ($result === false) throw new Exception($db->error());
+    $result = $m_db->query("SELECT thumbnail_source, parent_id FROM media_folders WHERE id=$id;", true);
+    if ($result === false) throw new Exception($m_db->error());
     $row = $result->fetch_assoc();
     $result->free();
     if ($row['parent_id'] == -1) $thumbnail_size *= 2; // Generate twice as bigger thumbnails for top level folders
     $filename  = $row['thumbnail_source'];
-    $filename  = "$BASE_DIR/$image_folder/".$db->getFolderPath($id)."/$filename";
+    $filename  = "$BASE_DIR/$image_folder/".$m_db->getFolderPath($id)."/$filename";
     $thumbnail = "$BASE_DIR/".getThumbnailPath($id, true);
 
     if (file_exists($thumbnail) && (filemtime($thumbnail) > filemtime($filename))) return false; // No need to update
@@ -120,8 +136,8 @@ function updateFolderThumbnail(mediaDB &$db, $id)
     
     // Create required thumbnail location if required
     if (is_dir(dirname($thumbnail)) == false) {
-        print "-I-    ".dirname($thumbnail)." not found, creating.\n";
-        mkdir(dirname($thumbnail), 0777, true);
+        print "-I-    Thumbnail folder ".dirname($thumbnail)." not found, creating.\n";
+        mkdir(dirname($thumbnail), 0755, true);
     }
 
     if ($type == 'picture') {
@@ -155,52 +171,10 @@ function updateFolderThumbnail(mediaDB &$db, $id)
         exec("ffmpegthumbnailer -i \"$filename\" -o \"$thumbnail\" -t 1 -s $thumb_size -f");        
     }
 
+    if ($db == NULL)
+        $m_db->close();
+
     return true;
-}
-
-function updateTopFolderMenuThumbnail(mediaDB &$db = NULL)
-{
-    global $BASE_DIR;
-    global $thumb_folder;
-
-    // If no database given, let's open a connection
-    if ($db == NULL) {
-        $db_local = true;
-        $db = new mediaDB();
-    } else {
-        $db_local = false;
-    }
-
-    $results = $db->query("SELECT id, foldername FROM media_folders WHERE parent_id=-1;");
-    if ($results === false) throw new Exception($m_db->error);
-    while($row = $results->fetch_assoc()) {
-        $folder_thumb = "$BASE_DIR/".getThumbnailPath($row['id'], true);
-        if (!extension_loaded('imagick')) die("-E-   php_imagick extension is required !\n");
-        $img    = new Imagick();
-        $img->ReadImage($folder_thumb);
-        $width  = $img->GetImageWidth();
-        $height = $img->GetImageHeight();
-        // calculate thumbnail size (80px)
-        // Warning - this will be ugly with vertical pictures
-        if ($width >= $height) {
-            $new_width  = 80;
-            $new_height = 80 * 0.75;
-        } else {
-            $new_height = 80;
-            $new_width  = 80 * 0.75;
-        }
-        $img->cropThumbnailImage($new_width, $new_height);
-        $img->setImageFormat("jpeg");
-        $img->setCompressionQuality(65);
-        $img->setImageFilename("$BASE_DIR/images/toplevel/".$row['foldername'].".jpg");
-        $img->WriteImage();
-        $img->clear();
-        $img->destroy();
-    }
-    $results->free();
-
-    if ($db_local == true)
-        $db->close();
 }
 
 ?>

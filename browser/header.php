@@ -1,6 +1,6 @@
 <?php
 
-function displayHeader($mode)
+function displayHeader($mode, $submode)
 {
     global $gal_theme;
     global $BASE_URL;
@@ -8,11 +8,13 @@ function displayHeader($mode)
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
     echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
-    echo "  <script src=\"http://code.jquery.com/jquery-1.7.2.min.js\"></script>\n";
-    echo "  <script src=\"js/navigation.js\"></script>\n";
-    echo "  <script src=\"js/jquery.masonry.min.js\" type=\"text/javascript\"></script>\n";
+    echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js\"></script>\n";
+    echo "  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/css/nanogallery.css\" type=\"text/css\" media=\"screen\" >\n";
+    echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/jquery.nanogallery.min.js\"></script>\n";
+    echo "  <script type=\"text/javascript\" src=\"js/navigation.js\"></script>\n";
 
     if ($mode == 'home') {
+        echo "  <script type=\"text/javascript\" src=\"js/jquery.masonry.min.js\"></script>\n";
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(function() {\n";
         echo "      var \$container = $('#container');\n";
@@ -41,84 +43,49 @@ function displayHeader($mode)
         echo "    });\n";
         echo "  </script>\n";
     } else if (($mode == 'folder') || ($mode == 'tags')) {
-        echo "  <link rel=\"stylesheet\" href=\"css/prettyPhoto.css\" type=\"text/css\" media=\"screen\" />\n";
-        echo "  <link rel=\"stylesheet\" href=\"css/toplevelmenu.css\" type=\"text/css\" media=\"screen\" />\n";
-        echo "  <script src=\"js/jquery-ui-1.8.11.custom.min.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/jquery.tools-1.2.5.min.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/flowplayer-3.2.2.min.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/jquery.prettyPhoto.js\" type=\"text/javascript\"></script>\n";
-        echo "  <script src=\"js/jquery.lazy.min.js\" type=\"text/javascript\"></script>\n";
         if ($mode == 'tags') {
-            echo "  <link rel=\"stylesheet\" href=\"css/chosen.css\" type=\"text/css\" media=\"screen\" />\n";
-            echo "  <script src=\"js/chosen.jquery.js\" type=\"text/javascript\"></script>\n";
+            echo "  <link rel=\"stylesheet\" href=\"css/chosen.min.css\" type=\"text/css\" media=\"screen\" />\n";
+            echo "  <script type=\"text/javascript\" src=\"js/chosen.jquery.min.js\"></script>\n";
         }
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(function(){\n";
         if ($mode == 'tags') {
-            echo "      jQuery(\".chosen\").chosen();\n";
+            echo "      $(\".chosen\").chosen();\n";
         }
-        echo "      jQuery('img.lazy').lazy({ effect: 'fadeIn', effectTime: 1500 });\n";
-        echo "      var \$container = $('#gallery');\n";
-        echo "      \$container.imagesLoaded( function() {\n";
-        echo "        \$container.masonry({\n";
-        echo "          itemSelector: '.element',\n";
-        echo "          isFitWidth: true,\n";
-        echo "          isAnimated: true,\n";
-        echo "          gutterWidth: 2,\n";
-        echo "          columnWidth: 150\n";
-        echo "        });\n";
+        echo "      $(\"#nanoGallery\").nanoGallery({\n";
+        echo "        itemBaseURL: '$BASE_URL',\n";
+        echo "        thumbnailWidth: 150,\n";
+        echo "        thumbnailHeight: '150',\n";
+        echo "        lazyBuild: 'display',\n";
+        echo "        thumbnailHoverEffect:'borderLighter,descriptionSlideUp,imageInvisible',\n";
+        echo "        thumbnailLazyLoad: true\n";
         echo "      });\n";
-        echo "      var \$foldercontainer = $('#galleryfolder');\n";
-        echo "      \$foldercontainer.imagesLoaded( function() {\n";
-        echo "        \$foldercontainer.masonry({\n";
-        echo "          itemSelector: '.folder',\n";
-        echo "          isFitWidth: true,\n";
-        echo "          isAnimated: true,\n";
-        echo "          gutterWidth: 2,\n";
-        echo "          columnWidth: 160\n";
-        echo "        });\n";
-        echo "      });\n";
-        echo "      $.tools.tooltip.conf.relative = true;\n";
-        echo "      $.tools.tooltip.conf.cancelDefault = false;\n";
-        echo "      $.tools.tooltip.conf.predelay = 1000;\n";
-        echo "      $.tools.tooltip.conf.offset = [110, 0];\n";
-        echo "      $(\"div.element > a\").each(function(e) {\n";
-        echo "          var title = $(this).attr('title');\n";
-        echo "          $(this).mouseover(\n";
-        echo "              function() {\n";
-        echo "                  $(this).attr('title','');\n";
-        echo "              }).mouseout(\n";
-        echo "                  function() {\n";
-        echo "                  $(this).attr('title', title);\n";
-        echo "          });\n";
-        echo "          $(this).click(\n";
-        echo "          function() {\n";
-        echo "              $(this).attr('title', title);\n";
-        echo "              }\n";
-        echo "          );\n";
-        echo "      });\n";        
-        echo "      $(\".lazy\").tooltip();\n";
-        echo "      $(\"a[rel^='#gallery']\").prettyPhoto({\n";
-        echo "        animationSpeed: 'fast',\n";
-        echo "        opacity: 0.9,\n";
-        echo "        showTitle: true,\n";
-        echo "        allowresize: true,\n";
-        echo "        counter_separator_label: '/',\n";
-        echo "        social_tools: false,\n";
-        echo "        overlay_gallery: false,\n";
-        echo "        slideshow: false,\n";
-        echo "        theme: '$gal_theme'\n";
-        echo "      });\n";
-        echo "      $(\"a[rel^='#video']\").overlay({\n";
-        echo "         expose: '#111',\n";
-        echo "         effect: 'apple',\n";
-        echo "         onLoad: function(content) {\n";
-        echo "            this.getOverlay.find(\"a.player\").flowplayer(0).load();\n";
-        echo "         }\n";
-        echo "      });\n";
-        echo "      $(\"a.player\").flowplayer(\"./swf/flowplayer-3.2.2.swf\", { clip: { scaling: 'fit' } });\n";
         echo "    });\n";
         echo "  </script>\n";
+    } else if ($mode == 'date') {
+        echo "  <script type=\"text/javascript\">\n";
+        echo "    $(function(){\n";
+        echo "      $(\"#nanoGallery\").nanoGallery({\n";
+        echo "        itemBaseURL: '$BASE_URL',\n";
+        echo "        thumbnailWidth: 150,\n";
+        echo "        thumbnailHeight: '150',\n";
+        echo "        lazyBuild: 'display',\n";
+        if ($submode == 0) {
+            echo "        thumbnailHoverEffect:'borderLighter',\n";
+            echo "        thumbnailLabel : {display:true,align:'center',position:'overImageOnMiddle',hideIcons:true},\n";
+        } else {
+            echo "        thumbnailHoverEffect:'borderLighter,descriptionSlideUp,imageInvisible',\n";
+        }
+        echo "        thumbnailLazyLoad: true\n";
+        echo "      });\n";
+        echo "    });\n";
+        echo "  </script>\n";
+        if ($submode == 0) {
+            echo "  <style>\n";
+            echo "  div.labelImage { font-size: 200%; }\n";
+            echo "  </style>\n";
+        }
     }
+
 }
 ?>
