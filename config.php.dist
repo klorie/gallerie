@@ -6,9 +6,6 @@
 // Gallery title
 $gal_title = "Gallery Title" ;
 
-// Gallery theme
-$gal_theme = "dark_rounded";
-
 // *** Gallery structure ***
 $BASE_DIR         = "/var/www/gallery"; // Folder where the gallery is installed
 $cache_folder     = "cache";            // Folder for storing some misc generated files
