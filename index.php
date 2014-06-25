@@ -38,11 +38,10 @@ if ($mode == 'folder') {
 } else {
     $m_folder_id = -1;
 }
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head> 
-<?php echo "  <title>".$gal_title."</title>";
+
+echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'."\n";
+echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'."\n";
+echo "<head>\n";
 displayHeader($mode, $submode);
 echo "</head>\n";
 echo "<body>\n";
