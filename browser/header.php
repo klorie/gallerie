@@ -3,6 +3,7 @@
 function displayHeader($mode, $submode)
 {
     global $gal_theme;
+    global $thumb_size;
     global $BASE_URL;
 
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
@@ -11,10 +12,17 @@ function displayHeader($mode, $submode)
     echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js\"></script>\n";
     echo "  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/css/nanogallery.css\" type=\"text/css\" media=\"screen\" >\n";
     echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/jquery.nanogallery.min.js\"></script>\n";
-    echo "  <script type=\"text/javascript\" src=\"js/navigation.js\"></script>\n";
+    echo "  <script type=\"text/javascript\">\n";
+    echo "    $(function() {\n";
+    echo "        $('#side_navigation').click(function () {\n";
+    echo "            $('#side_navigation').toggleClass('expand');\n";
+    echo "        });\n";
+    echo "    })\n";
+    echo "  </script>\n";
 
     if ($mode == 'home') {
-        echo "  <script type=\"text/javascript\" src=\"js/jquery.masonry.min.js\"></script>\n";
+        echo "  <script type=\"text/javascript\" src=\"js/masonry.pkgd.min.js\"></script>\n";
+        echo "  <script type=\"text/javascript\" src=\"js/imagesloaded.pkgd.min.js\"></script>\n";
         echo "  <script type=\"text/javascript\">\n";
         echo "    $(function() {\n";
         echo "      var \$container = $('#container');\n";
@@ -22,9 +30,8 @@ function displayHeader($mode, $submode)
         echo "        \$container.masonry({\n";
         echo "          itemSelector: '.box',\n";
         echo "          isFitWidth: true,\n";
-        echo "          isAnimated: true,\n";
         echo "          gutterWidth: 2,\n";
-        echo "          columnWidth: 300\n";
+        echo "          columnWidth: ".($thumb_size*2)."\n";
         echo "        });\n";
         echo "      });\n";
         echo "    });\n";
@@ -54,9 +61,10 @@ function displayHeader($mode, $submode)
         }
         echo "      $(\"#nanoGallery\").nanoGallery({\n";
         echo "        itemBaseURL: '$BASE_URL',\n";
-        echo "        thumbnailWidth: 150,\n";
-        echo "        thumbnailHeight: '150',\n";
+        echo "        thumbnailWidth: $thumb_size,\n";
+        echo "        thumbnailHeight: $thumb_size,\n";
         echo "        lazyBuild: 'display',\n";
+        echo "        imageTransition: 'fade',\n";
         echo "        thumbnailHoverEffect:'borderLighter,descriptionSlideUp,imageInvisible',\n";
         echo "        thumbnailLazyLoad: true\n";
         echo "      });\n";
@@ -67,9 +75,10 @@ function displayHeader($mode, $submode)
         echo "    $(function(){\n";
         echo "      $(\"#nanoGallery\").nanoGallery({\n";
         echo "        itemBaseURL: '$BASE_URL',\n";
-        echo "        thumbnailWidth: 150,\n";
-        echo "        thumbnailHeight: '150',\n";
+        echo "        thumbnailWidth: $thumb_size,\n";
+        echo "        thumbnailHeight: $thumb_size,\n";
         echo "        lazyBuild: 'display',\n";
+        echo "        imageTransition: 'fade',\n";
         if ($submode == 0) {
             echo "        thumbnailHoverEffect:'borderLighter',\n";
             echo "        thumbnailLabel : {display:true,align:'center',position:'overImageOnMiddle',hideIcons:true},\n";
