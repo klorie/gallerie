@@ -205,7 +205,8 @@ class mediaFolder
             } else {
                 // Plain file
                 $ext = strtolower(pathinfo("$source_fullpath/$entry", PATHINFO_EXTENSION));
-                if (($ext == "") || ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' /* && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg')*/) {
+                if (($ext == "") || ($ext != 'jpg' && $ext != 'png' && $ext != 'gif' && $ext != 'bmp' /* && $ext != 'avi' && $ext != 'mov' && $ext != 'mpg')*/)) {
+                    // Video extension: 
                     continue;
                 }
                 if (strtotime($this->lastupdate) > filemtime("$source_fullpath/$entry")) continue;

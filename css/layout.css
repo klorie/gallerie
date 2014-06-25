@@ -46,25 +46,21 @@ h3 {
 ------------------------------------------------------------------------- */
 
 #content {
-    padding:    0 15px 15px 15px;
-	background: #000000;
-	border:     2px #313739 solid;
-	border-radius:         10px;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
-	margin:     0 15px 0 15px;
+    padding:       0 15px 15px 15px;
+	background:    #000000;
+	border:        2px #313739 solid;
+	border-radius: 10px;
+	margin:        0 15px 0 15px;
 }
 
 #map_content {
-	clear:      left; 
-    padding:    0 15px 15px 15px;
-	background: #000000;
-	border:     2px #313739 solid;
-	border-radius:         10px;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
-	margin:     0 15px 0 15px;
-    height:     95%;
+	clear:         left; 
+    padding:       0 15px 15px 15px;
+	background:    #000000;
+	border:        2px #313739 solid;
+	border-radius: 10px;
+	margin:        0 15px 0 15px;
+    height:        95%;
 }
 
 #map_canvas {
@@ -73,10 +69,10 @@ h3 {
 
 #map_info {
     text-align: center;
-    width:   160px;
-    color:   #000000;
-    padding: 0;
-	margin:  0;
+    width:      180px;
+    color:      #000000;
+    padding:    0;
+	margin:     0;
 }
 	
 ul.menu {
@@ -96,21 +92,19 @@ ul.menu li a {
 }
 		
 ul.menu li a:hover {
-    color:           #9DB2B9;
-	background:      #333333;
+    color:      #9DB2B9;
+	background: #333333;
 }
 		
 ul.submenu {
-    font-size:  1.2em;
-	float:      left;
-	list-style: none;
-	background: #000000;
-	padding:    15px 30px 15px 20px;
-	margin:     0 0 10px 15px; 
-	border:     2px #313739 solid;
-	border-radius:         10px;
-	-moz-border-radius:    10px;
-	-webkit-border-radius: 10px;
+    font-size:     1.1em;
+	float:         left;
+	list-style:    none;
+	background:    #000000;
+	padding:       15px 30px 15px 20px;
+	margin:        0 0 10px 15px; 
+	border:        2px #313739 solid;
+	border-radius: 10px;
 }
 
 ul.submenu li {
@@ -127,8 +121,8 @@ ul.submenu li a {
 }
 
 ul.submenu li a:hover {
-    color:           #9DB2B9;
-	background:      #333333;
+    color:      #9DB2B9;
+	background: #333333;
 }
 
 #container {
@@ -148,7 +142,7 @@ ul.submenu li a:hover {
     left:             0px;
     display:          none;
     background-color: black;
-    font-size:        25px;
+    font-size:        2.0em; /* 25px; */
     color:            white;
     text-align:       center;
     padding-bottom:   10px;
@@ -170,8 +164,3 @@ ul.submenu li a:hover {
     display: inline-block;
     clear: both;
 }
-
-/* Hides from IE-mac \*/
-* html .clearfix {height: 1%;}
-.clearfix {display: block;}
-/* End hide from IE-mac */
