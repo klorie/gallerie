@@ -1,5 +1,6 @@
 <?php
 require_once "../include.php";
+require_once "header.php";
 require_once "display.php";
 
 if (isset($_GET['path']))
@@ -19,13 +20,7 @@ $elements_list = getFolderGeolocalizedElements($id, $m_db);
 <!DOCTYPE html>
 <html>
 <head>
-<?php echo "<title>".$gal_title."</title>\n"; ?> 
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="<?php echo $BASE_URL?>/css/layout.css" type="text/css" media="screen" charset="utf-8" />
-  <script src="http://maps.google.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
-  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="<?php echo $BASE_URL?>/js/navigation.js"></script>
+<?php displayHeader('map', NULL); ?>
   <script type="text/javascript" charset="utf-8">
     $(function() {
 <?php
@@ -50,16 +45,15 @@ $infoid = 0;
 foreach($elements_list as $element_id) {
     $m_db->loadMediaObject($element, $element_id);
     if ($element->type == 'video') continue; // Videos are not geotagged
-    echo "var LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
-    echo "var contentString$infoid = '<div id=\"map_info\">'+\n";
-    echo "\t'<h2>".js_encode($element->title)."</h2>'+\n";
-    // echo "\t'<a href=\"$BASE_URL/".getResizedPath($element_id)."\">'+\n";
-    echo "\t'<img src=\"$BASE_URL/".getThumbnailPath($element_id)."\" alt=\"".$element->filename."\"/>'+\n";
-    echo "\t'<p>Altitude: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
-    echo "\t'</div>';\n";
-    echo "var marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element->tags)."' });\n";
-    echo "var infowindow$infoid = new google.maps.InfoWindow({ content: contentString$infoid });\n";
-    echo "google.maps.event.addListener(marker$infoid, 'click', function() { infowindow$infoid.open(map, marker$infoid); });\n";
+    echo "\tvar LatLng$infoid = new google.maps.LatLng($element->latitude, $element->longitude);\n";
+    echo "\tvar contentString$infoid = '<div id=\"map_info\">'+\n";
+    echo "\t\t'<h2>".js_encode($element->title)."</h2>'+\n";
+    echo "\t\t'<img src=\"$BASE_URL/".getThumbnailPath($element_id)."\" alt=\"".$element->filename."\"/>'+\n";
+    echo "\t\t'<p>Altitude: ".round($element->altitude)."m<br />".$element->getSubTitle(true)."</p>'+\n";
+    echo "\t\t'</div>';\n";
+    echo "\tvar marker$infoid = new google.maps.Marker({ position: LatLng$infoid, map: map, draggable: true, title:'".js_encode($element->title)."', icon:'".getElementIcon($element->tags)."' });\n";
+    echo "\tvar infowindow$infoid = new google.maps.InfoWindow({ content: contentString$infoid });\n";
+    echo "\tgoogle.maps.event.addListener(marker$infoid, 'click', function() { infowindow$infoid.open(map, marker$infoid); });\n";
     $infoid++;
 }
 ?>
@@ -68,6 +62,7 @@ foreach($elements_list as $element_id) {
 </head>
 <body>
 <?php
+displaySideMenu($id, $m_db);
 echo "<div id=\"map_content\">\n"; 
 echo "<h1><a href=\"$BASE_URL/index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
 

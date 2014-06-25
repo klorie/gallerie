@@ -2,7 +2,7 @@
 
 function getElementTooltip(mediaObject &$element)
 {
-    $tooltip = ""; htmlentities($element->title)."<br />".strftime('%e %B %Y %Hh%M', strtotime($element->originaldate));
+    $tooltip = "";
     if (count($element->tags) > 0) {
         $tooltip .= "<i>";
         $tagline = "";
@@ -147,6 +147,7 @@ function displayFolderHierarchy($id, mediaDB &$db, $show_slide_map_link = true)
 */
 function displaySideMenu($id, mediaDB &$db)
 {
+    global $BASE_URL;
     global $disable_dynamic;
     global $latest_album_count;
 
@@ -161,7 +162,7 @@ function displaySideMenu($id, mediaDB &$db)
             echo "  <div><h3>Albums Voisins</h3>\n";
             foreach($neighborlist as $neighbor) {
                 $neighbor_title = htmlentities($db->getFolderTitle($neighbor));
-                echo "    <a href=\"index.php?path=".urlencode($db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
+                echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
             }
             echo "  </div>\n";
         }
@@ -174,7 +175,7 @@ function displaySideMenu($id, mediaDB &$db)
             echo "  <div><h3>Sous-Albums</h3>\n";        
             foreach($subfolder_list as $subfolder) {
                 $subfolder_title = htmlentities($db->getFolderTitle($subfolder));
-                echo "    <a href=\"index.php?path=".urlencode($db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
+                echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
             }
             echo "  </div>\n";
         }
@@ -184,14 +185,14 @@ function displaySideMenu($id, mediaDB &$db)
     $latestfolderlist = $db->getLatestUpdatedFolder($latest_album_count);
     foreach($latestfolderlist as $latestfolder) {
         $latestfolder_title = htmlentities($db->getFolderTitle($latestfolder));
-        echo "    <a href=\"index.php?path=".urlencode($db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
+        echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
     }
     echo "  </div>\n";
     // Browse by...
     if ($disable_dynamic == false) {
         echo "  <div><h3>Filtres</h3>\n";
-        echo "     <a href=\"index.php?browse=tags\" title=\"Mots-Clefs\">Mots-Clefs</a>\n";
-        echo "     <a href=\"index.php?browse=date\" title=\"Date\">Date</a>\n";
+        echo "     <a href=\"$BASE_URL/index.php?browse=tags\" title=\"Mots-Clefs\">Mots-Clefs</a>\n";
+        echo "     <a href=\"$BASE_URL/index.php?browse=date\" title=\"Date\">Date</a>\n";
         echo "  </div>\n";
         echo "  </li>\n";
     }
@@ -199,7 +200,7 @@ function displaySideMenu($id, mediaDB &$db)
     if ($id == -1) {
         echo "  <li class=\"googlemaps\">\n";
         echo "  <h3>Cartographie</h3>\n";
-        echo "  <a href=\"browser/getmap.php\">Voir les photos sur une carte</a>\n";
+        echo "  <a href=\"$BASE_URL/browser/getmap.php\">Voir les photos sur une carte</a>\n";
         echo "  </li>\n";
     }
     echo "</ul>\n"; 

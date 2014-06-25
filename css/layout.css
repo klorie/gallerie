@@ -11,7 +11,7 @@ html {
 
 body {
 	font-family: Verdana, Arial, Sans-Serif;
-    font-size:   0.6em;
+    font-size:   0.8em;
 	background:  #728187 url(../images/bodyBackground.jpg) fixed top left repeat-x;
 	color:       #FFFFFF;
 	text-align:  left;
@@ -63,11 +63,12 @@ h3 {
 	border-radius:         10px;
 	-moz-border-radius:    10px;
 	-webkit-border-radius: 10px;
+	margin:     0 15px 0 15px;
     height:     95%;
 }
 
 #map_canvas {
-    height: 90%;
+    height: 85%;
 }
 
 #map_info {

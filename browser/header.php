@@ -2,14 +2,15 @@
 
 function displayHeader($mode, $submode)
 {
-    global $gal_theme;
+    global $gal_title;
     global $thumb_size;
     global $BASE_URL;
 
+    echo "  <title>$gal_title</title>\n";
     echo "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
-    echo "  <link rel=\"stylesheet\" href=\"css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
-    echo "  <link rel=\"stylesheet\" href=\"css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
-    echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js\"></script>\n";
+    echo "  <link rel=\"stylesheet\" href=\"$BASE_URL/css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
+    echo "  <link rel=\"stylesheet\" href=\"$BASE_URL/css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
+    echo "  <script type=\"text/javascript\" src=\"http://code.jquery.com/jquery-2.1.1.min.js\"></script>\n";
     echo "  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/css/nanogallery.css\" type=\"text/css\" media=\"screen\" >\n";
     echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/jquery.nanogallery.min.js\"></script>\n";
     echo "  <script type=\"text/javascript\">\n";
@@ -94,6 +95,9 @@ function displayHeader($mode, $submode)
             echo "  div.labelImage { font-size: 200%; }\n";
             echo "  </style>\n";
         }
+    } else if ($mode == 'map') {
+        echo '  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />'."\n";
+        echo '  <script src="http://maps.google.com/maps/api/js?language=fr" type="text/javascript"></script>'."\n";
     }
 
 }
