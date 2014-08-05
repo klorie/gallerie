@@ -11,8 +11,8 @@ function displayHeader($mode, $submode)
     echo "  <link rel=\"stylesheet\" href=\"$BASE_URL/css/layout.css\" type=\"text/css\" media=\"screen\"  />\n";
     echo "  <link rel=\"stylesheet\" href=\"$BASE_URL/css/sidemenu.css\" type=\"text/css\" media=\"screen\" />\n";
     echo "  <script type=\"text/javascript\" src=\"http://code.jquery.com/jquery-2.1.1.min.js\"></script>\n";
-    echo "  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/css/nanogallery.css\" type=\"text/css\" media=\"screen\" >\n";
-    echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/4.4.2/jquery.nanogallery.min.js\"></script>\n";
+    echo "  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/5.0.0/css/nanogallery.min.css\" type=\"text/css\" media=\"screen\" >\n";
+    echo "  <script type=\"text/javascript\" src=\"http://cdnjs.cloudflare.com/ajax/libs/nanogallery/5.0.0/jquery.nanogallery.min.js\"></script>\n";
     echo "  <script type=\"text/javascript\">\n";
     echo "    $(function() {\n";
     echo "        $('#side_navigation').click(function () {\n";
