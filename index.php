@@ -82,9 +82,11 @@ if ($mode == 'home') {
 } else if ($mode == 'tags') {
     // Browse by tags
     displayTagSelector($m_db);
-    echo "<div id=\"nanoGallery\">\n";
-    displayTagElements($param, $m_db);
-    echo "</div>\n";
+    if (isset($_GET['param'])) {
+        echo "<div id=\"nanoGallery\">\n";
+        displayTagElements($param, $m_db);
+        echo "</div>\n";
+    }
 } elseif ($mode == 'date') {
     // Browse by date
     if ($date_year == 0) {
