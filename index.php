@@ -50,7 +50,7 @@ displaySideMenu($m_folder_id, $m_db);
 
 echo "<div id=\"content\">\n"; 
 if ($mode == 'home') echo "<div style=\"text-align: center;\">\n";
-echo "<h1><a href=\"index.php\">".htmlentities($gal_title)."</a></h1>\n"; 
+echo "<h1><a href=\"index.php\">".getStringHTML($gal_title)."</a></h1>\n"; 
 if ($mode == 'home') echo "</div>\n";
 
 if ($mode == 'home') {
@@ -58,7 +58,7 @@ if ($mode == 'home') {
     $folderlist = $m_db->getSubFolders(-1);
     echo "<div id=\"container\">\n";
     foreach($folderlist as $folder) {
-        $folder_title = htmlentities($m_db->getFolderTitle($folder));
+        $folder_title = getStringHTML($m_db->getFolderTitle($folder));
         echo "<div class=\"box\">\n";
         echo "<a href=\"index.php?path=".urlencode($m_db->getFolderPath($folder))."\">";
         echo "<div class=\"home_caption_wrapper\">\n";

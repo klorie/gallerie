@@ -1,5 +1,14 @@
 <?php
 
+function getStringHTML($str)
+{
+    if (mb_detect_encoding($str, 'UTF-8', true) == TRUE) {
+        return htmlentities($str, ENT_COMPAT| ENT_XHTML, 'UTF-8');
+    } else {
+        return htmlentities($str, ENT_COMPAT| ENT_XHTML, 'ISO-8859-15');
+    }
+}
+
 function getElementTooltip(mediaObject &$element)
 {
     $tooltip = "";
@@ -9,7 +18,7 @@ function getElementTooltip(mediaObject &$element)
         foreach($element->tags as $tag) {
             if ($tagline != "")
                 $tagline .= ", ";
-            $tagline .= htmlentities($tag);
+            $tagline .= getStringHTML($tag);
         }
         $tooltip .= $tagline."</i><br />";
     } else if (($element->type == 'movie') && ($element->duration != ''))
@@ -48,8 +57,8 @@ function displayTagElements($tag_array, mediaDB &$db)
         $db->loadMediaObject($element, $current_id);
         if ($element->type == 'picture') {
             echo "<a href=\"".getResizedPath($current_id)."\" data-ngthumb=\"".getThumbnailPath($current_id)."\" ";
-            echo "data-ngdesc=\"".getElementTooltip($element).htmlentities($element->getSubTitle())."\" >";
-            echo htmlentities($element->title)."</a>\n";
+            echo "data-ngdesc=\"".getElementTooltip($element).getStringHTML($element->getSubTitle())."\" >";
+            echo getStringHTML($element->title)."</a>\n";
         }
     }
 }
@@ -67,8 +76,8 @@ function displayElementList($id, mediaDB &$db)
         $db->loadMediaObject($element, $current_id);
         if ($element->type == 'picture') {
             echo "<a href=\"".getResizedPath($current_id)."\" data-ngthumb=\"".getThumbnailPath($current_id)."\" ";
-            echo "data-ngdesc=\"".getElementTooltip($element).htmlentities($element->getSubTitle())."\" >";
-            echo htmlentities($element->title)."</a>\n";
+            echo "data-ngdesc=\"".getElementTooltip($element).getStringHTML($element->getSubTitle())."\" >";
+            echo getStringHTML($element->title)."</a>\n";
         }
     }
 }
@@ -79,7 +88,7 @@ function displaySubFolderList($id, mediaDB &$db)
 
     if (count($subfolder_list) > 0) {
         foreach($subfolder_list as $subfolder) {
-            $subfolder_title = htmlentities($db->getFolderTitle($subfolder));
+            $subfolder_title = getStringHTML($db->getFolderTitle($subfolder));
             echo "<a href=\"\" data-ngthumb=\"".getThumbnailPath($subfolder, true)."\" ";
             echo "data-ngkind=\"album\" ";
             echo "data-ngdesc=\"".$db->getFolderDate($subfolder)."<br />".$db->getFolderElementsCount($subfolder, true)." images\" ";
@@ -106,7 +115,7 @@ function displayYearFolders($year, mediaDB &$db)
 {
     $folder_list = $db->getFoldersForYear($year);
     foreach($folder_list as $folder) {
-        $folder_title = htmlentities($db->getFolderTitle($folder));
+        $folder_title = getStringHTML($db->getFolderTitle($folder));
         echo "<a href=\"\" data-ngthumb=\"".getThumbnailPath($folder, true)."\" ";
         echo "data-ngkind=\"album\" ";
         echo "data-ngdesc=\"".$db->getFolderDate($folder)."<br />".$db->getFolderElementsCount($folder, true)." images\" ";
@@ -126,7 +135,7 @@ function displayFolderHierarchy($id, mediaDB &$db, $show_slide_map_link = true)
         $folderhierarchy = $db->getFolderHierarchy($id);
         foreach($folderhierarchy as $fhier) {
             if ($fhier == -1) continue; // Discard top-level
-            echo "/<a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($fhier))."\">".htmlentities($db->getFolderTitle($fhier))."</a>";
+            echo "/<a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($fhier))."\">".getStringHTML($db->getFolderTitle($fhier))."</a>";
         }
     }
     $path = $db->getFolderPath($id);
@@ -161,7 +170,7 @@ function displaySideMenu($id, mediaDB &$db)
         if (count($neighborlist) > 0) {
             echo "  <div><h3>Albums Voisins</h3>\n";
             foreach($neighborlist as $neighbor) {
-                $neighbor_title = htmlentities($db->getFolderTitle($neighbor));
+                $neighbor_title = getStringHTML($db->getFolderTitle($neighbor));
                 echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($neighbor))."\" title=\"$neighbor_title\" >$neighbor_title</a>\n";
             }
             echo "  </div>\n";
@@ -174,7 +183,7 @@ function displaySideMenu($id, mediaDB &$db)
         if (count($subfolder_list) > 0) {
             echo "  <div><h3>Sous-Albums</h3>\n";        
             foreach($subfolder_list as $subfolder) {
-                $subfolder_title = htmlentities($db->getFolderTitle($subfolder));
+                $subfolder_title = getStringHTML($db->getFolderTitle($subfolder));
                 echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($subfolder))."\" title=\"$subfolder_title\" >$subfolder_title</a>\n";
             }
             echo "  </div>\n";
@@ -184,7 +193,7 @@ function displaySideMenu($id, mediaDB &$db)
     echo "  <div><h3>Nouveaut&eacute;s</h3>\n";
     $latestfolderlist = $db->getLatestUpdatedFolder($latest_album_count);
     foreach($latestfolderlist as $latestfolder) {
-        $latestfolder_title = htmlentities($db->getFolderTitle($latestfolder));
+        $latestfolder_title = getStringHTML($db->getFolderTitle($latestfolder));
         echo "    <a href=\"$BASE_URL/index.php?path=".urlencode($db->getFolderPath($latestfolder))."\" title=\"$latestfolder_title\" >$latestfolder_title</a>\n";
     }
     echo "  </div>\n";
