@@ -13,3 +13,8 @@ config.php
 # Ignore work in progress
 dev/
 tmp/
+# Ignore sensitive files
+dev.text
+.htaccess
+.htpasswd
+config.php
